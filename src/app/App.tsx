@@ -303,9 +303,11 @@ export default function App() {
     );
   }
 
+  const isFullBleedScreen = mainScreen === 'property-detail';
+
   return (
     <div className="size-full flex flex-col">
-      <div className="flex-1 overflow-hidden content-pb">
+      <div className={`flex-1 overflow-hidden ${isFullBleedScreen ? '' : 'content-pb'}`}>
         {mainScreen === 'home' && (
           <HomeScreen
             userPreferences={userPreferences}
@@ -375,7 +377,7 @@ export default function App() {
         )}
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+      {!isFullBleedScreen && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
     </div>
   );
 }
