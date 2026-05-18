@@ -1,14 +1,16 @@
-import { Search, Heart, ArrowLeftRight, User } from 'lucide-react';
+import { Search, Bookmark, ArrowLeftRight, User } from 'lucide-react';
+
+export type BottomNavTab = 'search' | 'bookmarks' | 'compare' | 'profile';
 
 interface BottomNavProps {
-  activeTab: 'search' | 'favourites' | 'compare' | 'profile';
-  onTabChange: (tab: 'search' | 'favourites' | 'compare' | 'profile') => void;
+  activeTab: BottomNavTab;
+  onTabChange: (tab: BottomNavTab) => void;
 }
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   const tabs = [
     { id: 'search' as const, icon: Search, label: 'Search' },
-    { id: 'favourites' as const, icon: Heart, label: 'Favourites' },
+    { id: 'bookmarks' as const, icon: Bookmark, label: 'Bookmarks' },
     { id: 'compare' as const, icon: ArrowLeftRight, label: 'Compare' },
     { id: 'profile' as const, icon: User, label: 'Profile' },
   ];
@@ -24,13 +26,15 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className="flex flex-col items-center gap-1 py-2 transition-colors"
+              aria-current={isActive ? 'page' : undefined}
+              className="flex flex-col items-center gap-1 py-2 transition-colors min-h-[44px]"
             >
               <Icon
                 className={`w-6 h-6 ${
                   isActive ? 'text-[#ff6b35]' : 'text-gray-600'
                 }`}
                 strokeWidth={isActive ? 2.5 : 2}
+                fill={isActive && tab.id === 'bookmarks' ? 'currentColor' : 'none'}
               />
               <span
                 className={`text-xs ${

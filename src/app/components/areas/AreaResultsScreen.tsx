@@ -15,11 +15,20 @@ export type { Property };
 interface AreaResultsScreenProps {
   area: RecommendedArea;
   searchMode: SearchMode;
+  bookmarkIds: string[];
+  onBookmarkToggle: (property: Property) => void;
   onBack: () => void;
   onPropertySelect: (property: Property) => void;
 }
 
-export function AreaResultsScreen({ area, searchMode, onBack, onPropertySelect }: AreaResultsScreenProps) {
+export function AreaResultsScreen({
+  area,
+  searchMode,
+  bookmarkIds,
+  onBookmarkToggle,
+  onBack,
+  onPropertySelect,
+}: AreaResultsScreenProps) {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [showFilters, setShowFilters] = useState(false);
 
@@ -112,6 +121,8 @@ export function AreaResultsScreen({ area, searchMode, onBack, onPropertySelect }
                   searchMode={searchMode}
                   onSelect={onPropertySelect}
                   eager={idx === 0}
+                  isBookmarked={bookmarkIds.includes(property.id)}
+                  onBookmarkToggle={onBookmarkToggle}
                 />
               ))
             )}

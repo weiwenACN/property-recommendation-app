@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { SplashScreen } from './components/onboarding/SplashScreen';
 import { SignUpScreen } from './components/onboarding/SignUpScreen';
 import { CreateAccountScreen } from './components/onboarding/CreateAccountScreen';
@@ -11,11 +11,16 @@ import {
   clearPreferences,
   phoneKey,
 } from './data/preferenceStore';
+import {
+  loadBookmarks,
+  saveBookmarks,
+} from './data/bookmarkStore';
 import { HomeScreen } from './components/home/HomeScreen';
 import { AreaResultsScreen } from './components/areas/AreaResultsScreen';
 import { PropertyDetailScreen } from './components/property/PropertyDetailScreen';
 import { ComparisonScreen } from './components/comparison/ComparisonScreen';
-import { FavouritesScreen } from './components/favourites/FavouritesScreen';
+import { BookmarksScreen } from './components/bookmarks/BookmarksScreen';
+import { BookmarkUndoSnackbar } from './components/bookmarks/BookmarkUndoSnackbar';
 import { ProfileScreen } from './components/profile/ProfileScreen';
 import {
   NotificationsScreen,
@@ -35,9 +40,11 @@ type MainScreen =
   | 'area-results'
   | 'property-detail'
   | 'comparison'
-  | 'favourites'
+  | 'bookmarks'
   | 'profile'
   | 'notifications';
+
+type TabId = 'search' | 'bookmarks' | 'compare' | 'profile';
 
 const initialNotifications: Notification[] = [
   {
@@ -62,24 +69,87 @@ export default function App() {
   const [searchMode, setSearchMode] = useState<SearchMode>('rent');
 
   const [mainScreen, setMainScreen] = useState<MainScreen>('home');
-  const [activeTab, setActiveTab] = useState<'search' | 'favourites' | 'compare' | 'profile'>('search');
+  const [activeTab, setActiveTab] = useState<TabId>('search');
 
   const [selectedArea, setSelectedArea] = useState<RecommendedArea | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [favourites, setFavourites] = useState<Property[]>([]);
+  const [bookmarkIds, setBookmarkIds] = useState<string[]>([]);
   const [comparisonProperties, setComparisonProperties] = useState<Property[]>([]);
 
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [pendingToast, setPendingToast] = useState<string | null>(null);
 
-  // Onboarding handlers
+  // Undo snackbar state.
+  const [pendingUndo, setPendingUndo] = useState<Property | null>(null);
+  const pendingUndoCommitRef = useRef<number | null>(null);
+
+  const activePhoneKey = useMemo(
+    () => (onboardingComplete ? phoneKey(countryCode, phoneNumber) : null),
+    [onboardingComplete, countryCode, phoneNumber],
+  );
+
+  // Hydrate bookmarks from storage once we know who the user is.
+  useEffect(() => {
+    if (!activePhoneKey) return;
+    setBookmarkIds(loadBookmarks(activePhoneKey));
+  }, [activePhoneKey]);
+
+  const persistBookmarks = (ids: string[]) => {
+    if (activePhoneKey) saveBookmarks(activePhoneKey, ids);
+  };
+
+  const bookmarkedProperties = useMemo(() => {
+    return bookmarkIds
+      .map((id) => allProperties.find((p) => p.id === id))
+      .filter((p): p is Property => Boolean(p));
+  }, [bookmarkIds]);
+
+  const isBookmarked = (id: string) => bookmarkIds.includes(id);
+
+  // Add to bookmarks (idempotent).
+  const addBookmark = (property: Property) => {
+    setBookmarkIds((prev) => {
+      if (prev.includes(property.id)) return prev;
+      const next = [...prev, property.id];
+      persistBookmarks(next);
+      return next;
+    });
+  };
+
+  // Remove from bookmarks + queue the undo snackbar.
+  const removeBookmark = (property: Property) => {
+    setBookmarkIds((prev) => {
+      const next = prev.filter((id) => id !== property.id);
+      persistBookmarks(next);
+      return next;
+    });
+    setPendingUndo(property);
+  };
+
+  const handleBookmarkToggle = (property: Property) => {
+    if (isBookmarked(property.id)) {
+      removeBookmark(property);
+    } else {
+      addBookmark(property);
+    }
+  };
+
+  const handleUndoRemove = () => {
+    if (!pendingUndo) return;
+    const property = pendingUndo;
+    setPendingUndo(null);
+    addBookmark(property);
+  };
+
+  const handleDismissUndo = () => {
+    setPendingUndo(null);
+  };
+
+  // ── Onboarding ──────────────────────────────────────────────────────────
   const handleSplashComplete = () => {
     setOnboardingStep('signup');
   };
 
-  // Stand-in for a real "POST /login" call. Looks up saved preferences
-  // for this phone (currently localStorage; swap with an API call when a
-  // backend lands).
   const lookupSavedPreferences = (country: string, phone: string): string[] | null => {
     return loadPreferences(phoneKey(country, phone));
   };
@@ -149,7 +219,7 @@ export default function App() {
     persistPreferences(preferences);
   };
 
-  // Main app handlers
+  // ── Navigation handlers ─────────────────────────────────────────────────
   const handleAreaSelect = (area: RecommendedArea) => {
     setSelectedArea(area);
     setMainScreen('area-results');
@@ -160,19 +230,8 @@ export default function App() {
     setMainScreen('property-detail');
   };
 
-  const handleFavorite = () => {
-    if (selectedProperty) {
-      const isFavorited = favourites.some((p) => p.id === selectedProperty.id);
-      if (isFavorited) {
-        setFavourites(favourites.filter((p) => p.id !== selectedProperty.id));
-      } else {
-        setFavourites([...favourites, selectedProperty]);
-      }
-    }
-  };
-
-  const handleRemoveFavourite = (propertyId: string) => {
-    setFavourites(favourites.filter((p) => p.id !== propertyId));
+  const handleFavoriteFromDetail = () => {
+    if (selectedProperty) handleBookmarkToggle(selectedProperty);
   };
 
   const handleCompare = () => {
@@ -213,7 +272,6 @@ export default function App() {
       const target = allProperties.find((p) => p.id === notification.propertyId);
       if (target) {
         setSelectedProperty(target);
-        setSelectedArea((current) => current ?? null);
         setMainScreen('property-detail');
         return;
       }
@@ -221,12 +279,12 @@ export default function App() {
     setMainScreen('home');
   };
 
-  const handleTabChange = (tab: 'search' | 'favourites' | 'compare' | 'profile') => {
+  const handleTabChange = (tab: TabId) => {
     setActiveTab(tab);
     if (tab === 'search') {
       setMainScreen('home');
-    } else if (tab === 'favourites') {
-      setMainScreen('favourites');
+    } else if (tab === 'bookmarks') {
+      setMainScreen('bookmarks');
     } else if (tab === 'compare') {
       setMainScreen('comparison');
     } else if (tab === 'profile') {
@@ -248,9 +306,14 @@ export default function App() {
     }
   };
 
+  const handleStartBrowsingFromBookmarks = () => {
+    setActiveTab('search');
+    setMainScreen('home');
+  };
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // Show onboarding
+  // ── Onboarding render ───────────────────────────────────────────────────
   if (!onboardingComplete) {
     return (
       <div className="size-full">
@@ -305,6 +368,9 @@ export default function App() {
 
   const isFullBleedScreen = mainScreen === 'property-detail';
 
+  // Silence unused ref while we keep it for potential future commit-on-dismiss logic.
+  void pendingUndoCommitRef;
+
   return (
     <div className="size-full flex flex-col">
       <div className={`flex-1 overflow-hidden ${isFullBleedScreen ? '' : 'content-pb'}`}>
@@ -326,6 +392,8 @@ export default function App() {
           <AreaResultsScreen
             area={selectedArea}
             searchMode={searchMode}
+            bookmarkIds={bookmarkIds}
+            onBookmarkToggle={handleBookmarkToggle}
             onBack={handleBackToHome}
             onPropertySelect={handlePropertySelect}
           />
@@ -336,10 +404,10 @@ export default function App() {
             property={selectedProperty}
             searchMode={searchMode}
             onBack={handleBackToAreaResults}
-            onFavorite={handleFavorite}
+            onFavorite={handleFavoriteFromDetail}
             onCompare={handleCompare}
             onContactAgentSent={handleContactAgentSent}
-            isFavorited={favourites.some((p) => p.id === selectedProperty.id)}
+            isFavorited={isBookmarked(selectedProperty.id)}
           />
         )}
 
@@ -352,12 +420,13 @@ export default function App() {
           />
         )}
 
-        {mainScreen === 'favourites' && (
-          <FavouritesScreen
-            favourites={favourites}
+        {mainScreen === 'bookmarks' && (
+          <BookmarksScreen
+            bookmarks={bookmarkedProperties}
             searchMode={searchMode}
             onPropertySelect={handlePropertySelect}
-            onRemoveFavourite={handleRemoveFavourite}
+            onRemoveBookmark={removeBookmark}
+            onStartBrowsing={handleStartBrowsingFromBookmarks}
           />
         )}
 
@@ -376,6 +445,14 @@ export default function App() {
           />
         )}
       </div>
+
+      {pendingUndo && (
+        <BookmarkUndoSnackbar
+          propertyTitle={pendingUndo.title}
+          onUndo={handleUndoRemove}
+          onDismiss={handleDismissUndo}
+        />
+      )}
 
       {!isFullBleedScreen && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
     </div>
