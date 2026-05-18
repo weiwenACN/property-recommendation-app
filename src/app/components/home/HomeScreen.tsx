@@ -2,9 +2,12 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Search, MapPin, TrendingUp, Bell, Check, X, Map as MapIcon } from 'lucide-react';
 import {
   recommendedAreas,
+  type Property,
   type RecommendedArea,
 } from '../../data/properties';
 import { formatFromPrice, type SearchMode } from '../../data/pricing';
+import type { ViewedEntry } from '../../data/viewedStore';
+import { RecentlyViewedSection } from '../history/RecentlyViewedSection';
 
 const MapAreaSearchModal = lazy(() => import('./MapAreaSearchModal'));
 
@@ -20,6 +23,11 @@ interface HomeScreenProps {
   onSearchModeChange: (mode: SearchMode) => void;
   onAreaSelect: (area: RecommendedArea) => void;
   onSearch: (query: string) => void;
+  viewedEntries: ViewedEntry[];
+  bookmarkIds: string[];
+  onBookmarkToggle: (property: Property) => void;
+  onPropertySelect: (property: Property) => void;
+  onViewAllHistory: () => void;
 }
 
 export function HomeScreen({
@@ -32,6 +40,11 @@ export function HomeScreen({
   onSearchModeChange,
   onAreaSelect,
   onSearch,
+  viewedEntries,
+  bookmarkIds,
+  onBookmarkToggle,
+  onPropertySelect,
+  onViewAllHistory,
 }: HomeScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAutocomplete, setShowAutocomplete] = useState(false);
@@ -193,9 +206,20 @@ export function HomeScreen({
         </Suspense>
       )}
 
-      {/* Recommended Areas */}
+      {/* Body: Recently viewed (when present) + Recommended Areas */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-6 py-6">
+        <div className="py-6">
+          <RecentlyViewedSection
+            entries={viewedEntries}
+            searchMode={searchMode}
+            bookmarkIds={bookmarkIds}
+            onBookmarkToggle={onBookmarkToggle}
+            onPropertySelect={onPropertySelect}
+            onViewAll={onViewAllHistory}
+          />
+        </div>
+
+        <div className="px-6 pb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-[#ff6b35]" />

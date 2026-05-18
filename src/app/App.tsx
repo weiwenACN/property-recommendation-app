@@ -15,8 +15,15 @@ import {
   loadBookmarks,
   saveBookmarks,
 } from './data/bookmarkStore';
+import {
+  loadViewed,
+  recordView,
+  clearViewed,
+  type ViewedEntry,
+} from './data/viewedStore';
 import { Toast } from './components/common/Toast';
 import { FloatingCompareCTA } from './components/comparison/FloatingCompareCTA';
+import { RecentlyViewedScreen } from './components/history/RecentlyViewedScreen';
 import { HomeScreen } from './components/home/HomeScreen';
 import { AreaResultsScreen } from './components/areas/AreaResultsScreen';
 import { PropertyDetailScreen } from './components/property/PropertyDetailScreen';
@@ -43,10 +50,11 @@ type MainScreen =
   | 'property-detail'
   | 'comparison'
   | 'bookmarks'
+  | 'history'
   | 'profile'
   | 'notifications';
 
-type TabId = 'search' | 'bookmarks' | 'compare' | 'profile';
+type TabId = 'search' | 'bookmarks' | 'compare' | 'history' | 'profile';
 
 const initialNotifications: Notification[] = [
   {
@@ -77,6 +85,7 @@ export default function App() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [bookmarkIds, setBookmarkIds] = useState<string[]>([]);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
+  const [viewedEntries, setViewedEntries] = useState<ViewedEntry[]>([]);
   const [globalToast, setGlobalToast] = useState<string | null>(null);
 
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
@@ -91,10 +100,11 @@ export default function App() {
     [onboardingComplete, countryCode, phoneNumber],
   );
 
-  // Hydrate bookmarks from storage once we know who the user is.
+  // Hydrate bookmarks + viewed history from storage once we know who the user is.
   useEffect(() => {
     if (!activePhoneKey) return;
     setBookmarkIds(loadBookmarks(activePhoneKey));
+    setViewedEntries(loadViewed(activePhoneKey));
   }, [activePhoneKey]);
 
   const persistBookmarks = (ids: string[]) => {
@@ -231,6 +241,25 @@ export default function App() {
   const handlePropertySelect = (property: Property) => {
     setSelectedProperty(property);
     setMainScreen('property-detail');
+    if (activePhoneKey) {
+      const next = recordView(activePhoneKey, property.id);
+      setViewedEntries(next);
+    }
+  };
+
+  const handleClearHistory = () => {
+    if (activePhoneKey) clearViewed(activePhoneKey);
+    setViewedEntries([]);
+  };
+
+  const handleOpenHistory = () => {
+    setMainScreen('history');
+    setActiveTab('history');
+  };
+
+  const handleStartBrowsingFromHistory = () => {
+    setActiveTab('search');
+    setMainScreen('home');
   };
 
   const handleFavoriteFromDetail = () => {
@@ -327,6 +356,8 @@ export default function App() {
       setMainScreen('bookmarks');
     } else if (tab === 'compare') {
       setMainScreen('comparison');
+    } else if (tab === 'history') {
+      setMainScreen('history');
     } else if (tab === 'profile') {
       setMainScreen('profile');
     }
@@ -425,6 +456,11 @@ export default function App() {
             onSearchModeChange={setSearchMode}
             onAreaSelect={handleAreaSelect}
             onSearch={(query) => console.log('Search:', query)}
+            viewedEntries={viewedEntries}
+            bookmarkIds={bookmarkIds}
+            onBookmarkToggle={handleBookmarkToggle}
+            onPropertySelect={handlePropertySelect}
+            onViewAllHistory={handleOpenHistory}
           />
         )}
 
@@ -488,6 +524,19 @@ export default function App() {
             notifications={notifications}
             onBack={handleBackToHome}
             onNotificationTap={handleNotificationTap}
+          />
+        )}
+
+        {mainScreen === 'history' && (
+          <RecentlyViewedScreen
+            entries={viewedEntries}
+            searchMode={searchMode}
+            bookmarkIds={bookmarkIds}
+            onBookmarkToggle={handleBookmarkToggle}
+            onPropertySelect={handlePropertySelect}
+            onClearHistory={handleClearHistory}
+            onBack={handleBackToHome}
+            onStartBrowsing={handleStartBrowsingFromHistory}
           />
         )}
       </div>
