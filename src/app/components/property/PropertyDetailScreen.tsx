@@ -222,7 +222,7 @@ export function PropertyDetailScreen({
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => handleTabClick(tab.id)}
-                className={`flex-1 min-w-[88px] py-3 text-sm transition-colors min-h-[44px] ${
+                className={`flex-shrink-0 px-5 py-3 text-sm transition-colors min-h-[44px] whitespace-nowrap ${
                   isActive
                     ? 'text-[#1a2332] font-bold'
                     : 'text-gray-500 font-medium hover:text-[#1a2332]'
@@ -230,7 +230,7 @@ export function PropertyDetailScreen({
               >
                 {tab.label}
                 <div
-                  className={`mt-2 h-0.5 mx-4 rounded-full transition-colors ${
+                  className={`mt-2 h-0.5 rounded-full transition-colors ${
                     isActive ? 'bg-[#ff6b35]' : 'bg-transparent'
                   }`}
                 />
