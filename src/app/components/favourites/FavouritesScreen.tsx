@@ -1,8 +1,8 @@
-import { Heart, Bed } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import type { Property } from '../../data/properties';
 import { properties as allProperties } from '../../data/properties';
-import { priceFor, type SearchMode } from '../../data/pricing';
-import { categoryIconFor } from '../../data/categories';
+import { type SearchMode } from '../../data/pricing';
+import { PropertyCard } from '../property/PropertyCard';
 
 interface FavouritesScreenProps {
   favourites: Property[];
@@ -44,52 +44,18 @@ export function FavouritesScreen({
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4">
-            {displayFavourites.map((property) => {
-              const CategoryIcon = categoryIconFor(property.propertyType);
-              return (
-              <div
+            {displayFavourites.map((property, idx) => (
+              <PropertyCard
                 key={property.id}
-                className="relative bg-white rounded-2xl overflow-hidden border border-[#e5e7eb] hover:shadow-lg transition-all cursor-pointer"
-                onClick={() => onPropertySelect(property)}
-              >
-                <div className="relative h-40">
-                  <img
-                    src={property.imageUrl}
-                    alt={property.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-2 left-2 bg-white px-2 py-1 rounded-full text-[10px] font-medium text-[#1a2332] flex items-center gap-1 shadow-sm">
-                    <CategoryIcon className="w-3 h-3" />
-                    {property.propertyType}
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRemoveFavourite(property.id);
-                    }}
-                    className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors"
-                  >
-                    <Heart className="w-4 h-4 text-[#ff6b35] fill-current" />
-                  </button>
-                </div>
-                <div className="p-3">
-                  <p className="font-bold text-[#1a2332] text-sm mb-1 truncate">
-                    {property.title}
-                  </p>
-                  <p className="text-xs text-gray-600 truncate mb-2">
-                    {property.address.split(',')[1]?.trim() || property.address}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <p className="font-bold text-[#ff6b35] text-sm">{priceFor(searchMode, property)}</p>
-                    <div className="flex items-center gap-1 text-xs text-gray-600">
-                      <Bed className="w-3 h-3" />
-                      <span>{property.bedrooms}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              );
-            })}
+                property={property}
+                searchMode={searchMode}
+                variant="compact"
+                eager={idx < 2}
+                isBookmarked
+                onBookmarkToggle={(p) => onRemoveFavourite(p.id)}
+                onSelect={onPropertySelect}
+              />
+            ))}
           </div>
         )}
       </div>

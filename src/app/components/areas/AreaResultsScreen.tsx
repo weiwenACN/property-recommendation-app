@@ -1,13 +1,12 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { ArrowLeft, List, Map as MapIcon, SlidersHorizontal, Bed, Bath, MapPin, Train, Loader2 } from 'lucide-react';
+import { ArrowLeft, List, Map as MapIcon, SlidersHorizontal, Loader2 } from 'lucide-react';
 import {
   propertiesByArea,
   type Property,
   type RecommendedArea,
 } from '../../data/properties';
-import { priceFor, type SearchMode } from '../../data/pricing';
-import { categoryIconFor } from '../../data/categories';
-import { preferenceOptionById } from '../../data/preferences';
+import { type SearchMode } from '../../data/pricing';
+import { PropertyCard } from '../property/PropertyCard';
 
 const PropertyMap = lazy(() => import('./PropertyMap'));
 
@@ -106,78 +105,15 @@ export function AreaResultsScreen({ area, searchMode, onBack, onPropertySelect }
                 <p className="text-sm text-gray-600">Try switching mode or pick a different area.</p>
               </div>
             ) : (
-              filteredProperties.map((property) => {
-                const CategoryIcon = categoryIconFor(property.propertyType);
-                return (
-                <div
+              filteredProperties.map((property, idx) => (
+                <PropertyCard
                   key={property.id}
-                  onClick={() => onPropertySelect(property)}
-                  className="w-full bg-white rounded-2xl overflow-hidden border border-[#e5e7eb] hover:shadow-lg transition-all cursor-pointer"
-                >
-                  <div className="relative h-48">
-                    <img
-                      src={property.imageUrl}
-                      alt={property.title}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-3 left-3 bg-white px-3 py-1 rounded-full text-xs font-medium text-[#1a2332] flex items-center gap-1.5 shadow-sm">
-                      <CategoryIcon className="w-3.5 h-3.5" />
-                      {property.propertyType}
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="text-left flex-1">
-                        <h3 className="font-bold text-[#1a2332] text-lg">{property.title}</h3>
-                        <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
-                          <MapPin className="w-4 h-4" />
-                          <span>{property.address}</span>
-                        </div>
-                      </div>
-                      <div className="text-right ml-4">
-                        <p className="font-bold text-[#1a2332] text-xl">{priceFor(searchMode, property)}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                      <div className="flex items-center gap-1">
-                        <Bed className="w-4 h-4" />
-                        <span>{property.bedrooms} bed</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Bath className="w-4 h-4" />
-                        <span>{property.bathrooms} bath</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <Train className="w-4 h-4" />
-                      <span>{property.distanceToTube}</span>
-                    </div>
-
-                    {property.preferenceTags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[#f1f3f5]">
-                        {property.preferenceTags.map((id) => {
-                          const opt = preferenceOptionById(id);
-                          if (!opt) return null;
-                          const Icon = opt.icon;
-                          return (
-                            <span
-                              key={id}
-                              title={opt.label}
-                              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fff5f2] text-[#ff6b35] text-[11px] font-medium"
-                            >
-                              <Icon className="w-3 h-3" />
-                              {opt.label}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                );
-              })
+                  property={property}
+                  searchMode={searchMode}
+                  onSelect={onPropertySelect}
+                  eager={idx === 0}
+                />
+              ))
             )}
           </div>
         )}
