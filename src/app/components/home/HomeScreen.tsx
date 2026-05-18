@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Search, MapPin, TrendingUp, Bell, Check, X, Map as MapIcon } from 'lucide-react';
 import {
   recommendedAreas,
@@ -63,6 +63,17 @@ export function HomeScreen({
     setShowMapModal(false);
     onAreaSelect(area);
   };
+
+  const filteredAreas = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return recommendedAreas;
+    return recommendedAreas.filter(
+      (area) =>
+        area.name.toLowerCase().includes(q) ||
+        area.borough.toLowerCase().includes(q) ||
+        area.tag.toLowerCase().includes(q),
+    );
+  }, [searchQuery]);
 
   useEffect(() => {
     if (!pendingToast) return;
@@ -180,46 +191,75 @@ export function HomeScreen({
       {/* Recommended Areas */}
       <div className="flex-1 overflow-y-auto">
         <div className="px-6 py-6">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-[#ff6b35]" />
-            <h2 className="text-xl font-bold text-[#1a2332]">Recommended for you</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-[#ff6b35]" />
+              <h2 className="text-xl font-bold text-[#1a2332]">
+                {searchQuery.trim() ? 'Matching areas' : 'Recommended for you'}
+              </h2>
+            </div>
+            {searchQuery.trim() && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-sm text-[#ff6b35] font-medium hover:underline"
+              >
+                Clear
+              </button>
+            )}
           </div>
 
-          <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
-            {recommendedAreas.map((area) => (
-              <div
-                key={area.id}
-                onClick={() => onAreaSelect(area)}
-                className="flex-shrink-0 w-72 bg-white rounded-2xl overflow-hidden border border-[#e5e7eb] hover:shadow-lg transition-all cursor-pointer"
-              >
-                <div className="relative h-40">
-                  <img
-                    src={area.imageUrl}
-                    alt={area.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-3 left-3 bg-[#ff6b35] text-white px-3 py-1 rounded-full text-xs font-medium">
-                    {area.tag}
+          {filteredAreas.length === 0 ? (
+            <div className="rounded-2xl border border-[#e5e7eb] bg-[#f9fafb] px-6 py-10 text-center">
+              <p className="text-[#1a2332] font-medium mb-1">No areas match "{searchQuery}"</p>
+              <p className="text-sm text-gray-600">
+                Try a different name or borough, or{' '}
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-[#ff6b35] font-medium hover:underline"
+                >
+                  clear the search
+                </button>
+                .
+              </p>
+            </div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6 scrollbar-hide">
+              {filteredAreas.map((area) => (
+                <div
+                  key={area.id}
+                  onClick={() => onAreaSelect(area)}
+                  className="flex-shrink-0 w-72 bg-white rounded-2xl overflow-hidden border border-[#e5e7eb] hover:shadow-lg transition-all cursor-pointer"
+                >
+                  <div className="relative h-40">
+                    <img
+                      src={area.imageUrl}
+                      alt={area.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-3 left-3 bg-[#ff6b35] text-white px-3 py-1 rounded-full text-xs font-medium">
+                      {area.tag}
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="text-left">
+                        <h3 className="font-bold text-[#1a2332] text-lg">{area.name}</h3>
+                        <p className="text-sm text-gray-600">{area.borough}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-[#1a2332]">{formatFromPrice(searchMode, area)}</p>
+                        <p className="text-xs text-gray-600">
+                          {searchMode === 'rent' ? 'Avg rent' : 'Avg sale price'}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 mt-2">{area.matchReason}</p>
                   </div>
                 </div>
-                <div className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="text-left">
-                      <h3 className="font-bold text-[#1a2332] text-lg">{area.name}</h3>
-                      <p className="text-sm text-gray-600">{area.borough}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-[#1a2332]">{formatFromPrice(searchMode, area)}</p>
-                      <p className="text-xs text-gray-600">
-                        {searchMode === 'rent' ? 'Avg rent' : 'Avg sale price'}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-700 mt-2">{area.matchReason}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
