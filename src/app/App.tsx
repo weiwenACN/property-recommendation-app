@@ -1,111 +1,198 @@
 import { useState } from 'react';
-import { Map, List, Home } from 'lucide-react';
-import { FilterBar, Filters } from './components/FilterBar';
-import { MapView, Amenity } from './components/MapView';
-import { PropertyListView } from './components/PropertyListView';
-import { Property } from './components/PropertyList';
-import { PropertyDetail } from './components/PropertyDetail';
+import { SplashScreen } from './components/onboarding/SplashScreen';
+import { SignUpScreen } from './components/onboarding/SignUpScreen';
+import { OTPScreen } from './components/onboarding/OTPScreen';
+import { PreferencesScreen } from './components/onboarding/PreferencesScreen';
+import { HomeScreen, RecommendedArea } from './components/home/HomeScreen';
+import { AreaResultsScreen, Property } from './components/areas/AreaResultsScreen';
+import { PropertyDetailScreen } from './components/property/PropertyDetailScreen';
+import { ComparisonScreen } from './components/comparison/ComparisonScreen';
+import { FavouritesScreen } from './components/favourites/FavouritesScreen';
+import { BottomNav } from './components/navigation/BottomNav';
 
-type View = 'map' | 'list';
-type Screen = 'browse' | 'detail';
+type OnboardingStep = 'splash' | 'signup' | 'otp' | 'preferences';
+type MainScreen = 'home' | 'area-results' | 'property-detail' | 'comparison' | 'favourites' | 'profile';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('browse');
-  const [currentView, setCurrentView] = useState<View>('map');
+  const [onboardingStep, setOnboardingStep] = useState<OnboardingStep>('splash');
+  const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [userPreferences, setUserPreferences] = useState<string[]>([]);
+
+  const [mainScreen, setMainScreen] = useState<MainScreen>('home');
+  const [activeTab, setActiveTab] = useState<'search' | 'favourites' | 'compare' | 'profile'>('search');
+
+  const [selectedArea, setSelectedArea] = useState<RecommendedArea | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [filters, setFilters] = useState<Filters>({
-    budget: 'all',
-    bedrooms: 'all',
-    propertyType: 'all',
-    amenities: [],
-  });
+  const [favourites, setFavourites] = useState<Property[]>([]);
+  const [comparisonProperties, setComparisonProperties] = useState<Property[]>([]);
+
+  // Onboarding handlers
+  const handleSplashComplete = () => {
+    setOnboardingStep('signup');
+  };
+
+  const handleSignUpContinue = (phone: string) => {
+    setPhoneNumber(phone);
+    setOnboardingStep('otp');
+  };
+
+  const handleOTPVerify = () => {
+    setOnboardingStep('preferences');
+  };
+
+  const handlePreferencesComplete = (preferences: string[]) => {
+    setUserPreferences(preferences);
+    setOnboardingComplete(true);
+  };
+
+  const handlePreferencesSkip = () => {
+    setOnboardingComplete(true);
+  };
+
+  // Main app handlers
+  const handleAreaSelect = (area: RecommendedArea) => {
+    setSelectedArea(area);
+    setMainScreen('area-results');
+  };
 
   const handlePropertySelect = (property: Property) => {
     setSelectedProperty(property);
-    setCurrentScreen('detail');
+    setMainScreen('property-detail');
   };
 
-  const handleBackToBrowse = () => {
-    setCurrentScreen('browse');
-    setSelectedProperty(null);
+  const handleFavorite = () => {
+    if (selectedProperty) {
+      const isFavorited = favourites.some(p => p.id === selectedProperty.id);
+      if (isFavorited) {
+        setFavourites(favourites.filter(p => p.id !== selectedProperty.id));
+      } else {
+        setFavourites([...favourites, selectedProperty]);
+      }
+    }
   };
 
+  const handleRemoveFavourite = (propertyId: string) => {
+    setFavourites(favourites.filter(p => p.id !== propertyId));
+  };
+
+  const handleCompare = () => {
+    if (selectedProperty) {
+      if (comparisonProperties.length < 2) {
+        setComparisonProperties([...comparisonProperties, selectedProperty]);
+      }
+      if (comparisonProperties.length === 1) {
+        setMainScreen('comparison');
+        setActiveTab('compare');
+      }
+    }
+  };
+
+  const handleTabChange = (tab: 'search' | 'favourites' | 'compare' | 'profile') => {
+    setActiveTab(tab);
+    if (tab === 'search') {
+      setMainScreen('home');
+    } else if (tab === 'favourites') {
+      setMainScreen('favourites');
+    } else if (tab === 'compare') {
+      setMainScreen('comparison');
+    } else if (tab === 'profile') {
+      setMainScreen('profile');
+    }
+  };
+
+  const handleBackToHome = () => {
+    setMainScreen('home');
+    setActiveTab('search');
+    setSelectedArea(null);
+  };
+
+  const handleBackToAreaResults = () => {
+    setMainScreen('area-results');
+  };
+
+  // Show onboarding
+  if (!onboardingComplete) {
+    return (
+      <div className="size-full">
+        {onboardingStep === 'splash' && <SplashScreen onComplete={handleSplashComplete} />}
+        {onboardingStep === 'signup' && <SignUpScreen onContinue={handleSignUpContinue} />}
+        {onboardingStep === 'otp' && (
+          <OTPScreen
+            phoneNumber={phoneNumber}
+            onVerify={handleOTPVerify}
+            onBack={() => setOnboardingStep('signup')}
+          />
+        )}
+        {onboardingStep === 'preferences' && (
+          <PreferencesScreen
+            onComplete={handlePreferencesComplete}
+            onSkip={handlePreferencesSkip}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Show main app
   return (
-    <div className="size-full flex flex-col bg-white">
-      {currentScreen === 'browse' && (
-        <>
-          {/* Header */}
-          <div className="bg-white border-b border-gray-200 px-4 py-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div className="bg-blue-600 rounded-lg p-2">
-                  <Home className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg text-gray-900">Star Homes</h1>
-                  <p className="text-xs text-gray-600">Find your perfect London home</p>
-                </div>
-              </div>
+    <div className="size-full flex flex-col">
+      <div className="flex-1 overflow-hidden pb-16">
+        {mainScreen === 'home' && (
+          <HomeScreen
+            userPreferences={userPreferences}
+            onAreaSelect={handleAreaSelect}
+            onSearch={(query) => console.log('Search:', query)}
+          />
+        )}
+
+        {mainScreen === 'area-results' && selectedArea && (
+          <AreaResultsScreen
+            area={selectedArea}
+            onBack={handleBackToHome}
+            onPropertySelect={handlePropertySelect}
+          />
+        )}
+
+        {mainScreen === 'property-detail' && selectedProperty && (
+          <PropertyDetailScreen
+            property={selectedProperty}
+            onBack={handleBackToAreaResults}
+            onFavorite={handleFavorite}
+            onCompare={handleCompare}
+            isFavorited={favourites.some(p => p.id === selectedProperty.id)}
+          />
+        )}
+
+        {mainScreen === 'comparison' && (
+          <ComparisonScreen
+            properties={comparisonProperties}
+            onBack={() => setMainScreen('home')}
+            onPropertySelect={handlePropertySelect}
+          />
+        )}
+
+        {mainScreen === 'favourites' && (
+          <FavouritesScreen
+            favourites={favourites}
+            onPropertySelect={handlePropertySelect}
+            onRemoveFavourite={handleRemoveFavourite}
+          />
+        )}
+
+        {mainScreen === 'profile' && (
+          <div className="flex flex-col h-full bg-white">
+            <div className="bg-[#1a2332] px-6 py-8">
+              <h1 className="text-2xl font-bold text-white">Profile</h1>
+            </div>
+            <div className="flex-1 flex items-center justify-center px-6">
+              <p className="text-gray-600 text-center">Profile screen coming soon</p>
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Filter Bar */}
-          <FilterBar filters={filters} onFiltersChange={setFilters} />
-
-          {/* View Toggle */}
-          <div className="bg-white border-b border-gray-200 px-4 py-3">
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentView('map')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-colors ${
-                  currentView === 'map'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <Map className="w-4 h-4" />
-                <span>Map</span>
-              </button>
-              <button
-                onClick={() => setCurrentView('list')}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-colors ${
-                  currentView === 'list'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <List className="w-4 h-4" />
-                <span>List</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 overflow-hidden">
-            {currentView === 'map' ? (
-              <MapView
-                properties={[]}
-                amenities={[]}
-                onPropertySelect={handlePropertySelect}
-                showAmenities={filters.amenities}
-              />
-            ) : (
-              <PropertyListView
-                properties={[]}
-                onSelectProperty={handlePropertySelect}
-              />
-            )}
-          </div>
-        </>
-      )}
-
-      {currentScreen === 'detail' && selectedProperty && (
-        <PropertyDetail
-          property={selectedProperty}
-          areaName="London"
-          onBack={handleBackToBrowse}
-        />
-      )}
+      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 }
