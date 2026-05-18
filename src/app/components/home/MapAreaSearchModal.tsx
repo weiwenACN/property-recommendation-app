@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Tooltip, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import '../../leaflet-setup';
 import { X, Search } from 'lucide-react';
 import {
   recommendedAreas,
@@ -136,3 +138,5 @@ export function MapAreaSearchModal({
     </div>
   );
 }
+
+export default MapAreaSearchModal;

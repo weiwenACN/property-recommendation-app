@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Search, MapPin, TrendingUp, Bell, Check, X, Map as MapIcon } from 'lucide-react';
 import {
   recommendedAreas,
   type RecommendedArea,
 } from '../../data/properties';
 import { formatFromPrice, type SearchMode } from '../../data/pricing';
-import { MapAreaSearchModal } from './MapAreaSearchModal';
+
+const MapAreaSearchModal = lazy(() => import('./MapAreaSearchModal'));
 
 export type { RecommendedArea };
 
@@ -181,12 +182,16 @@ export function HomeScreen({
         </div>
       </div>
 
-      <MapAreaSearchModal
-        open={showMapModal}
-        initialQuery={searchQuery}
-        onClose={() => setShowMapModal(false)}
-        onSelectArea={handleMapAreaSelect}
-      />
+      {showMapModal && (
+        <Suspense fallback={null}>
+          <MapAreaSearchModal
+            open={showMapModal}
+            initialQuery={searchQuery}
+            onClose={() => setShowMapModal(false)}
+            onSelectArea={handleMapAreaSelect}
+          />
+        </Suspense>
+      )}
 
       {/* Recommended Areas */}
       <div className="flex-1 overflow-y-auto">

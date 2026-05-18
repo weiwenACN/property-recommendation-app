@@ -16,6 +16,7 @@ import {
 import type { Property } from '../../data/properties';
 import { priceFor, type SearchMode } from '../../data/pricing';
 import { categoryIconFor } from '../../data/categories';
+import { preferenceOptionById } from '../../data/preferences';
 
 interface PropertyDetailScreenProps {
   property: Property;
@@ -156,6 +157,28 @@ export function PropertyDetailScreen({
               the perfect blend of style and convenience.
             </p>
           </div>
+
+          {property.preferenceTags.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-[#1a2332] mb-3">Matches your priorities</h2>
+              <div className="flex flex-wrap gap-2">
+                {property.preferenceTags.map((id) => {
+                  const opt = preferenceOptionById(id);
+                  if (!opt) return null;
+                  const Icon = opt.icon;
+                  return (
+                    <span
+                      key={id}
+                      className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#fff5f2] border border-[#ff6b35]/30 text-[#ff6b35] text-sm font-medium"
+                    >
+                      <Icon className="w-4 h-4" />
+                      {opt.label}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="mb-6">
             <h2 className="text-xl font-bold text-[#1a2332] mb-4">Amenities Nearby</h2>

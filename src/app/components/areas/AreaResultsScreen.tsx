@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { ArrowLeft, List, Map as MapIcon, SlidersHorizontal, Bed, Bath, MapPin, Train } from 'lucide-react';
+import { lazy, Suspense, useMemo, useState } from 'react';
+import { ArrowLeft, List, Map as MapIcon, SlidersHorizontal, Bed, Bath, MapPin, Train, Loader2 } from 'lucide-react';
 import {
   propertiesByArea,
   type Property,
@@ -7,7 +7,9 @@ import {
 } from '../../data/properties';
 import { priceFor, type SearchMode } from '../../data/pricing';
 import { categoryIconFor } from '../../data/categories';
-import { PropertyMap } from './PropertyMap';
+import { preferenceOptionById } from '../../data/preferences';
+
+const PropertyMap = lazy(() => import('./PropertyMap'));
 
 export type { Property };
 
@@ -152,6 +154,26 @@ export function AreaResultsScreen({ area, searchMode, onBack, onPropertySelect }
                       <Train className="w-4 h-4" />
                       <span>{property.distanceToTube}</span>
                     </div>
+
+                    {property.preferenceTags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[#f1f3f5]">
+                        {property.preferenceTags.map((id) => {
+                          const opt = preferenceOptionById(id);
+                          if (!opt) return null;
+                          const Icon = opt.icon;
+                          return (
+                            <span
+                              key={id}
+                              title={opt.label}
+                              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fff5f2] text-[#ff6b35] text-[11px] font-medium"
+                            >
+                              <Icon className="w-3 h-3" />
+                              {opt.label}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
                 );
@@ -162,17 +184,26 @@ export function AreaResultsScreen({ area, searchMode, onBack, onPropertySelect }
 
         {viewMode === 'map' && (
           <div className="relative h-full">
-            <PropertyMap
-              properties={filteredProperties}
-              searchMode={searchMode}
-              areaCenter={
-                area.lat !== undefined && area.lng !== undefined
-                  ? { lat: area.lat, lng: area.lng }
-                  : undefined
+            <Suspense
+              fallback={
+                <div className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-gray-600">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading map…
+                </div>
               }
-              areaName={area.name}
-              onPropertySelect={onPropertySelect}
-            />
+            >
+              <PropertyMap
+                properties={filteredProperties}
+                searchMode={searchMode}
+                areaCenter={
+                  area.lat !== undefined && area.lng !== undefined
+                    ? { lat: area.lat, lng: area.lng }
+                    : undefined
+                }
+                areaName={area.name}
+                onPropertySelect={onPropertySelect}
+              />
+            </Suspense>
           </div>
         )}
       </div>

@@ -1,10 +1,13 @@
 import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "../../leaflet-setup";
 import { Bed, Bath } from "lucide-react";
 import type { Property } from "../../data/properties";
 import { priceFor, type SearchMode } from "../../data/pricing";
 import { categoryIconFor } from "../../data/categories";
+import { preferenceOptionById } from "../../data/preferences";
 
 interface PropertyMapProps {
   properties: Property[];
@@ -86,7 +89,7 @@ export function PropertyMap({
                 <h3 className="text-sm font-bold text-[#1a2332]">{property.title}</h3>
                 <p className="mb-1 text-xs text-gray-600">{property.address}</p>
                 <p className="mb-2 font-bold text-[#1a2332]">{priceFor(searchMode, property)}</p>
-                <div className="mb-3 flex items-center gap-3 text-xs text-gray-600">
+                <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
                   <span className="flex items-center gap-1">
                     <Bed className="h-3 w-3" />
                     {property.bedrooms} bed
@@ -96,6 +99,24 @@ export function PropertyMap({
                     {property.bathrooms} bath
                   </span>
                 </div>
+                {property.preferenceTags.length > 0 && (
+                  <div className="mb-3 flex flex-wrap gap-1">
+                    {property.preferenceTags.map((id) => {
+                      const opt = preferenceOptionById(id);
+                      if (!opt) return null;
+                      const Icon = opt.icon;
+                      return (
+                        <span
+                          key={id}
+                          title={opt.label}
+                          className="flex items-center justify-center w-5 h-5 rounded-full bg-[#fff5f2] text-[#ff6b35]"
+                        >
+                          <Icon className="w-3 h-3" />
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
                 <button
                   onClick={() => onPropertySelect(property)}
                   className="w-full rounded-md bg-[#1a2332] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#ff6b35]"
@@ -117,3 +138,5 @@ export function PropertyMap({
     </div>
   );
 }
+
+export default PropertyMap;

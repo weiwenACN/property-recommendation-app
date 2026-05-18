@@ -25,6 +25,8 @@ export interface Property {
   lat: number;
   lng: number;
   areaId: string;
+  /** Lifestyle preference ids this property satisfies; see data/preferences.ts. */
+  preferenceTags: string[];
 }
 
 export const recommendedAreas: RecommendedArea[] = [
@@ -106,6 +108,7 @@ export const properties: Property[] = [
     lat: 51.5260,
     lng: -0.0780,
     areaId: '1',
+    preferenceTags: ['tube', 'nightlife', 'cbd'],
   },
   {
     id: '2',
@@ -121,6 +124,7 @@ export const properties: Property[] = [
     lat: 51.5230,
     lng: -0.0715,
     areaId: '1',
+    preferenceTags: ['tube', 'nightlife'],
   },
   {
     id: '3',
@@ -136,6 +140,7 @@ export const properties: Property[] = [
     lat: 51.5275,
     lng: -0.0830,
     areaId: '1',
+    preferenceTags: ['cbd', 'nightlife', 'tube'],
   },
 
   // ----- Clapham (area 2) -----
@@ -153,6 +158,7 @@ export const properties: Property[] = [
     lat: 51.4640,
     lng: -0.1390,
     areaId: '2',
+    preferenceTags: ['schools', 'parks', 'supermarkets'],
   },
   {
     id: '5',
@@ -168,6 +174,7 @@ export const properties: Property[] = [
     lat: 51.4610,
     lng: -0.1370,
     areaId: '2',
+    preferenceTags: ['tube', 'parks'],
   },
   {
     id: '6',
@@ -183,6 +190,7 @@ export const properties: Property[] = [
     lat: 51.4655,
     lng: -0.1340,
     areaId: '2',
+    preferenceTags: ['schools', 'parks'],
   },
 
   // ----- Canary Wharf (area 3) -----
@@ -200,6 +208,7 @@ export const properties: Property[] = [
     lat: 51.5042,
     lng: -0.0205,
     areaId: '3',
+    preferenceTags: ['cbd', 'tube', 'supermarkets'],
   },
   {
     id: '8',
@@ -215,6 +224,7 @@ export const properties: Property[] = [
     lat: 51.5054,
     lng: -0.0190,
     areaId: '3',
+    preferenceTags: ['cbd', 'tube'],
   },
   {
     id: '9',
@@ -230,6 +240,7 @@ export const properties: Property[] = [
     lat: 51.5031,
     lng: -0.0182,
     areaId: '3',
+    preferenceTags: ['cbd', 'tube', 'supermarkets'],
   },
 
   // ----- Brixton (area 4) -----
@@ -247,6 +258,7 @@ export const properties: Property[] = [
     lat: 51.4615,
     lng: -0.1140,
     areaId: '4',
+    preferenceTags: ['tube', 'nightlife', 'supermarkets'],
   },
   {
     id: '11',
@@ -262,6 +274,7 @@ export const properties: Property[] = [
     lat: 51.4640,
     lng: -0.1120,
     areaId: '4',
+    preferenceTags: ['parks', 'supermarkets'],
   },
   {
     id: '12',
@@ -277,6 +290,7 @@ export const properties: Property[] = [
     lat: 51.4630,
     lng: -0.1170,
     areaId: '4',
+    preferenceTags: ['schools', 'parks', 'supermarkets'],
   },
 
   // ----- Hackney (area 5) -----
@@ -294,6 +308,7 @@ export const properties: Property[] = [
     lat: 51.5445,
     lng: -0.0560,
     areaId: '5',
+    preferenceTags: ['nightlife', 'tube'],
   },
   {
     id: '14',
@@ -309,6 +324,7 @@ export const properties: Property[] = [
     lat: 51.5455,
     lng: -0.0545,
     areaId: '5',
+    preferenceTags: ['parks', 'schools', 'supermarkets'],
   },
   {
     id: '15',
@@ -324,6 +340,7 @@ export const properties: Property[] = [
     lat: 51.5430,
     lng: -0.0590,
     areaId: '5',
+    preferenceTags: ['parks', 'nightlife'],
   },
 ];
 
