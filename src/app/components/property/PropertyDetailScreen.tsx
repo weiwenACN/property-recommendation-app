@@ -90,18 +90,14 @@ export function PropertyDetailScreen({
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
 
-  const tabScrolls = useRef<Record<TabId, number>>({
-    overview: 0,
-    details: 0,
-    'floor-plan': 0,
-    location: 0,
-  });
-  const tabRefs = useRef<Record<TabId, HTMLDivElement | null>>({
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const sectionRefs = useRef<Record<TabId, HTMLElement | null>>({
     overview: null,
     details: null,
     'floor-plan': null,
     location: null,
   });
+  const isScrollingToTab = useRef(false);
 
   const CategoryIcon = categoryIconFor(property.propertyType);
   const detailRows = useMemo(() => detailRowsFor(property), [property]);
@@ -113,31 +109,45 @@ export function PropertyDetailScreen({
     setActiveTab('overview');
     setDescriptionExpanded(false);
     setFloorPlanOpen(false);
-    tabScrolls.current = { overview: 0, details: 0, 'floor-plan': 0, location: 0 };
+    if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
   }, [property.id]);
 
-  // Tab switching: save current pane's scrollTop, switch, then on the next
-  // frame restore the new pane's scrollTop. display:none zaps scroll in some
-  // browsers - manual restore is the reliable path.
-  const handleTabClick = useCallback(
-    (next: TabId) => {
-      const current = tabRefs.current[activeTab];
-      if (current) tabScrolls.current[activeTab] = current.scrollTop;
-      setActiveTab(next);
-      requestAnimationFrame(() => {
-        const target = tabRefs.current[next];
-        if (target) target.scrollTop = tabScrolls.current[next] ?? 0;
-      });
-    },
-    [activeTab],
-  );
+  // Intersection observer: update active tab as sections scroll into view.
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-  const handlePaneScroll = useCallback(
-    (id: TabId) => (e: React.UIEvent<HTMLDivElement>) => {
-      tabScrolls.current[id] = e.currentTarget.scrollTop;
-    },
-    [],
-  );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isScrollingToTab.current) return;
+        // Pick the section with the highest intersection ratio.
+        let best: { id: TabId; ratio: number } | null = null;
+        for (const entry of entries) {
+          const id = entry.target.getAttribute('data-section') as TabId;
+          if (!id) continue;
+          if (!best || entry.intersectionRatio > best.ratio) {
+            best = { id, ratio: entry.intersectionRatio };
+          }
+        }
+        if (best && best.ratio > 0) setActiveTab(best.id);
+      },
+      { root: container, threshold: [0, 0.25, 0.5, 0.75, 1] },
+    );
+
+    const refs = sectionRefs.current;
+    Object.values(refs).forEach((el) => { if (el) observer.observe(el); });
+    return () => observer.disconnect();
+  }, [property.id]);
+
+  const handleTabClick = useCallback((next: TabId) => {
+    const target = sectionRefs.current[next];
+    if (!target || !scrollContainerRef.current) return;
+    isScrollingToTab.current = true;
+    setActiveTab(next);
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Re-enable observer tracking after smooth scroll settles (~600ms).
+    setTimeout(() => { isScrollingToTab.current = false; }, 700);
+  }, []);
 
   const openContactSheet = useCallback(() => setContactStage('sheet'), []);
   const closeContactSheet = useCallback(() => setContactStage('idle'), []);
@@ -240,14 +250,9 @@ export function PropertyDetailScreen({
         </div>
       </div>
 
-      {/* ── Tab content: per-tab scroll containers, only active shown ── */}
-      <div className="flex-1 relative">
-        <TabPane
-          id="overview"
-          active={activeTab === 'overview'}
-          paneRef={(el) => (tabRefs.current.overview = el)}
-          onScroll={handlePaneScroll('overview')}
-        >
+      {/* ── Scrollable content: all sections in one page ── */}
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
+        <section ref={(el) => (sectionRefs.current.overview = el)} data-section="overview">
           <OverviewContent
             property={property}
             searchMode={searchMode}
@@ -259,38 +264,31 @@ export function PropertyDetailScreen({
             onPropertySelect={onPropertySelect}
             onViewAllSimilar={() => onViewAllSimilar(property)}
           />
-        </TabPane>
+        </section>
 
-        <TabPane
-          id="details"
-          active={activeTab === 'details'}
-          paneRef={(el) => (tabRefs.current.details = el)}
-          onScroll={handlePaneScroll('details')}
-        >
+        <div className="mx-5 h-px bg-[#f1f3f5]" />
+
+        <section ref={(el) => (sectionRefs.current.details = el)} data-section="details">
           <DetailsContent rows={detailRows} />
-        </TabPane>
+        </section>
 
-        <TabPane
-          id="floor-plan"
-          active={activeTab === 'floor-plan'}
-          paneRef={(el) => (tabRefs.current['floor-plan'] = el)}
-          onScroll={handlePaneScroll('floor-plan')}
-        >
+        <div className="mx-5 h-px bg-[#f1f3f5]" />
+
+        <section ref={(el) => (sectionRefs.current['floor-plan'] = el)} data-section="floor-plan">
           <FloorPlanContent
             url={floorPlanUrl}
             propertyTitle={property.title}
             onExpand={() => setFloorPlanOpen(true)}
           />
-        </TabPane>
+        </section>
 
-        <TabPane
-          id="location"
-          active={activeTab === 'location'}
-          paneRef={(el) => (tabRefs.current.location = el)}
-          onScroll={handlePaneScroll('location')}
-        >
+        <div className="mx-5 h-px bg-[#f1f3f5]" />
+
+        <section ref={(el) => (sectionRefs.current.location = el)} data-section="location">
           <LocationContent property={property} searchMode={searchMode} />
-        </TabPane>
+        </section>
+
+        <div className="pb-6" />
       </div>
 
       {/* ── Sticky bottom CTA bar ── */}
@@ -396,29 +394,6 @@ export function PropertyDetailScreen({
 }
 
 // ── helpers ────────────────────────────────────────────────────────────
-
-interface TabPaneProps {
-  id: TabId;
-  active: boolean;
-  paneRef: (el: HTMLDivElement | null) => void;
-  onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
-  children: React.ReactNode;
-}
-
-function TabPane({ id, active, paneRef, onScroll, children }: TabPaneProps) {
-  return (
-    <div
-      ref={paneRef}
-      onScroll={onScroll}
-      data-tab-pane={id}
-      role="tabpanel"
-      hidden={!active}
-      className={`absolute inset-0 overflow-y-auto ${active ? '' : 'pointer-events-none'}`}
-    >
-      <div className="pb-6">{children}</div>
-    </div>
-  );
-}
 
 function OverviewContent({
   property,
