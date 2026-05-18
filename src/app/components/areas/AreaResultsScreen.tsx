@@ -6,7 +6,14 @@ import {
   type RecommendedArea,
 } from '../../data/properties';
 import { type SearchMode } from '../../data/pricing';
+import {
+  DEFAULT_FILTERS,
+  applyFilters,
+  isFilterActive,
+  type PropertyFilters,
+} from '../../data/propertyFilters';
 import { PropertyCard } from '../property/PropertyCard';
+import { FilterSheet } from './FilterSheet';
 
 const PropertyMap = lazy(() => import('./PropertyMap'));
 
@@ -30,9 +37,15 @@ export function AreaResultsScreen({
   onPropertySelect,
 }: AreaResultsScreenProps) {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const [showFilters, setShowFilters] = useState(false);
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [filters, setFilters] = useState<PropertyFilters>(DEFAULT_FILTERS);
 
-  const filteredProperties = useMemo(() => propertiesByArea(area.id), [area.id]);
+  const propertiesInArea = useMemo(() => propertiesByArea(area.id), [area.id]);
+  const filteredProperties = useMemo(
+    () => applyFilters(propertiesInArea, filters, searchMode),
+    [propertiesInArea, filters, searchMode],
+  );
+  const hasActiveFilters = isFilterActive(filters);
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -81,28 +94,35 @@ export function AreaResultsScreen({
           </div>
 
           <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors"
+            onClick={() => setFilterSheetOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={filterSheetOpen}
+            className="relative flex items-center gap-2 px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
           >
             <SlidersHorizontal className="w-4 h-4" />
             <span className="text-sm font-medium">Filters</span>
+            {hasActiveFilters && (
+              <span
+                aria-label="Filters active"
+                className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white"
+              />
+            )}
           </button>
         </div>
-
-        {showFilters && (
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <button className="px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-full text-sm whitespace-nowrap hover:bg-[#f5f5f7] transition-colors">
-              Price range
-            </button>
-            <button className="px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-full text-sm whitespace-nowrap hover:bg-[#f5f5f7] transition-colors">
-              Bedrooms
-            </button>
-            <button className="px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-full text-sm whitespace-nowrap hover:bg-[#f5f5f7] transition-colors">
-              Property type
-            </button>
-          </div>
-        )}
       </div>
+
+      <FilterSheet
+        open={filterSheetOpen}
+        initialFilters={filters}
+        candidateProperties={propertiesInArea}
+        searchMode={searchMode}
+        onApply={(next) => {
+          setFilters(next);
+          setFilterSheetOpen(false);
+        }}
+        onClear={() => setFilters(DEFAULT_FILTERS)}
+        onClose={() => setFilterSheetOpen(false)}
+      />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
@@ -110,8 +130,22 @@ export function AreaResultsScreen({
           <div className="px-6 py-4 space-y-4">
             {filteredProperties.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <p className="text-[#1a2332] font-medium mb-1">No properties to {searchMode} here</p>
-                <p className="text-sm text-gray-600">Try switching mode or pick a different area.</p>
+                <p className="text-[#1a2332] font-medium mb-1">
+                  {hasActiveFilters ? 'No properties match these filters' : `No properties to ${searchMode} here`}
+                </p>
+                <p className="text-sm text-gray-600 mb-3">
+                  {hasActiveFilters
+                    ? 'Try loosening the filters or pick a different area.'
+                    : 'Try switching mode or pick a different area.'}
+                </p>
+                {hasActiveFilters && (
+                  <button
+                    onClick={() => setFilters(DEFAULT_FILTERS)}
+                    className="text-[#ff6b35] font-medium text-sm hover:underline"
+                  >
+                    Clear all filters
+                  </button>
+                )}
               </div>
             ) : (
               filteredProperties.map((property, idx) => (
