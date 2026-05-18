@@ -27,7 +27,9 @@ import { preferenceOptionById } from '../../data/preferences';
 import { detailRowsFor } from '../../data/propertyDetails';
 import { floorPlanFor } from '../../data/floorPlan';
 import { galleryFor } from '../../data/gallery';
+import type { ViewedEntry } from '../../data/viewedStore';
 import { PropertyPhotoCarousel } from './PropertyPhotoCarousel';
+import { SimilarPropertiesSection } from '../similar/SimilarPropertiesSection';
 
 const PropertyMap = lazy(() => import('../areas/PropertyMap'));
 
@@ -39,6 +41,12 @@ interface PropertyDetailScreenProps {
   onCompare: () => void;
   onContactAgentSent: (property: Property) => void;
   isFavorited: boolean;
+  /** Cross-cutting props feeding the Similar Properties section. */
+  bookmarkIds: string[];
+  viewedEntries: ViewedEntry[];
+  onBookmarkToggle: (property: Property) => void;
+  onPropertySelect: (property: Property) => void;
+  onViewAllSimilar: (target: Property) => void;
 }
 
 type ContactStage = 'idle' | 'sheet' | 'confirmation';
@@ -68,6 +76,11 @@ export function PropertyDetailScreen({
   onCompare,
   onContactAgentSent,
   isFavorited,
+  bookmarkIds,
+  viewedEntries,
+  onBookmarkToggle,
+  onPropertySelect,
+  onViewAllSimilar,
 }: PropertyDetailScreenProps) {
   const [contactStage, setContactStage] = useState<ContactStage>('idle');
   const [message, setMessage] = useState(
@@ -237,8 +250,14 @@ export function PropertyDetailScreen({
         >
           <OverviewContent
             property={property}
+            searchMode={searchMode}
             descriptionExpanded={descriptionExpanded}
             onToggleDescription={() => setDescriptionExpanded((v) => !v)}
+            bookmarkIds={bookmarkIds}
+            viewedEntries={viewedEntries}
+            onBookmarkToggle={onBookmarkToggle}
+            onPropertySelect={onPropertySelect}
+            onViewAllSimilar={() => onViewAllSimilar(property)}
           />
         </TabPane>
 
@@ -403,12 +422,24 @@ function TabPane({ id, active, paneRef, onScroll, children }: TabPaneProps) {
 
 function OverviewContent({
   property,
+  searchMode,
   descriptionExpanded,
   onToggleDescription,
+  bookmarkIds,
+  viewedEntries,
+  onBookmarkToggle,
+  onPropertySelect,
+  onViewAllSimilar,
 }: {
   property: Property;
+  searchMode: SearchMode;
   descriptionExpanded: boolean;
   onToggleDescription: () => void;
+  bookmarkIds: string[];
+  viewedEntries: ViewedEntry[];
+  onBookmarkToggle: (property: Property) => void;
+  onPropertySelect: (property: Property) => void;
+  onViewAllSimilar: () => void;
 }) {
   return (
     <div className="px-5 py-5 space-y-5">
@@ -463,17 +494,15 @@ function OverviewContent({
         </section>
       )}
 
-      <section>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-bold text-[#1a2332]">You might also like</h2>
-          <button className="text-sm font-medium text-[#ff6b35] hover:underline" disabled>
-            View all
-          </button>
-        </div>
-        <div className="rounded-2xl border border-dashed border-[#e5e7eb] bg-[#f9fafb] px-4 py-6 text-center">
-          <p className="text-sm text-gray-600">Similar properties land in Feature 2.</p>
-        </div>
-      </section>
+      <SimilarPropertiesSection
+        target={property}
+        searchMode={searchMode}
+        bookmarkIds={bookmarkIds}
+        viewedEntries={viewedEntries}
+        onBookmarkToggle={onBookmarkToggle}
+        onPropertySelect={onPropertySelect}
+        onViewAll={onViewAllSimilar}
+      />
     </div>
   );
 }

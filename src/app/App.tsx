@@ -24,6 +24,7 @@ import {
 import { Toast } from './components/common/Toast';
 import { FloatingCompareCTA } from './components/comparison/FloatingCompareCTA';
 import { RecentlyViewedScreen } from './components/history/RecentlyViewedScreen';
+import { SimilarPropertiesScreen } from './components/similar/SimilarPropertiesScreen';
 import { HomeScreen } from './components/home/HomeScreen';
 import { AreaResultsScreen } from './components/areas/AreaResultsScreen';
 import { PropertyDetailScreen } from './components/property/PropertyDetailScreen';
@@ -51,6 +52,7 @@ type MainScreen =
   | 'comparison'
   | 'bookmarks'
   | 'history'
+  | 'similar-properties'
   | 'profile'
   | 'notifications';
 
@@ -83,6 +85,8 @@ export default function App() {
 
   const [selectedArea, setSelectedArea] = useState<RecommendedArea | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [similarContext, setSimilarContext] = useState<Property | null>(null);
+  const [propertyDetailReturnTo, setPropertyDetailReturnTo] = useState<MainScreen | null>(null);
   const [bookmarkIds, setBookmarkIds] = useState<string[]>([]);
   const [comparisonIds, setComparisonIds] = useState<string[]>([]);
   const [viewedEntries, setViewedEntries] = useState<ViewedEntry[]>([]);
@@ -239,6 +243,9 @@ export default function App() {
   };
 
   const handlePropertySelect = (property: Property) => {
+    if (mainScreen !== 'property-detail') {
+      setPropertyDetailReturnTo(mainScreen);
+    }
     setSelectedProperty(property);
     setMainScreen('property-detail');
     if (activePhoneKey) {
@@ -260,6 +267,19 @@ export default function App() {
   const handleStartBrowsingFromHistory = () => {
     setActiveTab('search');
     setMainScreen('home');
+  };
+
+  const handleOpenSimilar = (target: Property) => {
+    setSimilarContext(target);
+    setMainScreen('similar-properties');
+  };
+
+  const handleBackFromSimilar = () => {
+    if (similarContext) {
+      setSelectedProperty(similarContext);
+      setSimilarContext(null);
+    }
+    setMainScreen('property-detail');
   };
 
   const handleFavoriteFromDetail = () => {
@@ -340,6 +360,7 @@ export default function App() {
     if (notification.propertyId) {
       const target = allProperties.find((p) => p.id === notification.propertyId);
       if (target) {
+        setPropertyDetailReturnTo('notifications');
         setSelectedProperty(target);
         setMainScreen('property-detail');
         return;
@@ -370,6 +391,11 @@ export default function App() {
   };
 
   const handleBackToAreaResults = () => {
+    if (propertyDetailReturnTo) {
+      setMainScreen(propertyDetailReturnTo);
+      setPropertyDetailReturnTo(null);
+      return;
+    }
     if (selectedArea) {
       setMainScreen('area-results');
     } else {
@@ -486,6 +512,11 @@ export default function App() {
             onCompare={handleCompare}
             onContactAgentSent={handleContactAgentSent}
             isFavorited={isBookmarked(selectedProperty.id)}
+            bookmarkIds={bookmarkIds}
+            viewedEntries={viewedEntries}
+            onBookmarkToggle={handleBookmarkToggle}
+            onPropertySelect={handlePropertySelect}
+            onViewAllSimilar={handleOpenSimilar}
           />
         )}
 
@@ -537,6 +568,18 @@ export default function App() {
             onClearHistory={handleClearHistory}
             onBack={handleBackToHome}
             onStartBrowsing={handleStartBrowsingFromHistory}
+          />
+        )}
+
+        {mainScreen === 'similar-properties' && similarContext && (
+          <SimilarPropertiesScreen
+            target={similarContext}
+            searchMode={searchMode}
+            bookmarkIds={bookmarkIds}
+            viewedEntries={viewedEntries}
+            onBookmarkToggle={handleBookmarkToggle}
+            onPropertySelect={handlePropertySelect}
+            onBack={handleBackFromSimilar}
           />
         )}
       </div>
