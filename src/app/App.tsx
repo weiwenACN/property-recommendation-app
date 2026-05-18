@@ -4,6 +4,13 @@ import { SignUpScreen } from './components/onboarding/SignUpScreen';
 import { CreateAccountScreen } from './components/onboarding/CreateAccountScreen';
 import { OTPScreen } from './components/onboarding/OTPScreen';
 import { PreferencesScreen } from './components/onboarding/PreferencesScreen';
+import { WelcomeBackModal } from './components/onboarding/WelcomeBackModal';
+import {
+  loadPreferences,
+  savePreferences,
+  clearPreferences,
+  phoneKey,
+} from './data/preferenceStore';
 import { HomeScreen } from './components/home/HomeScreen';
 import { AreaResultsScreen } from './components/areas/AreaResultsScreen';
 import { PropertyDetailScreen } from './components/property/PropertyDetailScreen';
@@ -50,6 +57,7 @@ export default function App() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [countryCode, setCountryCode] = useState('+44');
   const [userPreferences, setUserPreferences] = useState<string[]>([]);
+  const [welcomeBackPrefs, setWelcomeBackPrefs] = useState<string[] | null>(null);
 
   const [searchMode, setSearchMode] = useState<SearchMode>('rent');
 
@@ -69,9 +77,26 @@ export default function App() {
     setOnboardingStep('signup');
   };
 
+  // Stand-in for a real "POST /login" call. Looks up saved preferences
+  // for this phone (currently localStorage; swap with an API call when a
+  // backend lands).
+  const lookupSavedPreferences = (country: string, phone: string): string[] | null => {
+    return loadPreferences(phoneKey(country, phone));
+  };
+
+  const persistPreferences = (preferences: string[]) => {
+    savePreferences(phoneKey(countryCode, phoneNumber), preferences);
+  };
+
   const handleSignUpContinue = (phone: string) => {
     setPhoneNumber(phone);
     setCountryCode('+44');
+
+    const saved = lookupSavedPreferences('+44', phone);
+    if (saved && saved.length > 0) {
+      setWelcomeBackPrefs(saved);
+      return;
+    }
     setOnboardingStep('otp');
   };
 
@@ -82,6 +107,12 @@ export default function App() {
   const handleCreateAccountRegister = (country: string, phone: string) => {
     setCountryCode(country);
     setPhoneNumber(phone);
+
+    const saved = lookupSavedPreferences(country, phone);
+    if (saved && saved.length > 0) {
+      setWelcomeBackPrefs(saved);
+      return;
+    }
     setOnboardingStep('otp');
   };
 
@@ -91,11 +122,31 @@ export default function App() {
 
   const handlePreferencesComplete = (preferences: string[]) => {
     setUserPreferences(preferences);
+    persistPreferences(preferences);
     setOnboardingComplete(true);
   };
 
   const handlePreferencesSkip = () => {
     setOnboardingComplete(true);
+  };
+
+  const handleKeepSavedPreferences = () => {
+    if (!welcomeBackPrefs) return;
+    setUserPreferences(welcomeBackPrefs);
+    setWelcomeBackPrefs(null);
+    setOnboardingComplete(true);
+  };
+
+  const handleStartFresh = () => {
+    setUserPreferences([]);
+    clearPreferences(phoneKey(countryCode, phoneNumber));
+    setWelcomeBackPrefs(null);
+    setOnboardingStep('preferences');
+  };
+
+  const handleUpdatePreferences = (preferences: string[]) => {
+    setUserPreferences(preferences);
+    persistPreferences(preferences);
   };
 
   // Main app handlers
@@ -226,10 +277,28 @@ export default function App() {
         )}
         {onboardingStep === 'preferences' && (
           <PreferencesScreen
+            initialSelected={userPreferences}
+            heading={
+              userPreferences.length === 0 && welcomeBackPrefs === null
+                ? 'What matters to you?'
+                : 'Set new preferences'
+            }
+            subheading={
+              userPreferences.length === 0 && welcomeBackPrefs === null
+                ? 'Select your lifestyle priorities to get personalized recommendations'
+                : 'Pick anything that matters — we’ll match areas accordingly.'
+            }
             onComplete={handlePreferencesComplete}
             onSkip={handlePreferencesSkip}
           />
         )}
+
+        <WelcomeBackModal
+          open={welcomeBackPrefs !== null}
+          preferences={welcomeBackPrefs ?? []}
+          onKeepThese={handleKeepSavedPreferences}
+          onStartFresh={handleStartFresh}
+        />
       </div>
     );
   }
@@ -293,7 +362,7 @@ export default function App() {
         {mainScreen === 'profile' && (
           <ProfileScreen
             preferences={userPreferences}
-            onUpdatePreferences={setUserPreferences}
+            onUpdatePreferences={handleUpdatePreferences}
           />
         )}
 

@@ -1,19 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Train, GraduationCap, Dog, ShoppingCart, Building2, Music, Check, Edit3 } from 'lucide-react';
+import { Check, Edit3 } from 'lucide-react';
+import { preferenceOptions } from '../../data/preferences';
 
 interface ProfileScreenProps {
   preferences: string[];
   onUpdatePreferences: (preferences: string[]) => void;
 }
-
-export const preferenceOptions = [
-  { id: 'tube', label: 'Near tube', icon: Train },
-  { id: 'schools', label: 'Good schools', icon: GraduationCap },
-  { id: 'parks', label: 'Dog-friendly parks', icon: Dog },
-  { id: 'supermarkets', label: 'Supermarkets nearby', icon: ShoppingCart },
-  { id: 'cbd', label: 'Close to CBD', icon: Building2 },
-  { id: 'nightlife', label: 'Nightlife', icon: Music },
-];
 
 export function ProfileScreen({ preferences, onUpdatePreferences }: ProfileScreenProps) {
   const [isEditing, setIsEditing] = useState(false);

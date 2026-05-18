@@ -1,22 +1,23 @@
 import { useState } from 'react';
-import { Train, GraduationCap, Dog, ShoppingCart, Building2, Music, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { preferenceOptions } from '../../data/preferences';
 
 interface PreferencesScreenProps {
+  initialSelected?: string[];
+  heading?: string;
+  subheading?: string;
   onComplete: (preferences: string[]) => void;
   onSkip: () => void;
 }
 
-const preferenceOptions = [
-  { id: 'tube', label: 'Near tube', icon: Train },
-  { id: 'schools', label: 'Good schools', icon: GraduationCap },
-  { id: 'parks', label: 'Dog-friendly parks', icon: Dog },
-  { id: 'supermarkets', label: 'Supermarkets nearby', icon: ShoppingCart },
-  { id: 'cbd', label: 'Close to CBD', icon: Building2 },
-  { id: 'nightlife', label: 'Nightlife', icon: Music },
-];
-
-export function PreferencesScreen({ onComplete, onSkip }: PreferencesScreenProps) {
-  const [selected, setSelected] = useState<string[]>([]);
+export function PreferencesScreen({
+  initialSelected = [],
+  heading = 'What matters to you?',
+  subheading = 'Select your lifestyle priorities to get personalized recommendations',
+  onComplete,
+  onSkip,
+}: PreferencesScreenProps) {
+  const [selected, setSelected] = useState<string[]>(initialSelected);
 
   const togglePreference = (id: string) => {
     setSelected(prev =>
@@ -32,8 +33,8 @@ export function PreferencesScreen({ onComplete, onSkip }: PreferencesScreenProps
     <div className="flex flex-col min-h-screen bg-white px-6">
       <div className="flex-1 flex flex-col max-w-md mx-auto w-full py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#1a2332] mb-3">What matters to you?</h1>
-          <p className="text-gray-600">Select your lifestyle priorities to get personalized recommendations</p>
+          <h1 className="text-3xl font-bold text-[#1a2332] mb-3">{heading}</h1>
+          <p className="text-gray-600">{subheading}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-8">
