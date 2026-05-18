@@ -1,65 +1,25 @@
-import { Heart, Bed, MapPin } from 'lucide-react';
-import { Property } from '../areas/AreaResultsScreen';
+import { Heart, Bed } from 'lucide-react';
+import type { Property } from '../../data/properties';
+import { properties as allProperties } from '../../data/properties';
+import { priceFor, type SearchMode } from '../../data/pricing';
 
 interface FavouritesScreenProps {
   favourites: Property[];
+  searchMode: SearchMode;
   onPropertySelect: (property: Property) => void;
   onRemoveFavourite: (propertyId: string) => void;
 }
 
-const mockFavourites: Property[] = [
-  {
-    id: '1',
-    title: 'Modern 2-Bed Apartment',
-    address: '15 High Street, Shoreditch',
-    price: '£2,100/mo',
-    bedrooms: 2,
-    bathrooms: 2,
-    propertyType: 'Apartment',
-    distanceToTube: '5 min walk to Old Street',
-    imageUrl: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800',
-    type: 'rent',
-  },
-  {
-    id: '2',
-    title: 'Spacious Studio',
-    address: '23 Brick Lane, Shoreditch',
-    price: '£1,800/mo',
-    bedrooms: 1,
-    bathrooms: 1,
-    propertyType: 'Studio',
-    distanceToTube: '3 min walk to Shoreditch High Street',
-    imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
-    type: 'rent',
-  },
-  {
-    id: '3',
-    title: 'Luxury Penthouse',
-    address: '42 Curtain Road, Shoreditch',
-    price: '£3,200/mo',
-    bedrooms: 3,
-    bathrooms: 2,
-    propertyType: 'Penthouse',
-    distanceToTube: '7 min walk to Liverpool Street',
-    imageUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
-    type: 'rent',
-  },
-  {
-    id: '4',
-    title: 'Charming 1-Bed Flat',
-    address: '8 Market Street, Brixton',
-    price: '£1,650/mo',
-    bedrooms: 1,
-    bathrooms: 1,
-    propertyType: 'Apartment',
-    distanceToTube: '4 min walk to Brixton',
-    imageUrl: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800',
-    type: 'rent',
-  },
-];
+// Show a few sample favourites only when the user truly has none, just for empty-demo UX.
+const sampleFavourites = allProperties.slice(0, 4);
 
-export function FavouritesScreen({ favourites, onPropertySelect, onRemoveFavourite }: FavouritesScreenProps) {
-  const displayFavourites = favourites.length > 0 ? favourites : mockFavourites;
+export function FavouritesScreen({
+  favourites,
+  searchMode,
+  onPropertySelect,
+  onRemoveFavourite,
+}: FavouritesScreenProps) {
+  const displayFavourites = favourites.length > 0 ? favourites : sampleFavourites;
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -110,10 +70,10 @@ export function FavouritesScreen({ favourites, onPropertySelect, onRemoveFavouri
                     {property.title}
                   </p>
                   <p className="text-xs text-gray-600 truncate mb-2">
-                    {property.address.split(',')[1] || property.address}
+                    {property.address.split(',')[1]?.trim() || property.address}
                   </p>
                   <div className="flex items-center justify-between">
-                    <p className="font-bold text-[#ff6b35] text-sm">{property.price}</p>
+                    <p className="font-bold text-[#ff6b35] text-sm">{priceFor(searchMode, property)}</p>
                     <div className="flex items-center gap-1 text-xs text-gray-600">
                       <Bed className="w-3 h-3" />
                       <span>{property.bedrooms}</span>

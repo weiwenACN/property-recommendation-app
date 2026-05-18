@@ -3,9 +3,10 @@ import { ArrowRight } from 'lucide-react';
 
 interface SignUpScreenProps {
   onContinue: (phoneNumber: string) => void;
+  onSignUp: () => void;
 }
 
-export function SignUpScreen({ onContinue }: SignUpScreenProps) {
+export function SignUpScreen({ onContinue, onSignUp }: SignUpScreenProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -58,6 +59,20 @@ export function SignUpScreen({ onContinue }: SignUpScreenProps) {
           >
             Continue
             <ArrowRight className="w-5 h-5" />
+          </button>
+
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-[#e5e7eb]" />
+            <span className="text-xs text-gray-500 uppercase tracking-wider">or</span>
+            <div className="flex-1 h-px bg-[#e5e7eb]" />
+          </div>
+
+          <button
+            type="button"
+            onClick={onSignUp}
+            className="w-full bg-white border-2 border-[#1a2332] text-[#1a2332] py-4 rounded-xl hover:bg-[#f9fafb] transition-colors font-medium"
+          >
+            Sign Up
           </button>
         </form>
 

@@ -3,11 +3,12 @@ import { ArrowLeft } from 'lucide-react';
 
 interface OTPScreenProps {
   phoneNumber: string;
+  countryCode?: string;
   onVerify: () => void;
   onBack: () => void;
 }
 
-export function OTPScreen({ phoneNumber, onVerify, onBack }: OTPScreenProps) {
+export function OTPScreen({ phoneNumber, countryCode = '+44', onVerify, onBack }: OTPScreenProps) {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -58,7 +59,7 @@ export function OTPScreen({ phoneNumber, onVerify, onBack }: OTPScreenProps) {
           <h1 className="text-3xl font-bold text-[#1a2332] mb-3">Enter verification code</h1>
           <p className="text-gray-600">
             We've sent a 6-digit code to<br />
-            <span className="font-medium text-[#1a2332]">+44 {phoneNumber}</span>
+            <span className="font-medium text-[#1a2332]">{countryCode} {phoneNumber}</span>
           </p>
         </div>
 
