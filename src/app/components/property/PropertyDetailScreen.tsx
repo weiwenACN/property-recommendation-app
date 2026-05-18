@@ -213,7 +213,7 @@ export function PropertyDetailScreen({
 
       {/* ── Sticky tab bar ── */}
       <div className="flex-shrink-0 border-b border-[#e5e7eb] bg-white">
-        <div role="tablist" className="flex overflow-x-auto scrollbar-hide">
+        <div role="tablist" className="grid grid-cols-4">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -222,15 +222,15 @@ export function PropertyDetailScreen({
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => handleTabClick(tab.id)}
-                className={`flex-shrink-0 px-5 py-3 text-sm transition-colors min-h-[44px] whitespace-nowrap ${
+                className={`py-3 text-xs font-medium transition-colors min-h-[44px] whitespace-nowrap ${
                   isActive
                     ? 'text-[#1a2332] font-bold'
-                    : 'text-gray-500 font-medium hover:text-[#1a2332]'
+                    : 'text-gray-500 hover:text-[#1a2332]'
                 }`}
               >
                 {tab.label}
                 <div
-                  className={`mt-2 h-0.5 rounded-full transition-colors ${
+                  className={`mt-2 h-0.5 mx-3 rounded-full transition-colors ${
                     isActive ? 'bg-[#ff6b35]' : 'bg-transparent'
                   }`}
                 />
