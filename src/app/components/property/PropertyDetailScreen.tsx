@@ -223,7 +223,7 @@ export function PropertyDetailScreen({
 
       {/* ── Sticky tab bar ── */}
       <div className="flex-shrink-0 bg-white border-b border-[#e5e7eb] flex justify-center py-2.5 px-4">
-        <div role="tablist" className="flex w-1/2 bg-[#f1f3f5] rounded-full p-0.5">
+        <div role="tablist" className="flex w-4/5 bg-[#f1f3f5] rounded-full p-0.5">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -622,7 +622,7 @@ function NearbyList({ kinds }: { kinds: string[] }) {
 function Stat({ icon: Icon, label, value }: { icon: typeof Bed; label: string; value: string }) {
   return (
     <div className="flex flex-col items-center gap-0.5 py-2 px-1 rounded-xl bg-[#f9fafb]">
-      <Icon className="w-4 h-4 text-[#ff6b35]" />
+      <Icon className="w-3 h-3 text-[#ff6b35]" />
       <p className="text-sm font-bold text-[#1a2332] leading-tight">{value}</p>
       <p className="text-[10px] text-gray-500 leading-tight">{label}</p>
     </div>
@@ -633,7 +633,7 @@ function StatTile({ icon: Icon, label, value }: { icon: typeof Bed; label: strin
   return (
     <div className="rounded-2xl bg-[#f9fafb] px-4 py-3 flex flex-col gap-1">
       <div className="flex items-center gap-2 text-xs text-gray-500">
-        <Icon className="w-4 h-4 text-[#ff6b35]" />
+        <Icon className="w-3 h-3 text-[#ff6b35]" />
         {label}
       </div>
       <p className="text-base font-bold text-[#1a2332]">{value}</p>
