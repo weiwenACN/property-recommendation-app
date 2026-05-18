@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 
 interface CreateAccountScreenProps {
@@ -27,30 +27,53 @@ const COUNTRIES: Country[] = [
   { code: '+64', label: '🇳🇿 +64', name: 'New Zealand',    placeholder: '2X XXX XXXX',     maxDigits: 9 },
 ];
 
+// Built once at module load; the <option> list never changes so there's
+// no reason to re-create these React elements on every keystroke.
+const COUNTRY_OPTIONS = COUNTRIES.map((c) => (
+  <option key={c.code} value={c.code}>
+    {c.label}
+  </option>
+));
+
+const COUNTRIES_BY_KEY = new Map(COUNTRIES.map((c) => [c.code, c]));
+
 export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenProps) {
   const [selectedKey, setSelectedKey] = useState<string>('+44');
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  const selectedCountry = useMemo(
-    () => COUNTRIES.find((c) => c.code === selectedKey) ?? COUNTRIES[0],
-    [selectedKey],
+  const derived = useMemo(() => {
+    const country = COUNTRIES_BY_KEY.get(selectedKey) ?? COUNTRIES[0];
+    return {
+      country,
+      dialingCode: country.code.replace(/c$/, ''),
+      minDigits: Math.max(7, country.maxDigits - 2),
+    };
+  }, [selectedKey]);
+
+  const isValid = phoneNumber.length >= derived.minDigits;
+
+  const handlePhoneChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const digits = e.target.value.replace(/\D/g, '').slice(0, derived.country.maxDigits);
+      setPhoneNumber(digits);
+    },
+    [derived.country.maxDigits],
   );
 
-  const dialingCode = selectedCountry.code.replace(/c$/, '');
-  const minDigits = Math.max(7, selectedCountry.maxDigits - 2);
-  const isValid = phoneNumber.length >= minDigits;
+  const handleCountryChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedKey(e.target.value);
+    setPhoneNumber('');
+  }, []);
 
-  const handlePhoneChange = (raw: string) => {
-    const digits = raw.replace(/\D/g, '').slice(0, selectedCountry.maxDigits);
-    setPhoneNumber(digits);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isValid) {
-      onRegister(dialingCode, phoneNumber);
-    }
-  };
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (isValid) {
+        onRegister(derived.dialingCode, phoneNumber);
+      }
+    },
+    [isValid, onRegister, derived.dialingCode, phoneNumber],
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-white px-6">
@@ -80,17 +103,10 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
                 <select
                   aria-label="Country code"
                   value={selectedKey}
-                  onChange={(e) => {
-                    setSelectedKey(e.target.value);
-                    setPhoneNumber('');
-                  }}
+                  onChange={handleCountryChange}
                   className="h-14 pl-4 pr-9 bg-[#f9fafb] border border-[#e5e7eb] rounded-l-xl text-[#1a2332] font-medium appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
                 >
-                  {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.label}
-                    </option>
-                  ))}
+                  {COUNTRY_OPTIONS}
                 </select>
                 <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-[#1a2332] pointer-events-none" />
               </div>
@@ -100,13 +116,13 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
                 inputMode="numeric"
                 autoComplete="tel-national"
                 value={phoneNumber}
-                onChange={(e) => handlePhoneChange(e.target.value)}
-                placeholder={selectedCountry.placeholder}
+                onChange={handlePhoneChange}
+                placeholder={derived.country.placeholder}
                 className="flex-1 h-14 px-4 bg-[#f9fafb] border border-l-0 border-[#e5e7eb] rounded-r-xl focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              {selectedCountry.name} &middot; format {selectedCountry.placeholder}
+              {derived.country.name} &middot; format {derived.country.placeholder}
             </p>
           </div>
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 interface SignUpScreenProps {
@@ -6,23 +6,29 @@ interface SignUpScreenProps {
   onSignUp: () => void;
 }
 
+const MAX_DIGITS = 11;
+
+function formatPhoneNumber(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  return digits.length <= MAX_DIGITS ? digits : digits.slice(0, MAX_DIGITS);
+}
+
 export function SignUpScreen({ onContinue, onSignUp }: SignUpScreenProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (phoneNumber.length >= 10) {
-      onContinue(phoneNumber);
-    }
-  };
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (phoneNumber.length >= 10) {
+        onContinue(phoneNumber);
+      }
+    },
+    [onContinue, phoneNumber],
+  );
 
-  const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 11) {
-      return numbers;
-    }
-    return numbers.slice(0, 11);
-  };
+  const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhoneNumber(formatPhoneNumber(e.target.value));
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-white px-6">
@@ -44,8 +50,10 @@ export function SignUpScreen({ onContinue, onSignUp }: SignUpScreenProps) {
               <input
                 id="phone"
                 type="tel"
+                inputMode="numeric"
+                autoComplete="tel-national"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
+                onChange={handlePhoneChange}
                 placeholder="7XXX XXXXXX"
                 className="flex-1 h-14 px-4 bg-[#f9fafb] border border-l-0 border-[#e5e7eb] rounded-r-xl focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
               />
