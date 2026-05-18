@@ -2,6 +2,7 @@ import { Heart, Bed } from 'lucide-react';
 import type { Property } from '../../data/properties';
 import { properties as allProperties } from '../../data/properties';
 import { priceFor, type SearchMode } from '../../data/pricing';
+import { categoryIconFor } from '../../data/categories';
 
 interface FavouritesScreenProps {
   favourites: Property[];
@@ -43,7 +44,9 @@ export function FavouritesScreen({
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4">
-            {displayFavourites.map((property) => (
+            {displayFavourites.map((property) => {
+              const CategoryIcon = categoryIconFor(property.propertyType);
+              return (
               <div
                 key={property.id}
                 className="relative bg-white rounded-2xl overflow-hidden border border-[#e5e7eb] hover:shadow-lg transition-all cursor-pointer"
@@ -55,6 +58,10 @@ export function FavouritesScreen({
                     alt={property.title}
                     className="w-full h-full object-cover"
                   />
+                  <div className="absolute top-2 left-2 bg-white px-2 py-1 rounded-full text-[10px] font-medium text-[#1a2332] flex items-center gap-1 shadow-sm">
+                    <CategoryIcon className="w-3 h-3" />
+                    {property.propertyType}
+                  </div>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -81,7 +88,8 @@ export function FavouritesScreen({
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

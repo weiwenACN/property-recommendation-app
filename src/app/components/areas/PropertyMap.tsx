@@ -4,6 +4,7 @@ import L from "leaflet";
 import { Bed, Bath } from "lucide-react";
 import type { Property } from "../../data/properties";
 import { priceFor, type SearchMode } from "../../data/pricing";
+import { categoryIconFor } from "../../data/categories";
 
 interface PropertyMapProps {
   properties: Property[];
@@ -65,7 +66,9 @@ export function PropertyMap({
 
         <FitToProperties properties={properties} />
 
-        {properties.map((property) => (
+        {properties.map((property) => {
+          const CategoryIcon = categoryIconFor(property.propertyType);
+          return (
           <Marker key={property.id} position={[property.lat, property.lng]}>
             <Popup>
               <div className="w-56">
@@ -76,6 +79,10 @@ export function PropertyMap({
                     className="mb-2 h-28 w-full rounded-md object-cover"
                   />
                 )}
+                <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-[#f9fafb] px-2 py-0.5 text-[10px] font-medium text-[#1a2332]">
+                  <CategoryIcon className="h-3 w-3" />
+                  {property.propertyType}
+                </div>
                 <h3 className="text-sm font-bold text-[#1a2332]">{property.title}</h3>
                 <p className="mb-1 text-xs text-gray-600">{property.address}</p>
                 <p className="mb-2 font-bold text-[#1a2332]">{priceFor(searchMode, property)}</p>
@@ -98,7 +105,8 @@ export function PropertyMap({
               </div>
             </Popup>
           </Marker>
-        ))}
+          );
+        })}
       </MapContainer>
 
       {properties.length === 0 && (

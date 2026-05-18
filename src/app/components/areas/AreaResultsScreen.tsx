@@ -6,6 +6,7 @@ import {
   type RecommendedArea,
 } from '../../data/properties';
 import { priceFor, type SearchMode } from '../../data/pricing';
+import { categoryIconFor } from '../../data/categories';
 import { PropertyMap } from './PropertyMap';
 
 export type { Property };
@@ -103,7 +104,9 @@ export function AreaResultsScreen({ area, searchMode, onBack, onPropertySelect }
                 <p className="text-sm text-gray-600">Try switching mode or pick a different area.</p>
               </div>
             ) : (
-              filteredProperties.map((property) => (
+              filteredProperties.map((property) => {
+                const CategoryIcon = categoryIconFor(property.propertyType);
+                return (
                 <div
                   key={property.id}
                   onClick={() => onPropertySelect(property)}
@@ -115,7 +118,8 @@ export function AreaResultsScreen({ area, searchMode, onBack, onPropertySelect }
                       alt={property.title}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-3 left-3 bg-white px-3 py-1 rounded-full text-xs font-medium text-[#1a2332]">
+                    <div className="absolute top-3 left-3 bg-white px-3 py-1 rounded-full text-xs font-medium text-[#1a2332] flex items-center gap-1.5 shadow-sm">
+                      <CategoryIcon className="w-3.5 h-3.5" />
                       {property.propertyType}
                     </div>
                   </div>
@@ -150,7 +154,8 @@ export function AreaResultsScreen({ area, searchMode, onBack, onPropertySelect }
                     </div>
                   </div>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         )}

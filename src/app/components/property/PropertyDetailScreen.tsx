@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import type { Property } from '../../data/properties';
 import { priceFor, type SearchMode } from '../../data/pricing';
+import { categoryIconFor } from '../../data/categories';
 
 interface PropertyDetailScreenProps {
   property: Property;
@@ -56,6 +57,7 @@ export function PropertyDetailScreen({
 }: PropertyDetailScreenProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [contactStage, setContactStage] = useState<ContactStage>('idle');
+  const CategoryIcon = categoryIconFor(property.propertyType);
   const [message, setMessage] = useState(
     `Hi, I'm interested in ${property.title} at ${property.address}. Could you share more details?`,
   );
@@ -91,6 +93,11 @@ export function PropertyDetailScreen({
         >
           <ArrowLeft className="w-6 h-6 text-[#1a2332]" />
         </button>
+
+        <div className="absolute top-4 right-4 bg-white px-3 py-1.5 rounded-full text-xs font-medium text-[#1a2332] flex items-center gap-1.5 shadow-lg">
+          <CategoryIcon className="w-3.5 h-3.5" />
+          {property.propertyType}
+        </div>
 
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
           {propertyImages.map((_, index) => (
