@@ -305,7 +305,7 @@ export default function App() {
 
   return (
     <div className="size-full flex flex-col">
-      <div className="flex-1 overflow-hidden pb-16">
+      <div className="flex-1 overflow-hidden content-pb">
         {mainScreen === 'home' && (
           <HomeScreen
             userPreferences={userPreferences}

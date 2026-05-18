@@ -75,7 +75,7 @@ export function ComparisonScreen({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="bg-[#1a2332] px-6 py-4">
+      <div className="bg-[#1a2332] px-6 pb-4 header-pt">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-white hover:text-[#ff6b35] transition-colors mb-4"

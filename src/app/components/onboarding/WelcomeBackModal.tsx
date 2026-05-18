@@ -26,9 +26,9 @@ export function WelcomeBackModal({
       <div
         role="dialog"
         aria-labelledby="welcome-back-title"
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom max-h-[85vh] flex flex-col"
+        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom max-h-[85dvh] flex flex-col"
       >
-        <div className="px-6 pt-4 pb-6 overflow-y-auto">
+        <div className="px-6 pt-4 pb-[max(env(safe-area-inset-bottom),1.5rem)] overflow-y-auto">
           <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
 
           <h2 id="welcome-back-title" className="text-2xl font-bold text-[#1a2332] mb-1">

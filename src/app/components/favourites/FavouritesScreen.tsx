@@ -25,7 +25,7 @@ export function FavouritesScreen({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="bg-[#1a2332] px-6 py-8">
+      <div className="bg-[#1a2332] px-6 pb-8 header-pt-lg">
         <h1 className="text-2xl font-bold text-white">Favourites</h1>
         <p className="text-gray-300 mt-1">{displayFavourites.length} saved properties</p>
       </div>

@@ -76,7 +76,7 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-white px-6">
+    <div className="flex flex-col h-full min-h-0 bg-white px-6 pt-safe pb-safe overflow-y-auto">
       <div className="py-4">
         <button
           onClick={onBack}

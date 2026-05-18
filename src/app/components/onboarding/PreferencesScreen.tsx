@@ -30,7 +30,7 @@ export function PreferencesScreen({
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white px-6">
+    <div className="flex flex-col h-full min-h-0 bg-white px-6 pt-safe pb-safe overflow-y-auto">
       <div className="flex-1 flex flex-col max-w-md mx-auto w-full py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#1a2332] mb-3">{heading}</h1>

@@ -14,7 +14,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   }, [onComplete]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#1a2332] px-6">
+    <div className="flex flex-col items-center justify-center h-full min-h-0 bg-[#1a2332] px-6">
       <div className="flex flex-col items-center">
         <div className="bg-[#ff6b35] rounded-3xl p-6 mb-6 shadow-2xl">
           <Home className="w-16 h-16 text-white" strokeWidth={2} />
