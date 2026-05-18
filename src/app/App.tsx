@@ -15,6 +15,8 @@ import {
   loadBookmarks,
   saveBookmarks,
 } from './data/bookmarkStore';
+import { Toast } from './components/common/Toast';
+import { FloatingCompareCTA } from './components/comparison/FloatingCompareCTA';
 import { HomeScreen } from './components/home/HomeScreen';
 import { AreaResultsScreen } from './components/areas/AreaResultsScreen';
 import { PropertyDetailScreen } from './components/property/PropertyDetailScreen';
@@ -74,7 +76,8 @@ export default function App() {
   const [selectedArea, setSelectedArea] = useState<RecommendedArea | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [bookmarkIds, setBookmarkIds] = useState<string[]>([]);
-  const [comparisonProperties, setComparisonProperties] = useState<Property[]>([]);
+  const [comparisonIds, setComparisonIds] = useState<string[]>([]);
+  const [globalToast, setGlobalToast] = useState<string | null>(null);
 
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [pendingToast, setPendingToast] = useState<string | null>(null);
@@ -234,16 +237,53 @@ export default function App() {
     if (selectedProperty) handleBookmarkToggle(selectedProperty);
   };
 
+  const comparisonProperties = useMemo(() => {
+    return comparisonIds
+      .map((id) => allProperties.find((p) => p.id === id))
+      .filter((p): p is Property => Boolean(p));
+  }, [comparisonIds]);
+
+  const isInComparison = (id: string) => comparisonIds.includes(id);
+
+  const showToast = (message: string) => setGlobalToast(message);
+
+  const handleComparisonToggle = (property: Property) => {
+    setComparisonIds((prev) => {
+      if (prev.includes(property.id)) {
+        return prev.filter((id) => id !== property.id);
+      }
+      if (prev.length >= 3) {
+        showToast('You can compare up to 3 properties at a time');
+        return prev;
+      }
+      return [...prev, property.id];
+    });
+  };
+
+  const handleClearComparison = () => setComparisonIds([]);
+
+  const handleOpenComparison = () => {
+    setMainScreen('comparison');
+    setActiveTab('compare');
+  };
+
+  const handleRemoveFromComparison = (property: Property) => {
+    setComparisonIds((prev) => prev.filter((id) => id !== property.id));
+  };
+
+  // Compare-from-detail keeps working: adds the current property and jumps to compare.
   const handleCompare = () => {
-    if (selectedProperty) {
-      if (comparisonProperties.length < 2) {
-        setComparisonProperties([...comparisonProperties, selectedProperty]);
+    if (!selectedProperty) return;
+    setComparisonIds((prev) => {
+      if (prev.includes(selectedProperty.id)) return prev;
+      if (prev.length >= 3) {
+        showToast('You can compare up to 3 properties at a time');
+        return prev;
       }
-      if (comparisonProperties.length === 1) {
-        setMainScreen('comparison');
-        setActiveTab('compare');
-      }
-    }
+      return [...prev, selectedProperty.id];
+    });
+    setMainScreen('comparison');
+    setActiveTab('compare');
   };
 
   const handleContactAgentSent = (property: Property) => {
@@ -394,6 +434,8 @@ export default function App() {
             searchMode={searchMode}
             bookmarkIds={bookmarkIds}
             onBookmarkToggle={handleBookmarkToggle}
+            comparisonIds={comparisonIds}
+            onComparisonToggle={handleComparisonToggle}
             onBack={handleBackToHome}
             onPropertySelect={handlePropertySelect}
           />
@@ -415,8 +457,12 @@ export default function App() {
           <ComparisonScreen
             properties={comparisonProperties}
             searchMode={searchMode}
-            onBack={() => setMainScreen('home')}
+            onBack={() => {
+              setActiveTab('search');
+              setMainScreen('home');
+            }}
             onPropertySelect={handlePropertySelect}
+            onRemoveFromComparison={handleRemoveFromComparison}
           />
         )}
 
@@ -453,6 +499,18 @@ export default function App() {
           onDismiss={handleDismissUndo}
         />
       )}
+
+      {/* Floating Compare CTA: visible whenever 2+ properties are selected,
+          except on the detail and comparison screens themselves. */}
+      {!isFullBleedScreen && mainScreen !== 'comparison' && (
+        <FloatingCompareCTA
+          count={comparisonIds.length}
+          onCompare={handleOpenComparison}
+          onClear={handleClearComparison}
+        />
+      )}
+
+      {globalToast && <Toast message={globalToast} onDismiss={() => setGlobalToast(null)} />}
 
       {!isFullBleedScreen && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
     </div>

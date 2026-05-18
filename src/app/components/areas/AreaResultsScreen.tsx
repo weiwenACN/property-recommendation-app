@@ -24,6 +24,8 @@ interface AreaResultsScreenProps {
   searchMode: SearchMode;
   bookmarkIds: string[];
   onBookmarkToggle: (property: Property) => void;
+  comparisonIds: string[];
+  onComparisonToggle: (property: Property) => void;
   onBack: () => void;
   onPropertySelect: (property: Property) => void;
 }
@@ -33,6 +35,8 @@ export function AreaResultsScreen({
   searchMode,
   bookmarkIds,
   onBookmarkToggle,
+  comparisonIds,
+  onComparisonToggle,
   onBack,
   onPropertySelect,
 }: AreaResultsScreenProps) {
@@ -157,6 +161,9 @@ export function AreaResultsScreen({
                   eager={idx === 0}
                   isBookmarked={bookmarkIds.includes(property.id)}
                   onBookmarkToggle={onBookmarkToggle}
+                  showSelectionToggle
+                  isSelected={comparisonIds.includes(property.id)}
+                  onSelectionToggle={onComparisonToggle}
                 />
               ))
             )}
