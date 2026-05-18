@@ -38,7 +38,7 @@ export function PropertyPhotoCarousel({ images, alt }: PropertyPhotoCarouselProp
           {images.map((src, i) => (
             <div
               key={`${src}-${i}`}
-              className="relative shrink-0 grow-0 basis-full h-72 sm:h-80"
+              className="relative shrink-0 grow-0 basis-full h-48"
             >
               <img
                 src={src}
