@@ -1,5 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { ArrowLeft, List, Map as MapIcon, SlidersHorizontal, Loader2 } from 'lucide-react';
+import { ArrowLeft, List, Map as MapIcon, SlidersHorizontal, ArrowUpDown, X, Loader2 } from 'lucide-react';
 import {
   propertiesByArea,
   type Property,
@@ -14,6 +14,32 @@ import {
 } from '../../data/propertyFilters';
 import { PropertyCard } from '../property/PropertyCard';
 import { FilterSheet } from './FilterSheet';
+
+type SortKey = 'recommended' | 'price-asc' | 'price-desc' | 'newest' | 'largest';
+const DEFAULT_SORT: SortKey = 'recommended';
+
+const SORT_OPTIONS: { value: SortKey; label: string; description: string }[] = [
+  { value: 'recommended', label: 'Recommended', description: 'Best match for you' },
+  { value: 'price-asc',   label: 'Price: low to high', description: 'Cheapest first' },
+  { value: 'price-desc',  label: 'Price: high to low', description: 'Most expensive first' },
+  { value: 'newest',      label: 'Newest first', description: 'Most recently built' },
+  { value: 'largest',     label: 'Largest first', description: 'Most floor area' },
+];
+
+function rawPrice(p: Property, mode: SearchMode): number {
+  return mode === 'rent' ? p.rentPrice : p.salePrice;
+}
+
+function sortProperties(list: Property[], sort: SortKey, mode: SearchMode): Property[] {
+  if (sort === 'recommended') return list;
+  return [...list].sort((a, b) => {
+    if (sort === 'price-asc')  return rawPrice(a, mode) - rawPrice(b, mode);
+    if (sort === 'price-desc') return rawPrice(b, mode) - rawPrice(a, mode);
+    if (sort === 'newest')     return b.yearBuilt - a.yearBuilt;
+    if (sort === 'largest')    return b.floorAreaSqft - a.floorAreaSqft;
+    return 0;
+  });
+}
 
 const PropertyMap = lazy(() => import('./PropertyMap'));
 
@@ -42,14 +68,21 @@ export function AreaResultsScreen({
 }: AreaResultsScreenProps) {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
+  const [sortSheetOpen, setSortSheetOpen] = useState(false);
   const [filters, setFilters] = useState<PropertyFilters>(DEFAULT_FILTERS);
+  const [sort, setSort] = useState<SortKey>(DEFAULT_SORT);
 
   const propertiesInArea = useMemo(() => propertiesByArea(area.id), [area.id]);
   const filteredProperties = useMemo(
     () => applyFilters(propertiesInArea, filters, searchMode),
     [propertiesInArea, filters, searchMode],
   );
+  const displayProperties = useMemo(
+    () => sortProperties(filteredProperties, sort, searchMode),
+    [filteredProperties, sort, searchMode],
+  );
   const hasActiveFilters = isFilterActive(filters);
+  const hasActiveSort = sort !== DEFAULT_SORT;
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -97,21 +130,38 @@ export function AreaResultsScreen({
             </button>
           </div>
 
-          <button
-            onClick={() => setFilterSheetOpen(true)}
-            aria-haspopup="dialog"
-            aria-expanded={filterSheetOpen}
-            className="relative flex items-center gap-2 px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span className="text-sm font-medium">Filters</span>
-            {hasActiveFilters && (
-              <span
-                aria-label="Filters active"
-                className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white"
-              />
-            )}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSortSheetOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={sortSheetOpen}
+              className="relative flex items-center gap-2 px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
+            >
+              <ArrowUpDown className="w-4 h-4" />
+              <span className="text-sm font-medium">Sort</span>
+              {hasActiveSort && (
+                <span
+                  aria-label="Sort active"
+                  className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white"
+                />
+              )}
+            </button>
+            <button
+              onClick={() => setFilterSheetOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={filterSheetOpen}
+              className="relative flex items-center gap-2 px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              <span className="text-sm font-medium">Filters</span>
+              {hasActiveFilters && (
+                <span
+                  aria-label="Filters active"
+                  className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white"
+                />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -128,11 +178,22 @@ export function AreaResultsScreen({
         onClose={() => setFilterSheetOpen(false)}
       />
 
+      <SortSheet
+        open={sortSheetOpen}
+        activeSort={sort}
+        onApply={(next) => {
+          setSort(next);
+          setSortSheetOpen(false);
+        }}
+        onClear={() => setSort(DEFAULT_SORT)}
+        onClose={() => setSortSheetOpen(false)}
+      />
+
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {viewMode === 'list' && (
           <div className="px-6 py-4 space-y-4">
-            {filteredProperties.length === 0 ? (
+            {displayProperties.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <p className="text-[#1a2332] font-medium mb-1">
                   {hasActiveFilters ? 'No properties match these filters' : `No properties to ${searchMode} here`}
@@ -152,7 +213,7 @@ export function AreaResultsScreen({
                 )}
               </div>
             ) : (
-              filteredProperties.map((property, idx) => (
+              displayProperties.map((property, idx) => (
                 <PropertyCard
                   key={property.id}
                   property={property}
@@ -181,7 +242,7 @@ export function AreaResultsScreen({
               }
             >
               <PropertyMap
-                properties={filteredProperties}
+                properties={displayProperties}
                 searchMode={searchMode}
                 areaCenter={
                   area.lat !== undefined && area.lng !== undefined
@@ -194,6 +255,91 @@ export function AreaResultsScreen({
             </Suspense>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ── Sort bottom sheet ─────────────────────────────────────────────────────
+
+interface SortSheetProps {
+  open: boolean;
+  activeSort: SortKey;
+  onApply: (sort: SortKey) => void;
+  onClear: () => void;
+  onClose: () => void;
+}
+
+function SortSheet({ open, activeSort, onApply, onClear, onClose }: SortSheetProps) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[9000]">
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close sort"
+        className="absolute inset-0 bg-black/40 animate-in fade-in cursor-default"
+        tabIndex={-1}
+      />
+      <div
+        role="dialog"
+        aria-labelledby="sort-sheet-title"
+        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom flex flex-col"
+      >
+        <div className="px-6 pt-4 pb-2">
+          <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
+          <div className="flex items-center justify-between">
+            <h2 id="sort-sheet-title" className="text-xl font-bold text-[#1a2332]">Sort by</h2>
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="p-2 -mr-2 text-gray-500 hover:text-[#1a2332] min-w-[44px] min-h-[44px] flex items-center justify-center"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <div className="px-6 pb-4 space-y-2">
+          {SORT_OPTIONS.map((opt) => {
+            const isActive = activeSort === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => onApply(opt.value)}
+                aria-pressed={isActive}
+                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-left transition-colors ${
+                  isActive
+                    ? 'bg-[#1a2332] text-white'
+                    : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f1f3f5]'
+                }`}
+              >
+                <div>
+                  <p className="text-sm font-medium">{opt.label}</p>
+                  <p className={`text-xs mt-0.5 ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
+                    {opt.description}
+                  </p>
+                </div>
+                {isActive && (
+                  <span className="w-5 h-5 rounded-full bg-[#ff6b35] flex items-center justify-center flex-shrink-0">
+                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="px-6 pt-3 pb-[max(env(safe-area-inset-bottom),1rem)] border-t border-[#f1f3f5] flex gap-3">
+          <button
+            onClick={() => { onClear(); onClose(); }}
+            className="flex-1 min-h-[48px] bg-white border-2 border-[#e5e7eb] text-[#1a2332] py-3 rounded-xl hover:bg-[#f9fafb] transition-colors font-medium"
+          >
+            Reset
+          </button>
+        </div>
       </div>
     </div>
   );
