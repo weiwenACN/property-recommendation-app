@@ -43,8 +43,8 @@ export function OTPScreen({ phoneNumber, countryCode = '+44', onVerify, onBack }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white px-6">
-      <div className="py-4">
+    <div className="flex h-full min-h-0 flex-col bg-white px-4 sm:px-6 overflow-y-auto">
+      <div className="py-3 sm:py-4">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-[#1a2332] hover:text-[#ff6b35] transition-colors"
@@ -54,16 +54,18 @@ export function OTPScreen({ phoneNumber, countryCode = '+44', onVerify, onBack }
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#1a2332] mb-3">Enter verification code</h1>
-          <p className="text-gray-600">
-            We've sent a 6-digit code to<br />
-            <span className="font-medium text-[#1a2332]">{countryCode} {phoneNumber}</span>
+      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full pb-6 sm:pb-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1a2332] mb-2 sm:mb-3">Enter verification code</h1>
+          <p className="text-sm sm:text-base text-gray-600">
+            We've sent a 6-digit code to{' '}
+            <span className="font-medium text-[#1a2332] whitespace-nowrap">
+              {countryCode} {phoneNumber}
+            </span>
           </p>
         </div>
 
-        <div className="flex gap-3 mb-8">
+        <div className="grid grid-cols-6 gap-1.5 xs:gap-2 sm:gap-3 mb-6 sm:mb-8">
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -74,7 +76,8 @@ export function OTPScreen({ phoneNumber, countryCode = '+44', onVerify, onBack }
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="flex-1 h-16 text-center text-2xl font-bold bg-[#f9fafb] border-2 border-[#e5e7eb] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
+              aria-label={`Digit ${index + 1} of 6`}
+              className="aspect-square w-full min-w-0 text-center text-lg sm:text-2xl font-bold bg-[#f9fafb] border-2 border-[#e5e7eb] rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
             />
           ))}
         </div>
