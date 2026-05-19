@@ -103,65 +103,59 @@ export function AreaResultsScreen({
       </div>
 
       {/* Toggle and Filters */}
-      <div className="bg-white border-b border-[#e5e7eb] px-6 py-3">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-[#1a2332] text-white'
-                  : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f5f5f7]'
-              }`}
-            >
-              <List className="w-4 h-4" />
-              <span className="text-sm font-medium">List</span>
-            </button>
-            <button
-              onClick={() => setViewMode('map')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                viewMode === 'map'
-                  ? 'bg-[#1a2332] text-white'
-                  : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f5f5f7]'
-              }`}
-            >
-              <MapIcon className="w-4 h-4" />
-              <span className="text-sm font-medium">Map</span>
-            </button>
-          </div>
+      <div className="bg-white border-b border-[#e5e7eb] px-4 py-3 space-y-2">
+        {/* Row 1: List / Map toggle */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setViewMode('list')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-colors ${
+              viewMode === 'list'
+                ? 'bg-[#1a2332] text-white'
+                : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f5f5f7]'
+            }`}
+          >
+            <List className="w-4 h-4" />
+            <span className="text-sm font-medium">List</span>
+          </button>
+          <button
+            onClick={() => setViewMode('map')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-colors ${
+              viewMode === 'map'
+                ? 'bg-[#1a2332] text-white'
+                : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f5f5f7]'
+            }`}
+          >
+            <MapIcon className="w-4 h-4" />
+            <span className="text-sm font-medium">Map</span>
+          </button>
+        </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={() => setSortSheetOpen(true)}
-              aria-haspopup="dialog"
-              aria-expanded={sortSheetOpen}
-              className="relative flex items-center gap-2 px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
-            >
-              <ArrowUpDown className="w-4 h-4" />
-              <span className="text-sm font-medium">Sort</span>
-              {hasActiveSort && (
-                <span
-                  aria-label="Sort active"
-                  className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white"
-                />
-              )}
-            </button>
-            <button
-              onClick={() => setFilterSheetOpen(true)}
-              aria-haspopup="dialog"
-              aria-expanded={filterSheetOpen}
-              className="relative flex items-center gap-2 px-4 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              <span className="text-sm font-medium">Filters</span>
-              {hasActiveFilters && (
-                <span
-                  aria-label="Filters active"
-                  className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white"
-                />
-              )}
-            </button>
-          </div>
+        {/* Row 2: Sort / Filter */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSortSheetOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={sortSheetOpen}
+            className="relative flex-1 flex items-center justify-center gap-2 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
+          >
+            <ArrowUpDown className="w-4 h-4" />
+            <span className="text-sm font-medium">Sort{hasActiveSort ? ` · ${SORT_OPTIONS.find(o => o.value === sort)?.label}` : ''}</span>
+            {hasActiveSort && (
+              <span aria-label="Sort active" className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white" />
+            )}
+          </button>
+          <button
+            onClick={() => setFilterSheetOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={filterSheetOpen}
+            className="relative flex-1 flex items-center justify-center gap-2 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span className="text-sm font-medium">Filters</span>
+            {hasActiveFilters && (
+              <span aria-label="Filters active" className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white" />
+            )}
+          </button>
         </div>
       </div>
 
