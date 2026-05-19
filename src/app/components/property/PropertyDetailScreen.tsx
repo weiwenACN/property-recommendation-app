@@ -8,6 +8,7 @@ import {
   Bath,
   Maximize,
   Calendar,
+  Calculator,
   X,
   MapPin,
   Loader2,
@@ -58,6 +59,8 @@ interface PropertyDetailScreenProps {
   isGuest?: boolean;
   /** Called when a guest taps any restricted action. */
   onGuestAction?: () => void;
+  /** Opens the home loan calculator pre-filled with this property. */
+  onOpenCalculator?: () => void;
 }
 
 type ContactStage = 'idle' | 'call-overlay' | 'email-overlay' | 'whatsapp-overlay' | 'call-dialog' | 'email-dialog';
@@ -102,6 +105,7 @@ export function PropertyDetailScreen({
   onViewAllSimilar,
   isGuest = false,
   onGuestAction,
+  onOpenCalculator,
 }: PropertyDetailScreenProps) {
   const agentSummary = agentRatingSummary(DEFAULT_AGENT_ID);
   const [contactStage, setContactStage] = useState<ContactStage>('idle');
@@ -246,6 +250,17 @@ export function PropertyDetailScreen({
           <Stat icon={Maximize} label="Floor area" value={`${property.floorAreaSqft} ft²`} />
           <Stat icon={Calendar} label="Built" value={`${property.yearBuilt}`} />
         </div>
+
+        {/* Calculate loan button */}
+        {onOpenCalculator && (
+          <button
+            onClick={onOpenCalculator}
+            className="mt-3 w-full min-h-[44px] flex items-center justify-center gap-2 rounded-xl border-2 border-[#0F0C2E] text-[#0F0C2E] text-sm font-semibold hover:bg-[#0F0C2E] hover:text-white transition-colors"
+          >
+            <Calculator className="w-4 h-4" />
+            Calculate loan
+          </button>
+        )}
       </div>
 
       {/* ── Sticky tab bar ── */}

@@ -20,6 +20,11 @@ import {
   saveBookmarks,
 } from './data/bookmarkStore';
 import {
+  loadCalculations,
+  deleteCalculation as deleteCalcFromStore,
+  type SavedCalculation,
+} from './data/calculatorStore';
+import {
   loadViewed,
   recordView,
   clearViewed,
@@ -43,6 +48,7 @@ import {
 } from './components/notifications/NotificationsScreen';
 import { BottomNav } from './components/navigation/BottomNav';
 import { LoanCalculator } from './components/calculator/LoanCalculator';
+import { MyCalculationsScreen } from './components/calculations/MyCalculationsScreen';
 import {
   properties as allProperties,
   type Property,
@@ -68,7 +74,8 @@ type MainScreen =
   | 'notifications'
   | 'chat'
   | 'agent-profile'
-  | 'messages';
+  | 'messages'
+  | 'my-calculations';
 
 type TabId = 'home' | 'spark' | 'favourites' | 'messages' | 'profile';
 
@@ -459,6 +466,46 @@ export default function App() {
     setMainScreen('home');
   };
 
+  // ── My Calculations handlers ──────────────────────────────────────────────
+
+  const handleOpenMyCalculations = () => {
+    setMainScreen('my-calculations');
+    setActiveTab('profile');
+  };
+
+  /** Called when user taps a saved calculation card — opens calculator pre-filled. */
+  const handleOpenCalculation = (calc: SavedCalculation) => {
+    setCalcPreFill(calc);
+    setCalcOpen(true);
+  };
+
+  /** Called after a logged-in user successfully saves a calculation. */
+  const handleCalcSaved = () => {
+    setCalculations(loadCalculations());
+    setGlobalToast('Calculation saved to your profile');
+  };
+
+  /** Deletes a calculation after confirmation and refreshes state. */
+  const handleDeleteCalculation = (id: string) => {
+    const updated = deleteCalcFromStore(id);
+    setCalculations(updated);
+  };
+
+  /**
+   * Called when user taps "View property" inside the calculator sheet
+   * that was opened from My Calculations for a property-linked calculation.
+   */
+  const handleViewPropertyFromCalc = () => {
+    if (!calcPreFill?.propertyId) return;
+    const prop = allProperties.find((p) => p.id === calcPreFill.propertyId);
+    if (!prop) return;
+    setCalcOpen(false);
+    setCalcPreFill(null);
+    setPropertyDetailReturnTo(mainScreen as MainScreen);
+    setSelectedProperty(prop);
+    setMainScreen('property-detail');
+  };
+
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab);
     if (tab === 'home') {
@@ -486,6 +533,7 @@ export default function App() {
       setMainScreen(returnTo);
       setPropertyDetailReturnTo(null);
       if (returnTo === 'spark') setActiveTab('spark');
+      if (returnTo === 'my-calculations') setActiveTab('profile');
       return;
     }
     if (selectedArea) {
@@ -501,6 +549,13 @@ export default function App() {
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // ── Calculator open state + saved calculations ────────────────────────────
+  const [calcOpen, setCalcOpen] = useState(false);
+  /** Saved calculation to pre-fill the calculator sheet with (from My Calculations). */
+  const [calcPreFill, setCalcPreFill] = useState<SavedCalculation | null>(null);
+  /** In-memory mirror of localStorage calculations — refreshed after save/delete. */
+  const [calculations, setCalculations] = useState<SavedCalculation[]>(() => loadCalculations());
 
   // ── Sign-out ─────────────────────────────────────────────────────────────
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -705,6 +760,7 @@ export default function App() {
             onViewAllSimilar={handleOpenSimilar}
             isGuest={isGuest}
             onGuestAction={() => openGuestPrompt('contact agents')}
+            onOpenCalculator={() => setCalcOpen(true)}
           />
         )}
 
@@ -770,7 +826,10 @@ export default function App() {
             preferences={userPreferences}
             onUpdatePreferences={handleUpdatePreferences}
             onOpenHistory={handleOpenHistory}
+            onOpenCalculations={handleOpenMyCalculations}
             onSignOut={handleSignOut}
+            isGuest={isGuest}
+            onGuestAction={() => openGuestPrompt('save your calculations')}
           />
         )}
 
@@ -801,6 +860,16 @@ export default function App() {
             onClearHistory={handleClearHistory}
             onBack={handleBackToHome}
             onStartBrowsing={handleStartBrowsingFromHistory}
+          />
+        )}
+
+        {mainScreen === 'my-calculations' && (
+          <MyCalculationsScreen
+            calculations={calculations}
+            onBack={() => setMainScreen('profile')}
+            onOpenCalculation={handleOpenCalculation}
+            onDeleteCalculation={handleDeleteCalculation}
+            onOpenCalculator={() => setCalcOpen(true)}
           />
         )}
 
@@ -861,6 +930,17 @@ export default function App() {
           mainScreen === 'property-detail' ? selectedProperty : null
         }
         visible={mainScreen !== 'chat'}
+        open={calcOpen}
+        onOpenChange={(v) => {
+          setCalcOpen(v);
+          // Clear pre-fill when the sheet is closed so the next FAB open is fresh
+          if (!v) setCalcPreFill(null);
+        }}
+        isGuest={isGuest}
+        onGuestSave={() => openGuestPrompt('save your calculations')}
+        onSaved={handleCalcSaved}
+        preFillCalculation={calcPreFill}
+        onViewProperty={calcPreFill?.propertyId ? handleViewPropertyFromCalc : undefined}
       />
     </div>
   );

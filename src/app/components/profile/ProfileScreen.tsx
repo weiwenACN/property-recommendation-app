@@ -12,7 +12,7 @@ import {
   User,
   Calculator,
   AlertTriangle,
-  X,
+  Lock,
 } from 'lucide-react';
 import { StarHomesLogo } from '../common/StarHomesLogo';
 import { preferenceOptions } from '../../data/preferences';
@@ -21,10 +21,16 @@ import { calculationCount } from '../../data/calculatorStore';
 interface ProfileScreenProps {
   preferences: string[];
   onUpdatePreferences: (preferences: string[]) => void;
-  /** Optional: navigate to recently viewed history screen. */
+  /** Navigate to recently viewed history screen. */
   onOpenHistory?: () => void;
+  /** Navigate to the My Calculations screen. */
+  onOpenCalculations?: () => void;
   /** Called when the user confirms sign-out in the confirmation modal. */
   onSignOut: () => void;
+  /** True when the current user is browsing as a guest. */
+  isGuest?: boolean;
+  /** Called when a guest taps a gated action (opens sign-up sheet). */
+  onGuestAction?: () => void;
 }
 
 // ── SignOutModal ──────────────────────────────────────────────────────────────
@@ -185,7 +191,10 @@ export function ProfileScreen({
   preferences,
   onUpdatePreferences,
   onOpenHistory,
+  onOpenCalculations,
   onSignOut,
+  isGuest = false,
+  onGuestAction,
 }: ProfileScreenProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<string[]>(preferences);
@@ -222,13 +231,21 @@ export function ProfileScreen({
 
   const selectedOptions = preferenceOptions.filter((o) => preferences.includes(o.id));
 
+  // My Calculations row — tappable for logged-in users, gated for guests
+  const calcRowAction = isGuest ? onGuestAction : onOpenCalculations;
+  const calcRowValue = isGuest
+    ? undefined
+    : savedCalcCount > 0
+    ? `${savedCalcCount} saved`
+    : undefined;
+
   const accountRows = [
-    { icon: Phone,      label: 'Phone number',    value: 'Connected',                                             action: undefined   },
-    { icon: Bell,       label: 'Notifications',    value: 'On',                                                    action: undefined   },
-    { icon: Clock,      label: 'Recently viewed',  value: undefined,                                               action: onOpenHistory },
-    { icon: Calculator, label: 'My calculations',  value: savedCalcCount > 0 ? String(savedCalcCount) : undefined, action: undefined   },
-    { icon: Shield,     label: 'Privacy settings', value: undefined,                                               action: undefined   },
-    { icon: Info,       label: 'App version',       value: '1.0.0',                                                action: undefined   },
+    { icon: Phone,      label: 'Phone number',    value: 'Connected',  action: undefined,      guestLocked: false },
+    { icon: Bell,       label: 'Notifications',    value: 'On',         action: undefined,      guestLocked: false },
+    { icon: Clock,      label: 'Recently viewed',  value: undefined,    action: onOpenHistory,  guestLocked: false },
+    { icon: Calculator, label: 'My calculations',  value: calcRowValue, action: calcRowAction,  guestLocked: isGuest },
+    { icon: Shield,     label: 'Privacy settings', value: undefined,    action: undefined,      guestLocked: false },
+    { icon: Info,       label: 'App version',      value: '1.0.0',      action: undefined,      guestLocked: false },
   ];
 
   return (
@@ -357,24 +374,30 @@ export function ProfileScreen({
                 <h2 className="text-base font-bold text-[#0F0C2E]">Account</h2>
               </div>
               <div className="divide-y divide-[#f1f3f5]">
-                {accountRows.map(({ icon: Icon, label, value, action }) => (
+                {accountRows.map(({ icon: Icon, label, value, action, guestLocked }) => (
                   <button
                     key={label}
                     onClick={action}
-                    disabled={!action && value !== undefined ? false : !action}
+                    disabled={!action}
                     className={`w-full px-5 py-3.5 flex items-center gap-3.5 text-left transition-colors ${
                       action ? 'hover:bg-[#F7F6FB] cursor-pointer' : 'cursor-default'
-                    }`}
+                    } ${guestLocked ? 'opacity-60' : ''}`}
                   >
                     <div className="w-8 h-8 rounded-xl bg-[#F7F6FB] flex items-center justify-center flex-shrink-0">
                       <Icon className="w-4 h-4 text-[#3C3489]" />
                     </div>
                     <span className="flex-1 text-sm font-medium text-[#0F0C2E]">{label}</span>
-                    {value && (
-                      <span className="text-xs text-gray-400 font-medium">{value}</span>
-                    )}
-                    {action && (
-                      <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                    {guestLocked ? (
+                      <Lock className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                    ) : (
+                      <>
+                        {value && (
+                          <span className="text-xs text-[#3C3489] font-semibold bg-[#EEEDFE] px-2 py-0.5 rounded-full">{value}</span>
+                        )}
+                        {action && (
+                          <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                        )}
+                      </>
                     )}
                   </button>
                 ))}
