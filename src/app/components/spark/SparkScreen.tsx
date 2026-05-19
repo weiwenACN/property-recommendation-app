@@ -45,6 +45,11 @@ function patchSparkSession(patch: Partial<Omit<SparkSession, 'shuffled'>>) {
   if (_sparkSession) Object.assign(_sparkSession, patch);
 }
 
+/** Call on sign-out so the next login gets a freshly shuffled deck. */
+export function resetSparkSession(): void {
+  _sparkSession = null;
+}
+
 // ── Extra photos per property ─────────────────────────────────────────────
 // Supplementary Unsplash photos for the in-card photo carousel.
 // Properties with no entry show only their primary imageUrl.

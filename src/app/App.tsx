@@ -50,6 +50,8 @@ import {
 } from './data/properties';
 import type { SearchMode } from './data/pricing';
 import { agentById, DEFAULT_AGENT_ID } from './data/agents';
+import { signOut as signOutApi } from './data/authApi';
+import { resetSparkSession } from './components/spark/SparkScreen';
 
 type OnboardingStep = 'splash' | 'signup' | 'create-account' | 'otp' | 'preferences';
 type MainScreen =
@@ -500,6 +502,76 @@ export default function App() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  // ── Sign-out ─────────────────────────────────────────────────────────────
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  /**
+   * Full sign-out flow:
+   * 1. Trigger the exit animation (slide-down) so the UI looks intentional.
+   * 2. Fire the server-side sign-out API simultaneously (best-effort).
+   * 3. Clear all in-memory session state — localStorage data is intentionally
+   *    preserved (bookmarks, history, preferences) so the user's data is
+   *    waiting for them on the next login.
+   * 4. Reset the Spark card deck so the next login gets a fresh shuffle.
+   * 5. Flip onboardingComplete → false to land on the sign-in screen.
+   *    Because all state is cleared first the sign-in screen appears
+   *    completely unauthenticated with no previous user data visible.
+   * 6. If the API call fails, sign-out still completes client-side
+   *    (failure is logged silently so it can be investigated later).
+   */
+  const handleSignOut = async () => {
+    // Start the slide-down exit animation immediately
+    setIsSigningOut(true);
+
+    // Fire the server API concurrently — don't await before clearing state
+    const apiCall = signOutApi().catch((err) => {
+      console.warn('[Star Homes] Sign-out API failed (clearing locally anyway):', err);
+    });
+
+    // Let the animation play for 300ms before tearing down the UI
+    await new Promise<void>((resolve) => setTimeout(resolve, 300));
+
+    // Wait for the API (it should have resolved by now, but guard anyway)
+    await apiCall;
+
+    // ── Clear all in-memory session state ──────────────────────────────────
+    // Auth / identity
+    setPhoneNumber('');
+    setCountryCode('+44');
+    setIsGuest(false);
+    setWelcomeBackPrefs(null);
+    // Preferences (in-memory copy — localStorage record is kept)
+    setUserPreferences([]);
+    // Bookmarks / comparisons / history (in-memory — localStorage kept)
+    setBookmarkIds([]);
+    setComparisonIds([]);
+    setViewedEntries([]);
+    // Navigation & transient UI
+    setMainScreen('home');
+    setActiveTab('home');
+    setSelectedArea(null);
+    setSelectedProperty(null);
+    setSimilarContext(null);
+    setPropertyDetailReturnTo(null);
+    setChatProperty(null);
+    setSparkEntry(null);
+    setGuestPromptOpen(false);
+    setGuestPromptFeature(undefined);
+    setPendingToast(null);
+    setPendingUndo(null);
+    setNotifications(initialNotifications);
+    setSearchMode('rent');
+    // Reset the Spark card deck
+    resetSparkSession();
+
+    // ── Navigate to the sign-in screen ────────────────────────────────────
+    // Setting onboardingComplete → false re-renders the onboarding shell.
+    // Because all state was cleared above, no previous user data is visible.
+    setIsSigningOut(false);
+    setOnboardingStep('signup');
+    setOnboardingComplete(false);
+  };
+
   // ── Onboarding render ───────────────────────────────────────────────────
   if (!onboardingComplete) {
     return (
@@ -564,7 +636,7 @@ export default function App() {
   void pendingUndoCommitRef;
 
   return (
-    <div className="size-full flex flex-col">
+    <div className={`size-full flex flex-col${isSigningOut ? ' sign-out-exit' : ''}`}>
       <div className={`flex-1 overflow-hidden ${isFullBleedScreen ? '' : 'content-pb'}`}>
         {mainScreen === 'home' && (
           <HomeScreen
@@ -698,6 +770,7 @@ export default function App() {
             preferences={userPreferences}
             onUpdatePreferences={handleUpdatePreferences}
             onOpenHistory={handleOpenHistory}
+            onSignOut={handleSignOut}
           />
         )}
 
