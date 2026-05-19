@@ -320,9 +320,9 @@ export function PropertyDetailScreen({
         <>
           <div
             onClick={closeContactSheet}
-            className="absolute inset-0 bg-black/40 z-40 animate-in fade-in"
+            className="fixed inset-0 bg-black/40 z-40 animate-in fade-in"
           />
-          <div className="absolute bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom">
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom">
             <div className="px-6 pt-4 pb-[max(env(safe-area-inset-bottom),1.5rem)]">
               <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
               <div className="flex items-start justify-between mb-4">
@@ -367,7 +367,7 @@ export function PropertyDetailScreen({
 
       {/* ── Confirmation overlay ── */}
       {contactStage === 'confirmation' && (
-        <div className="absolute inset-0 z-50 bg-white flex flex-col items-center justify-center px-6 animate-in fade-in">
+        <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center px-6 animate-in fade-in">
           <div className="bg-[#fff5f2] rounded-full p-6 mb-6">
             <Check className="w-12 h-12 text-[#ff6b35]" strokeWidth={3} />
           </div>
