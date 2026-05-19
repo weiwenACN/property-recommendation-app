@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 interface SignUpScreenProps {
   onContinue: (phoneNumber: string) => void;
   onSignUp: () => void;
+  onGuestAccess?: () => void;
 }
 
 const MAX_DIGITS = 11;
@@ -13,7 +14,7 @@ function formatPhoneNumber(value: string): string {
   return digits.length <= MAX_DIGITS ? digits : digits.slice(0, MAX_DIGITS);
 }
 
-export function SignUpScreen({ onContinue, onSignUp }: SignUpScreenProps) {
+export function SignUpScreen({ onContinue, onSignUp, onGuestAccess }: SignUpScreenProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
 
   const handleSubmit = useCallback(
@@ -82,6 +83,18 @@ export function SignUpScreen({ onContinue, onSignUp }: SignUpScreenProps) {
           >
             Sign Up
           </button>
+
+          {onGuestAccess && (
+            <div className="text-center mt-2">
+              <button
+                type="button"
+                onClick={onGuestAccess}
+                className="text-sm text-gray-400 hover:text-gray-600 transition-colors underline-offset-2 hover:underline"
+              >
+                Continue as guest
+              </button>
+            </div>
+          )}
         </form>
 
         <p className="text-sm text-gray-500 text-center mt-8">

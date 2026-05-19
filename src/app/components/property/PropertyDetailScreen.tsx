@@ -4,11 +4,12 @@ import {
   Heart,
   ArrowLeftRight,
   Phone,
+  Mail,
+  MessageCircle,
   Bed,
   Bath,
   Maximize,
   Calendar,
-  Check,
   X,
   MapPin,
   Loader2,
@@ -30,6 +31,7 @@ import { galleryFor } from '../../data/gallery';
 import type { ViewedEntry } from '../../data/viewedStore';
 import { PropertyPhotoCarousel } from './PropertyPhotoCarousel';
 import { SimilarPropertiesSection } from '../similar/SimilarPropertiesSection';
+import type { AgentInfo } from '../chat/ChatScreen';
 
 const PropertyMap = lazy(() => import('../areas/PropertyMap'));
 
@@ -39,7 +41,7 @@ interface PropertyDetailScreenProps {
   onBack: () => void;
   onFavorite: () => void;
   onCompare: () => void;
-  onContactAgentSent: (property: Property) => void;
+  onChatWithAgent: () => void;
   isFavorited: boolean;
   /** Cross-cutting props feeding the Similar Properties section. */
   bookmarkIds: string[];
@@ -49,7 +51,7 @@ interface PropertyDetailScreenProps {
   onViewAllSimilar: (target: Property) => void;
 }
 
-type ContactStage = 'idle' | 'sheet' | 'confirmation';
+type ContactStage = 'idle' | 'call-dialog' | 'email-dialog';
 type TabId = 'overview' | 'details' | 'floor-plan' | 'location';
 
 const TABS: { id: TabId; label: string }[] = [
@@ -59,7 +61,13 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'location', label: 'Location' },
 ];
 
-const AGENT = { name: 'Sarah Chen', branch: 'Canary Wharf Branch' };
+const AGENT: AgentInfo = {
+  name: 'Sarah Chen',
+  branch: 'Canary Wharf Branch',
+  initials: 'SC',
+  phone: '07700 900123',
+  email: 'sarah@starhomes.co.uk',
+};
 
 const NEARBY = [
   { label: 'Old Street Station', kind: 'Tube', icon: Train, distance: '5 min walk' },
@@ -74,7 +82,7 @@ export function PropertyDetailScreen({
   onBack,
   onFavorite,
   onCompare,
-  onContactAgentSent,
+  onChatWithAgent,
   isFavorited,
   bookmarkIds,
   viewedEntries,
@@ -83,9 +91,6 @@ export function PropertyDetailScreen({
   onViewAllSimilar,
 }: PropertyDetailScreenProps) {
   const [contactStage, setContactStage] = useState<ContactStage>('idle');
-  const [message, setMessage] = useState(
-    `Hi, I'm interested in ${property.title} at ${property.address}. Could you share more details?`,
-  );
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
@@ -149,16 +154,12 @@ export function PropertyDetailScreen({
     setTimeout(() => { isScrollingToTab.current = false; }, 700);
   }, []);
 
-  const openContactSheet = useCallback(() => setContactStage('sheet'), []);
-  const closeContactSheet = useCallback(() => setContactStage('idle'), []);
-
-  const handleSend = useCallback(() => {
-    if (!message.trim()) return;
-    setContactStage('confirmation');
-    onContactAgentSent(property);
-  }, [message, onContactAgentSent, property]);
-
-  const handleBackToProperty = useCallback(() => setContactStage('idle'), []);
+  const handleCallAgent = useCallback(() => setContactStage('call-dialog'), []);
+  const handleEmailAgent = useCallback(() => setContactStage('email-dialog'), []);
+  const handleMessageAgent = useCallback(() => {
+    setContactStage('idle');
+    onChatWithAgent();
+  }, [onChatWithAgent]);
 
   return (
     <div className="relative flex h-full flex-col bg-white">
@@ -258,6 +259,10 @@ export function PropertyDetailScreen({
             onBookmarkToggle={onBookmarkToggle}
             onPropertySelect={onPropertySelect}
             onViewAllSimilar={() => onViewAllSimilar(property)}
+            agent={AGENT}
+            onCall={handleCallAgent}
+            onEmail={handleEmailAgent}
+            onMessage={handleMessageAgent}
           />
         </section>
 
@@ -289,19 +294,14 @@ export function PropertyDetailScreen({
       {/* ── Sticky bottom CTA bar ── */}
       <div className="flex-shrink-0 bg-white border-t border-[#e5e7eb] px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
         <div className="flex items-center gap-2">
-          <button
-            onClick={onCompare}
-            aria-label="Compare property"
-            className="min-h-[48px] min-w-[48px] flex items-center justify-center rounded-xl border-2 border-[#e5e7eb] bg-white text-[#1a2332] hover:border-[#1a2332] transition-colors"
-          >
+          <button onClick={onCompare} aria-label="Compare property"
+            className="min-h-[48px] min-w-[48px] flex items-center justify-center rounded-xl border-2 border-[#e5e7eb] bg-white text-[#1a2332] hover:border-[#1a2332] transition-colors">
             <ArrowLeftRight className="w-5 h-5" />
           </button>
-          <button
-            onClick={openContactSheet}
-            className="flex-1 min-h-[48px] flex items-center justify-center gap-2 px-4 py-3 bg-[#1a2332] text-white rounded-xl hover:bg-[#0f1620] transition-colors font-medium shadow-lg shadow-[#1a2332]/20"
-          >
-            <Phone className="w-4 h-4" />
-            <span>Contact agent</span>
+          <button onClick={handleMessageAgent}
+            className="flex-1 min-h-[48px] flex items-center justify-center gap-2 px-4 py-3 bg-[#1a2332] text-white rounded-xl hover:bg-[#0f1620] transition-colors font-medium shadow-lg shadow-[#1a2332]/20">
+            <MessageCircle className="w-4 h-4" />
+            <span>Message agent</span>
           </button>
         </div>
       </div>
@@ -315,73 +315,43 @@ export function PropertyDetailScreen({
         />
       )}
 
-      {/* ── Contact Agent bottom sheet ── */}
-      {contactStage === 'sheet' && (
-        <>
-          <div
-            onClick={closeContactSheet}
-            className="fixed inset-0 bg-black/40 z-40 animate-in fade-in"
-          />
-          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom">
-            <div className="px-6 pt-4 pb-[max(env(safe-area-inset-bottom),1.5rem)]">
-              <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-bold text-[#1a2332]">Contact agent</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {AGENT.name} &middot; {AGENT.branch}
-                  </p>
-                </div>
-                <button
-                  onClick={closeContactSheet}
-                  aria-label="Close"
-                  className="p-2 -mr-2 text-gray-500 hover:text-[#1a2332] min-w-[44px] min-h-[44px] flex items-center justify-center"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <label htmlFor="agent-message" className="block text-sm font-medium text-[#1a2332] mb-2">
-                Message
-              </label>
-              <textarea
-                id="agent-message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={4}
-                className="w-full p-3 bg-[#f9fafb] border border-[#e5e7eb] rounded-xl text-sm text-[#1a2332] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent resize-none"
-                placeholder="Say hello and ask any questions..."
-              />
-
-              <button
-                onClick={handleSend}
-                disabled={!message.trim()}
-                className="w-full mt-4 bg-[#ff6b35] text-white py-4 rounded-xl hover:bg-[#ff5722] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium shadow-lg shadow-[#ff6b35]/20 min-h-[48px]"
-              >
-                Send inquiry
+      {/* ── Call dialog ── */}
+      {contactStage === 'call-dialog' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl animate-in fade-in zoom-in-95">
+            <h2 className="text-lg font-bold text-[#1a2332] mb-1">Call {AGENT.name}?</h2>
+            <p className="text-sm text-gray-600 mb-6">{AGENT.phone}</p>
+            <div className="flex gap-3">
+              <button onClick={() => setContactStage('idle')}
+                className="flex-1 min-h-[44px] border-2 border-[#e5e7eb] rounded-xl text-sm font-medium text-[#1a2332] hover:bg-[#f9fafb] transition-colors">
+                Cancel
               </button>
+              <a href={`tel:${AGENT.phone}`} onClick={() => setContactStage('idle')}
+                className="flex-1 min-h-[44px] bg-[#1a2332] rounded-xl text-sm font-medium text-white flex items-center justify-center hover:bg-[#0f1620] transition-colors">
+                Call
+              </a>
             </div>
           </div>
-        </>
+        </div>
       )}
 
-      {/* ── Confirmation overlay ── */}
-      {contactStage === 'confirmation' && (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center px-6 animate-in fade-in">
-          <div className="bg-[#fff5f2] rounded-full p-6 mb-6">
-            <Check className="w-12 h-12 text-[#ff6b35]" strokeWidth={3} />
+      {/* ── Email dialog ── */}
+      {contactStage === 'email-dialog' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl animate-in fade-in zoom-in-95">
+            <h2 className="text-lg font-bold text-[#1a2332] mb-1">Email {AGENT.name}?</h2>
+            <p className="text-sm text-gray-600 mb-6">{AGENT.email}</p>
+            <div className="flex gap-3">
+              <button onClick={() => setContactStage('idle')}
+                className="flex-1 min-h-[44px] border-2 border-[#e5e7eb] rounded-xl text-sm font-medium text-[#1a2332] hover:bg-[#f9fafb] transition-colors">
+                Cancel
+              </button>
+              <a href={`mailto:${AGENT.email}`} onClick={() => setContactStage('idle')}
+                className="flex-1 min-h-[44px] bg-[#1a2332] rounded-xl text-sm font-medium text-white flex items-center justify-center hover:bg-[#0f1620] transition-colors">
+                Open Mail
+              </a>
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-[#1a2332] mb-3 text-center">Inquiry sent</h2>
-          <p className="text-center text-gray-600 max-w-xs">
-            Agent <span className="font-medium text-[#1a2332]">{AGENT.name}</span> from{' '}
-            <span className="font-medium text-[#1a2332]">{AGENT.branch}</span> will be in touch.
-          </p>
-          <button
-            onClick={handleBackToProperty}
-            className="mt-8 w-full max-w-xs bg-[#1a2332] text-white py-4 rounded-xl hover:bg-[#0f1620] transition-colors font-medium min-h-[48px]"
-          >
-            Back to property
-          </button>
         </div>
       )}
     </div>
@@ -389,6 +359,47 @@ export function PropertyDetailScreen({
 }
 
 // ── helpers ────────────────────────────────────────────────────────────
+
+function AgentCard({ agent, onCall, onEmail, onMessage }: {
+  agent: AgentInfo;
+  onCall: () => void;
+  onEmail: () => void;
+  onMessage: () => void;
+}) {
+  return (
+    <section>
+      <h2 className="text-lg font-bold text-[#1a2332] mb-3">Your agent</h2>
+      <div className="rounded-2xl border border-[#e5e7eb] p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 rounded-full bg-[#1a2332] flex items-center justify-center flex-shrink-0">
+            <span className="text-white font-bold text-sm">{agent.initials}</span>
+          </div>
+          <div>
+            <p className="font-semibold text-[#1a2332]">{agent.name}</p>
+            <p className="text-xs text-gray-500">{agent.branch}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <button onClick={onCall}
+            className="flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-[#1a2332] text-[#1a2332] hover:bg-[#f9fafb] transition-colors min-h-[64px]">
+            <Phone className="w-5 h-5" />
+            <span className="text-xs font-medium">Call</span>
+          </button>
+          <button onClick={onEmail}
+            className="flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-[#1a2332] text-[#1a2332] hover:bg-[#f9fafb] transition-colors min-h-[64px]">
+            <Mail className="w-5 h-5" />
+            <span className="text-xs font-medium">Email</span>
+          </button>
+          <button onClick={onMessage}
+            className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-[#1a2332] text-white hover:bg-[#0f1620] transition-colors min-h-[64px]">
+            <MessageCircle className="w-5 h-5" />
+            <span className="text-xs font-medium">Message</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function OverviewContent({
   property,
@@ -400,6 +411,10 @@ function OverviewContent({
   onBookmarkToggle,
   onPropertySelect,
   onViewAllSimilar,
+  agent,
+  onCall,
+  onEmail,
+  onMessage,
 }: {
   property: Property;
   searchMode: SearchMode;
@@ -410,6 +425,10 @@ function OverviewContent({
   onBookmarkToggle: (property: Property) => void;
   onPropertySelect: (property: Property) => void;
   onViewAllSimilar: () => void;
+  agent: AgentInfo;
+  onCall: () => void;
+  onEmail: () => void;
+  onMessage: () => void;
 }) {
   return (
     <div className="px-5 py-5 space-y-5">
@@ -473,6 +492,8 @@ function OverviewContent({
         onPropertySelect={onPropertySelect}
         onViewAll={onViewAllSimilar}
       />
+
+      <AgentCard agent={agent} onCall={onCall} onEmail={onEmail} onMessage={onMessage} />
     </div>
   );
 }

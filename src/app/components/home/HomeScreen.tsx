@@ -28,6 +28,7 @@ interface HomeScreenProps {
   onBookmarkToggle: (property: Property) => void;
   onPropertySelect: (property: Property) => void;
   onViewAllHistory: () => void;
+  isGuest?: boolean;
 }
 
 export function HomeScreen({
@@ -45,6 +46,7 @@ export function HomeScreen({
   onBookmarkToggle,
   onPropertySelect,
   onViewAllHistory,
+  isGuest,
 }: HomeScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAutocomplete, setShowAutocomplete] = useState(false);
@@ -208,6 +210,14 @@ export function HomeScreen({
 
       {/* Body: Recently viewed (when present) + Recommended Areas */}
       <div className="flex-1 overflow-y-auto">
+        {isGuest && (
+          <div className="mx-4 mt-3 px-4 py-3 bg-[#fff5f2] border border-[#ff6b35]/30 rounded-xl flex items-start gap-3">
+            <span className="text-[#ff6b35] text-base mt-0.5">👤</span>
+            <p className="text-xs text-[#1a2332] leading-relaxed">
+              <span className="font-semibold">Browsing as guest</span> — sign up to save properties and contact agents.
+            </p>
+          </div>
+        )}
         <div className="py-6">
           <RecentlyViewedSection
             entries={viewedEntries}

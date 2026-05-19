@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SplashScreen } from './components/onboarding/SplashScreen';
 import { SignUpScreen } from './components/onboarding/SignUpScreen';
+import { ChatScreen } from './components/chat/ChatScreen';
+import { GuestPromptSheet } from './components/guest/GuestPromptSheet';
 import { CreateAccountScreen } from './components/onboarding/CreateAccountScreen';
 import { OTPScreen } from './components/onboarding/OTPScreen';
 import { PreferencesScreen } from './components/onboarding/PreferencesScreen';
@@ -54,7 +56,8 @@ type MainScreen =
   | 'history'
   | 'similar-properties'
   | 'profile'
-  | 'notifications';
+  | 'notifications'
+  | 'chat';
 
 type TabId = 'search' | 'bookmarks' | 'compare' | 'history' | 'profile';
 
@@ -77,6 +80,9 @@ export default function App() {
   const [countryCode, setCountryCode] = useState('+44');
   const [userPreferences, setUserPreferences] = useState<string[]>([]);
   const [welcomeBackPrefs, setWelcomeBackPrefs] = useState<string[] | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
+  const [guestPromptOpen, setGuestPromptOpen] = useState(false);
+  const [chatProperty, setChatProperty] = useState<Property | null>(null);
 
   const [searchMode, setSearchMode] = useState<SearchMode>('rent');
 
@@ -217,6 +223,11 @@ export default function App() {
     setOnboardingComplete(true);
   };
 
+  const handleContinueAsGuest = () => {
+    setIsGuest(true);
+    setOnboardingComplete(true);
+  };
+
   const handleKeepSavedPreferences = () => {
     if (!welcomeBackPrefs) return;
     setUserPreferences(welcomeBackPrefs);
@@ -349,6 +360,35 @@ export default function App() {
     setPendingToast('Agent Sarah Chen from Canary Wharf Branch will contact you shortly.');
   };
 
+  const handleGuestBookmarkToggle = (property: Property) => {
+    if (isGuest) { setGuestPromptOpen(true); return; }
+    handleBookmarkToggle(property);
+  };
+
+  const handleGuestComparisonToggle = (property: Property) => {
+    if (isGuest) { setGuestPromptOpen(true); return; }
+    handleComparisonToggle(property);
+  };
+
+  const handleGuestFavoriteFromDetail = () => {
+    if (isGuest) { setGuestPromptOpen(true); return; }
+    handleFavoriteFromDetail();
+  };
+
+  const handleGuestCompare = () => {
+    if (isGuest) { setGuestPromptOpen(true); return; }
+    handleCompare();
+  };
+
+  const handleChatWithAgent = () => {
+    setChatProperty(selectedProperty);
+    setMainScreen('chat');
+  };
+
+  const handleFirstMessageSent = () => {
+    if (chatProperty) handleContactAgentSent(chatProperty);
+  };
+
   const handleOpenNotifications = () => {
     setMainScreen('notifications');
   };
@@ -419,6 +459,7 @@ export default function App() {
           <SignUpScreen
             onContinue={handleSignUpContinue}
             onSignUp={handleOpenCreateAccount}
+            onGuestAccess={handleContinueAsGuest}
           />
         )}
         {onboardingStep === 'create-account' && (
@@ -463,7 +504,7 @@ export default function App() {
     );
   }
 
-  const isFullBleedScreen = mainScreen === 'property-detail';
+  const isFullBleedScreen = mainScreen === 'property-detail' || mainScreen === 'chat';
 
   // Silence unused ref while we keep it for potential future commit-on-dismiss logic.
   void pendingUndoCommitRef;
@@ -484,9 +525,10 @@ export default function App() {
             onSearch={(query) => console.log('Search:', query)}
             viewedEntries={viewedEntries}
             bookmarkIds={bookmarkIds}
-            onBookmarkToggle={handleBookmarkToggle}
+            onBookmarkToggle={handleGuestBookmarkToggle}
             onPropertySelect={handlePropertySelect}
             onViewAllHistory={handleOpenHistory}
+            isGuest={isGuest}
           />
         )}
 
@@ -495,9 +537,9 @@ export default function App() {
             area={selectedArea}
             searchMode={searchMode}
             bookmarkIds={bookmarkIds}
-            onBookmarkToggle={handleBookmarkToggle}
+            onBookmarkToggle={handleGuestBookmarkToggle}
             comparisonIds={comparisonIds}
-            onComparisonToggle={handleComparisonToggle}
+            onComparisonToggle={handleGuestComparisonToggle}
             onBack={handleBackToHome}
             onPropertySelect={handlePropertySelect}
           />
@@ -508,15 +550,26 @@ export default function App() {
             property={selectedProperty}
             searchMode={searchMode}
             onBack={handleBackToAreaResults}
-            onFavorite={handleFavoriteFromDetail}
-            onCompare={handleCompare}
-            onContactAgentSent={handleContactAgentSent}
+            onFavorite={handleGuestFavoriteFromDetail}
+            onCompare={handleGuestCompare}
+            onChatWithAgent={handleChatWithAgent}
             isFavorited={isBookmarked(selectedProperty.id)}
             bookmarkIds={bookmarkIds}
             viewedEntries={viewedEntries}
-            onBookmarkToggle={handleBookmarkToggle}
+            onBookmarkToggle={handleGuestBookmarkToggle}
             onPropertySelect={handlePropertySelect}
             onViewAllSimilar={handleOpenSimilar}
+          />
+        )}
+
+        {mainScreen === 'chat' && chatProperty && (
+          <ChatScreen
+            agent={{ name: 'Sarah Chen', branch: 'Canary Wharf Branch', initials: 'SC', phone: '07700 900123', email: 'sarah@starhomes.co.uk' }}
+            propertyTitle={chatProperty.title}
+            onBack={() => {
+              setMainScreen('property-detail');
+            }}
+            onFirstMessageSent={handleFirstMessageSent}
           />
         )}
 
@@ -563,7 +616,7 @@ export default function App() {
             entries={viewedEntries}
             searchMode={searchMode}
             bookmarkIds={bookmarkIds}
-            onBookmarkToggle={handleBookmarkToggle}
+            onBookmarkToggle={handleGuestBookmarkToggle}
             onPropertySelect={handlePropertySelect}
             onClearHistory={handleClearHistory}
             onBack={handleBackToHome}
@@ -577,7 +630,7 @@ export default function App() {
             searchMode={searchMode}
             bookmarkIds={bookmarkIds}
             viewedEntries={viewedEntries}
-            onBookmarkToggle={handleBookmarkToggle}
+            onBookmarkToggle={handleGuestBookmarkToggle}
             onPropertySelect={handlePropertySelect}
             onBack={handleBackFromSimilar}
           />
@@ -605,6 +658,17 @@ export default function App() {
       {globalToast && <Toast message={globalToast} onDismiss={() => setGlobalToast(null)} />}
 
       {!isFullBleedScreen && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
+
+      <GuestPromptSheet
+        open={guestPromptOpen}
+        onSignUp={() => {
+          setGuestPromptOpen(false);
+          setIsGuest(false);
+          setOnboardingComplete(false);
+          setOnboardingStep('signup');
+        }}
+        onDismiss={() => setGuestPromptOpen(false)}
+      />
     </div>
   );
 }
