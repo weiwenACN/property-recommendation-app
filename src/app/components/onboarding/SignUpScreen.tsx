@@ -277,12 +277,30 @@ export function SignUpScreen({ onContinue, onSignUp, onGuestAccess }: SignUpScre
                   minWidth: '96px',
                 }}
               >
-                {/* Flag */}
-                <span style={{ fontSize: '22px', lineHeight: 1, flexShrink: 0 }}>
+                {/* Flag — fixed-width flex container keeps emoji/text vertically centred
+                    regardless of platform (Windows renders flags as "GB" text chars) */}
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '26px',
+                  fontSize: '20px',
+                  lineHeight: 1,
+                  flexShrink: 0,
+                }}>
                   {country.flag}
                 </span>
                 {/* Dial code */}
-                <span style={{ fontSize: '14px', fontWeight: 700, color: '#0F0C2E', letterSpacing: '-0.2px', flexShrink: 0 }}>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  color: '#0F0C2E',
+                  letterSpacing: '-0.2px',
+                  flexShrink: 0,
+                  lineHeight: 1,
+                }}>
                   {country.dialCode}
                 </span>
                 {/* Chevron */}
