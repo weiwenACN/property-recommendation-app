@@ -30,6 +30,8 @@ export interface Property {
   areaId: string;
   /** Lifestyle preference ids this property satisfies; see data/preferences.ts. */
   preferenceTags: string[];
+  /** Agent responsible for this listing. Defaults to DEFAULT_AGENT_ID if absent. */
+  agentId?: string;
 }
 
 export const recommendedAreas: RecommendedArea[] = [
@@ -93,10 +95,34 @@ export const recommendedAreas: RecommendedArea[] = [
     lat: 51.5450,
     lng: -0.0553,
   },
+  {
+    id: '6',
+    name: 'Notting Hill',
+    borough: 'Kensington and Chelsea',
+    avgRent: 3200,
+    avgSalePrice: 1250000,
+    tag: 'Vibrant & leafy',
+    imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',
+    matchReason: 'Iconic neighbourhood with boutique shops and excellent schools',
+    lat: 51.5130,
+    lng: -0.2050,
+  },
+  {
+    id: '7',
+    name: 'Greenwich',
+    borough: 'Greenwich',
+    avgRent: 2100,
+    avgSalePrice: 590000,
+    tag: 'Historic riverside',
+    imageUrl: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=800',
+    matchReason: 'Historic riverside with great transport links to Canary Wharf',
+    lat: 51.4780,
+    lng: -0.0099,
+  },
 ];
 
 export const properties: Property[] = [
-  // ----- Shoreditch (area 1) -----
+  // ----- Shoreditch (area 1) — agent-1 Sarah Chen -----
   {
     id: '1',
     title: 'Modern 2-Bed Apartment',
@@ -115,6 +141,7 @@ export const properties: Property[] = [
     lat: 51.5260,
     lng: -0.0780,
     areaId: '1',
+    agentId: 'agent-1',
     preferenceTags: ['tube', 'nightlife', 'cbd'],
   },
   {
@@ -135,6 +162,7 @@ export const properties: Property[] = [
     lat: 51.5230,
     lng: -0.0715,
     areaId: '1',
+    agentId: 'agent-1',
     preferenceTags: ['tube', 'nightlife'],
   },
   {
@@ -155,10 +183,11 @@ export const properties: Property[] = [
     lat: 51.5275,
     lng: -0.0830,
     areaId: '1',
+    agentId: 'agent-1',
     preferenceTags: ['cbd', 'nightlife', 'tube'],
   },
 
-  // ----- Clapham (area 2) -----
+  // ----- Clapham (area 2) — agent-4 Priya Sharma -----
   {
     id: '4',
     title: 'Family 3-Bed House',
@@ -177,6 +206,7 @@ export const properties: Property[] = [
     lat: 51.4640,
     lng: -0.1390,
     areaId: '2',
+    agentId: 'agent-4',
     preferenceTags: ['schools', 'parks', 'supermarkets'],
   },
   {
@@ -197,6 +227,7 @@ export const properties: Property[] = [
     lat: 51.4610,
     lng: -0.1370,
     areaId: '2',
+    agentId: 'agent-4',
     preferenceTags: ['tube', 'parks'],
   },
   {
@@ -217,10 +248,11 @@ export const properties: Property[] = [
     lat: 51.4655,
     lng: -0.1340,
     areaId: '2',
+    agentId: 'agent-4',
     preferenceTags: ['schools', 'parks'],
   },
 
-  // ----- Canary Wharf (area 3) -----
+  // ----- Canary Wharf (area 3) — agent-1 Sarah Chen -----
   {
     id: '7',
     title: 'River-view 2-Bed',
@@ -239,6 +271,7 @@ export const properties: Property[] = [
     lat: 51.5042,
     lng: -0.0205,
     areaId: '3',
+    agentId: 'agent-1',
     preferenceTags: ['cbd', 'tube', 'supermarkets'],
   },
   {
@@ -259,6 +292,7 @@ export const properties: Property[] = [
     lat: 51.5054,
     lng: -0.0190,
     areaId: '3',
+    agentId: 'agent-1',
     preferenceTags: ['cbd', 'tube'],
   },
   {
@@ -279,10 +313,11 @@ export const properties: Property[] = [
     lat: 51.5031,
     lng: -0.0182,
     areaId: '3',
+    agentId: 'agent-1',
     preferenceTags: ['cbd', 'tube', 'supermarkets'],
   },
 
-  // ----- Brixton (area 4) -----
+  // ----- Brixton (area 4) — agent-4 Priya Sharma / agent-3 James Okafor -----
   {
     id: '10',
     title: 'Cosy 1-Bed Flat',
@@ -301,6 +336,7 @@ export const properties: Property[] = [
     lat: 51.4615,
     lng: -0.1140,
     areaId: '4',
+    agentId: 'agent-4',
     preferenceTags: ['tube', 'nightlife', 'supermarkets'],
   },
   {
@@ -321,6 +357,7 @@ export const properties: Property[] = [
     lat: 51.4640,
     lng: -0.1120,
     areaId: '4',
+    agentId: 'agent-4',
     preferenceTags: ['parks', 'supermarkets'],
   },
   {
@@ -341,10 +378,11 @@ export const properties: Property[] = [
     lat: 51.4630,
     lng: -0.1170,
     areaId: '4',
+    agentId: 'agent-3',
     preferenceTags: ['schools', 'parks', 'supermarkets'],
   },
 
-  // ----- Hackney (area 5) -----
+  // ----- Hackney (area 5) — agent-2 Wei Lin / agent-3 James Okafor -----
   {
     id: '13',
     title: 'Warehouse Loft',
@@ -363,6 +401,7 @@ export const properties: Property[] = [
     lat: 51.5445,
     lng: -0.0560,
     areaId: '5',
+    agentId: 'agent-2',
     preferenceTags: ['nightlife', 'tube'],
   },
   {
@@ -383,6 +422,7 @@ export const properties: Property[] = [
     lat: 51.5455,
     lng: -0.0545,
     areaId: '5',
+    agentId: 'agent-2',
     preferenceTags: ['parks', 'schools', 'supermarkets'],
   },
   {
@@ -403,7 +443,100 @@ export const properties: Property[] = [
     lat: 51.5430,
     lng: -0.0590,
     areaId: '5',
+    agentId: 'agent-3',
     preferenceTags: ['parks', 'nightlife'],
+  },
+
+  // ----- Hackney extended (area 5) — agent-3 James Okafor -----
+  {
+    id: '16',
+    title: 'Bright 2-Bed Conversion',
+    address: '14 Columbia Road, Hackney',
+    rentPrice: 2150,
+    salePrice: 640000,
+    bedrooms: 2,
+    bathrooms: 1,
+    floorAreaSqft: 790,
+    yearBuilt: 1908,
+    description:
+      'Charming two-bedroom conversion steps from the famous Columbia Road Flower Market. Two well-proportioned doubles, a separate fitted kitchen and a sun-trap courtyard garden. A rare find on one of East London\'s most iconic streets.',
+    propertyType: 'Apartment',
+    distanceToTube: '10 min walk to Bethnal Green',
+    imageUrl: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=800',
+    lat: 51.5313,
+    lng: -0.0729,
+    areaId: '5',
+    agentId: 'agent-3',
+    preferenceTags: ['parks', 'nightlife', 'supermarkets'],
+  },
+
+  // ----- Clapham extended (area 2) — agent-4 Priya Sharma -----
+  {
+    id: '17',
+    title: '3-Bed Semi-Detached',
+    address: '32 Abbots Park, Clapham',
+    rentPrice: 2600,
+    salePrice: 895000,
+    bedrooms: 3,
+    bathrooms: 2,
+    floorAreaSqft: 1190,
+    yearBuilt: 1932,
+    description:
+      'Spacious semi-detached house on a quiet residential road close to Clapham South. Bay-fronted reception, modern kitchen-diner, three good-sized bedrooms and a sunny south-facing rear garden. Outstanding primary school catchment.',
+    propertyType: 'House',
+    distanceToTube: '4 min walk to Clapham South',
+    imageUrl: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800',
+    lat: 51.4530,
+    lng: -0.1481,
+    areaId: '2',
+    agentId: 'agent-4',
+    preferenceTags: ['schools', 'parks', 'tube'],
+  },
+
+  // ----- Notting Hill (area 6) — agent-5 Tom Whitfield -----
+  {
+    id: '18',
+    title: 'Charming Mews House',
+    address: '7 Portobello Mews, Notting Hill',
+    rentPrice: 3600,
+    salePrice: 1350000,
+    bedrooms: 3,
+    bathrooms: 2,
+    floorAreaSqft: 1120,
+    yearBuilt: 1955,
+    description:
+      'Beautifully converted mews house tucked behind Portobello Road. Open-plan living and dining on the ground floor, three bedrooms above and a private cobbled courtyard perfect for al-fresco entertaining. Rare parking space included.',
+    propertyType: 'House',
+    distanceToTube: '6 min walk to Notting Hill Gate',
+    imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
+    lat: 51.5151,
+    lng: -0.2002,
+    areaId: '6',
+    agentId: 'agent-5',
+    preferenceTags: ['tube', 'nightlife', 'parks'],
+  },
+
+  // ----- Greenwich (area 7) — agent-6 Mei Lin -----
+  {
+    id: '19',
+    title: 'River-View 2-Bed Flat',
+    address: '21 Riverside Walk, Greenwich',
+    rentPrice: 2300,
+    salePrice: 680000,
+    bedrooms: 2,
+    bathrooms: 1,
+    floorAreaSqft: 840,
+    yearBuilt: 2005,
+    description:
+      'Contemporary two-bedroom apartment with stunning Thames views from a private balcony. Open-plan kitchen-living, two double bedrooms and a sleek modern bathroom. Minutes from the Cutty Sark, Greenwich Park and the DLR.',
+    propertyType: 'Apartment',
+    distanceToTube: '5 min walk to Cutty Sark DLR',
+    imageUrl: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800',
+    lat: 51.4817,
+    lng: -0.0083,
+    areaId: '7',
+    agentId: 'agent-6',
+    preferenceTags: ['tube', 'parks', 'cbd'],
   },
 ];
 

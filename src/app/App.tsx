@@ -25,6 +25,14 @@ import {
   type SavedCalculation,
 } from './data/calculatorStore';
 import {
+  ensureDemoConversations,
+  getOrCreateConversation,
+  addMessageToConversation,
+  markConversationRead,
+  loadConversations,
+  type Conversation,
+} from './data/messageStore';
+import {
   loadViewed,
   recordView,
   clearViewed,
@@ -104,6 +112,12 @@ export default function App() {
   const [chatProperty, setChatProperty] = useState<Property | null>(null);
   const [chatReturnTo, setChatReturnTo] = useState<MainScreen>('property-detail');
   const [sparkEntry, setSparkEntry] = useState<SparkEntry | null>(null);
+
+  // ── Conversations (Messages tab) ─────────────────────────────────────────
+  const [conversations, setConversations] = useState<Conversation[]>(() => {
+    ensureDemoConversations(); // seeds demo data once per device
+    return loadConversations();
+  });
 
   const [searchMode, setSearchMode] = useState<SearchMode>('rent');
 
@@ -368,17 +382,18 @@ export default function App() {
   };
 
   const handleContactAgentSent = (property: Property) => {
+    const agentForProp = agentById(property.agentId ?? DEFAULT_AGENT_ID) ?? agentById(DEFAULT_AGENT_ID)!;
     const notif: Notification = {
       id: `agent-${Date.now()}`,
       type: 'agent-confirmation',
       title: 'Inquiry sent',
-      body: `Agent Sarah Chen from Canary Wharf Branch will contact you shortly about ${property.title}.`,
+      body: `Agent ${agentForProp.fullName} from ${agentForProp.agencyName.split(' · ')[1] ?? agentForProp.agencyName} will contact you shortly about ${property.title}.`,
       propertyId: property.id,
       timestamp: Date.now(),
       read: false,
     };
     setNotifications((prev) => [notif, ...prev]);
-    setPendingToast('Agent Sarah Chen from Canary Wharf Branch will contact you shortly.');
+    setPendingToast(`Agent ${agentForProp.fullName} will contact you shortly.`);
   };
 
   const openGuestPrompt = (feature?: string) => {
@@ -406,33 +421,81 @@ export default function App() {
     handleCompare();
   };
 
+  /**
+   * Shared helper: opens ChatScreen for a specific property+agent pair.
+   * Writes to messageStore (idempotent) so the Messages tab stays in sync.
+   */
+  const openChatFor = (
+    property: Property,
+    returnTo: MainScreen,
+    autoMsg?: string,
+  ) => {
+    const agentId = property.agentId ?? DEFAULT_AGENT_ID;
+    const convId = `${property.id}_${agentId}`;
+
+    // Ensure the conversation exists in the store
+    getOrCreateConversation(property.id, agentId);
+    const openingMsg = autoMsg ?? `Hi, I'm interested in ${property.title}.`;
+    // Only add the opening message if this is a brand-new conversation
+    const conv = loadConversations().find((c) => c.id === convId);
+    if (conv && conv.messages.length === 0) {
+      addMessageToConversation(convId, openingMsg, 'user');
+    }
+    setConversations(loadConversations());
+
+    setChatProperty(property);
+    setChatReturnTo(returnTo);
+    setSparkEntry({
+      autoMessage: openingMsg,
+      sessionKey: convId,
+      listedPrice: searchMode === 'rent' ? property.rentPrice : property.salePrice,
+    });
+  };
+
   const handleChatWithAgent = () => {
-    setChatProperty(selectedProperty);
-    setChatReturnTo('property-detail');
-    setSparkEntry(null);
+    if (!selectedProperty) return;
+    openChatFor(selectedProperty, 'property-detail');
     setMainScreen('chat');
   };
 
   // Called silently when user swipes right — no navigation, just records intent
   // and seeds the chat session so it's ready when they tap "View" on the toast.
   const handleSparkInterested = (property: Property) => {
-    setChatProperty(property);
-    setChatReturnTo('spark');
-    setSparkEntry({
-      autoMessage: `Hi, I'm interested in this property — ${property.address}.`,
-      sessionKey: `spark-${property.id}`,
-      listedPrice: searchMode === 'rent' ? property.rentPrice : property.salePrice,
-    });
+    openChatFor(
+      property,
+      'spark',
+      `Hi, I'm interested in this property — ${property.address}.`,
+    );
     // Deliberately does NOT call setMainScreen — navigation happens only via handleViewSparkChat.
   };
 
   // Called from the toast "View" button after the celebration screen is dismissed.
   const handleViewSparkChat = (property: Property) => {
+    openChatFor(
+      property,
+      'spark',
+      `Hi, I'm interested in this property — ${property.address}.`,
+    );
+    setMainScreen('chat');
+  };
+
+  /** Opens a conversation from the Messages tab. */
+  const handleOpenConversation = (conv: Conversation) => {
+    const property = allProperties.find((p) => p.id === conv.propertyId);
+    if (!property) return;
+
+    const firstUserMsg = conv.messages.find((m) => m.sender === 'user');
+    const autoMessage =
+      firstUserMsg?.text ?? `Hi, I'm interested in ${property.title}.`;
+
+    markConversationRead(conv.id);
+    setConversations(loadConversations());
+
     setChatProperty(property);
-    setChatReturnTo('spark');
+    setChatReturnTo('messages');
     setSparkEntry({
-      autoMessage: `Hi, I'm interested in this property — ${property.address}.`,
-      sessionKey: `spark-${property.id}`,
+      autoMessage,
+      sessionKey: conv.id,
       listedPrice: searchMode === 'rent' ? property.rentPrice : property.salePrice,
     });
     setMainScreen('chat');
@@ -549,6 +612,7 @@ export default function App() {
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const messagesUnreadCount = conversations.reduce((s, c) => s + c.unreadCount, 0);
 
   // ── Calculator open state + saved calculations ────────────────────────────
   const [calcOpen, setCalcOpen] = useState(false);
@@ -765,7 +829,8 @@ export default function App() {
         )}
 
         {mainScreen === 'chat' && chatProperty && (() => {
-          const chatAgent = agentById(DEFAULT_AGENT_ID)!;
+          const chatAgentId = chatProperty.agentId ?? DEFAULT_AGENT_ID;
+          const chatAgent = agentById(chatAgentId) ?? agentById(DEFAULT_AGENT_ID)!;
           return (
             <ChatScreen
               agent={{
@@ -781,6 +846,7 @@ export default function App() {
               onBack={() => {
                 setMainScreen(chatReturnTo);
                 if (chatReturnTo === 'spark') setActiveTab('spark');
+                else if (chatReturnTo === 'messages') setActiveTab('messages');
               }}
               onFirstMessageSent={handleFirstMessageSent}
               sparkEntry={sparkEntry ?? undefined}
@@ -788,15 +854,24 @@ export default function App() {
           );
         })()}
 
-        {mainScreen === 'agent-profile' && (
-          <AgentProfileScreen
-            agent={agentById(DEFAULT_AGENT_ID)!}
-            onBack={() => setMainScreen('property-detail')}
-            onChatWithAgent={() => { setChatProperty(selectedProperty); setMainScreen('chat'); }}
-            isGuest={isGuest}
-            onGuestAction={() => openGuestPrompt('contact agents')}
-          />
-        )}
+        {mainScreen === 'agent-profile' && (() => {
+          const profileAgentId = selectedProperty?.agentId ?? DEFAULT_AGENT_ID;
+          const profileAgent = agentById(profileAgentId) ?? agentById(DEFAULT_AGENT_ID)!;
+          return (
+            <AgentProfileScreen
+              agent={profileAgent}
+              onBack={() => setMainScreen('property-detail')}
+              onChatWithAgent={() => {
+                if (selectedProperty) {
+                  openChatFor(selectedProperty, 'property-detail');
+                }
+                setMainScreen('chat');
+              }}
+              isGuest={isGuest}
+              onGuestAction={() => openGuestPrompt('contact agents')}
+            />
+          );
+        })()}
 
         {mainScreen === 'comparison' && (
           <ComparisonScreen
@@ -835,6 +910,8 @@ export default function App() {
 
         {mainScreen === 'messages' && (
           <MessagesScreen
+            conversations={conversations}
+            onOpenConversation={handleOpenConversation}
             onStartConversation={() => {
               setActiveTab('spark');
               setMainScreen('spark');
@@ -906,7 +983,13 @@ export default function App() {
 
       {globalToast && <Toast message={globalToast} onDismiss={() => setGlobalToast(null)} />}
 
-      {!isFullBleedScreen && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
+      {!isFullBleedScreen && (
+        <BottomNav
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          badges={messagesUnreadCount > 0 ? { messages: messagesUnreadCount } : undefined}
+        />
+      )}
 
       <GuestPromptSheet
         open={guestPromptOpen}
