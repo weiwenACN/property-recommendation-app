@@ -394,7 +394,21 @@ export default function App() {
     setMainScreen('chat');
   };
 
+  // Called silently when user swipes right — no navigation, just records intent
+  // and seeds the chat session so it's ready when they tap "View" on the toast.
   const handleSparkInterested = (property: Property) => {
+    setChatProperty(property);
+    setChatReturnTo('spark');
+    setSparkEntry({
+      autoMessage: `Hi, I'm interested in this property — ${property.address}.`,
+      sessionKey: `spark-${property.id}`,
+      listedPrice: searchMode === 'rent' ? property.rentPrice : property.salePrice,
+    });
+    // Deliberately does NOT call setMainScreen — navigation happens only via handleViewSparkChat.
+  };
+
+  // Called from the toast "View" button after the celebration screen is dismissed.
+  const handleViewSparkChat = (property: Property) => {
     setChatProperty(property);
     setChatReturnTo('spark');
     setSparkEntry({
@@ -569,6 +583,7 @@ export default function App() {
             searchMode={searchMode}
             onPropertySelect={handlePropertySelect}
             onInterestedInProperty={handleSparkInterested}
+            onViewChat={handleViewSparkChat}
           />
         )}
 
