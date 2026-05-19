@@ -1,5 +1,20 @@
-﻿import { lazy, Suspense, useMemo, useState } from 'react';
-import { ArrowLeft, List, Map as MapIcon, SlidersHorizontal, ArrowUpDown, X, Loader2 } from 'lucide-react';
+import { lazy, Suspense, useMemo, useState } from 'react';
+import {
+  ArrowLeft,
+  LayoutList,
+  Map as MapIcon,
+  SlidersHorizontal,
+  ArrowUpDown,
+  X,
+  Loader2,
+  Check,
+  ChevronDown,
+  TrendingUp,
+  TrendingDown,
+  Sparkles,
+  Maximize2,
+  Calendar,
+} from 'lucide-react';
 import {
   propertiesByArea,
   type Property,
@@ -18,12 +33,18 @@ import { FilterSheet } from './FilterSheet';
 type SortKey = 'recommended' | 'price-asc' | 'price-desc' | 'newest' | 'largest';
 const DEFAULT_SORT: SortKey = 'recommended';
 
-const SORT_OPTIONS: { value: SortKey; label: string; description: string }[] = [
-  { value: 'recommended', label: 'Recommended', description: 'Best match for you' },
-  { value: 'price-asc',   label: 'Price: low to high', description: 'Cheapest first' },
-  { value: 'price-desc',  label: 'Price: high to low', description: 'Most expensive first' },
-  { value: 'newest',      label: 'Newest first', description: 'Most recently built' },
-  { value: 'largest',     label: 'Largest first', description: 'Most floor area' },
+const SORT_OPTIONS: {
+  value: SortKey;
+  label: string;
+  shortLabel: string;
+  description: string;
+  Icon: React.ComponentType<{ style?: React.CSSProperties }>;
+}[] = [
+  { value: 'recommended', label: 'Recommended',      shortLabel: 'Best match',  description: 'Best match for you',      Icon: Sparkles    },
+  { value: 'price-asc',   label: 'Price: low–high',  shortLabel: 'Price ↑',     description: 'Cheapest first',           Icon: TrendingUp  },
+  { value: 'price-desc',  label: 'Price: high–low',  shortLabel: 'Price ↓',     description: 'Most expensive first',     Icon: TrendingDown},
+  { value: 'newest',      label: 'Newest first',     shortLabel: 'Newest',      description: 'Most recently built',      Icon: Calendar    },
+  { value: 'largest',     label: 'Largest first',    shortLabel: 'Largest',     description: 'Most floor area',          Icon: Maximize2   },
 ];
 
 function rawPrice(p: Property, mode: SearchMode): number {
@@ -39,6 +60,16 @@ function sortProperties(list: Property[], sort: SortKey, mode: SearchMode): Prop
     if (sort === 'largest')    return b.floorAreaSqft - a.floorAreaSqft;
     return 0;
   });
+}
+
+/** Count the number of active filter categories */
+function countActiveFilters(filters: PropertyFilters): number {
+  let count = 0;
+  if (filters.minPrice != null || filters.maxPrice != null) count++;
+  if (filters.minBeds != null) count++;
+  if (filters.maxCommute != null) count++;
+  if (filters.propertyTypes && filters.propertyTypes.length > 0) count++;
+  return count;
 }
 
 const PropertyMap = lazy(() => import('./PropertyMap'));
@@ -81,93 +112,135 @@ export function AreaResultsScreen({
     () => sortProperties(filteredProperties, sort, searchMode),
     [filteredProperties, sort, searchMode],
   );
+
   const hasActiveFilters = isFilterActive(filters);
   const hasActiveSort = sort !== DEFAULT_SORT;
+  const filterCount = countActiveFilters(filters);
+  const activeSortOption = SORT_OPTIONS.find((o) => o.value === sort)!;
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Header */}
-      <div className="bg-[#0F0C2E] px-6 pb-4 header-pt">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-white hover:text-white/70 transition-colors mb-4"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back</span>
-        </button>
-        <h1 className="text-2xl font-semibold text-white">{area.name}</h1>
-        <p className="text-gray-300">
-          {area.borough} &middot; {filteredProperties.length}{' '}
-          {filteredProperties.length === 1 ? 'property' : 'properties'} to {searchMode}
-        </p>
+    <div className="flex flex-col h-full bg-[#F7F6FB]">
+
+      {/* ── Dark hero header ── */}
+      <div className="bg-[#0F0C2E] px-5 pb-6 header-pt rounded-b-[28px] shadow-lg shadow-[#0F0C2E]/20 relative overflow-hidden flex-shrink-0">
+        {/* Blob */}
+        <div className="absolute -top-6 -right-6 w-32 h-32 bg-[#3C3489]/30 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors mb-4 min-h-[44px]"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+
+          <div className="flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold text-white tracking-tight leading-tight truncate">
+                {area.name}
+              </h1>
+              <p className="text-gray-400 text-sm mt-0.5">{area.borough}</p>
+            </div>
+            {/* Count badge */}
+            <div className="flex-shrink-0 bg-white/10 border border-white/15 rounded-full px-3 py-1">
+              <span className="text-white text-xs font-semibold">
+                {filteredProperties.length} {filteredProperties.length === 1 ? 'home' : 'homes'}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Toggle and Filters */}
-      <div className="bg-white border-b border-[#e5e7eb] px-4 py-3 space-y-2">
-        {/* Row 1: List / Map toggle */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setViewMode('list')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-colors ${
-              viewMode === 'list'
-                ? 'bg-[#0F0C2E] text-white'
-                : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE]'
-            }`}
-          >
-            <List className="w-4 h-4" />
-            <span className="text-sm font-medium">List</span>
-          </button>
-          <button
-            onClick={() => setViewMode('map')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-colors ${
-              viewMode === 'map'
-                ? 'bg-[#0F0C2E] text-white'
-                : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE]'
-            }`}
-          >
-            <MapIcon className="w-4 h-4" />
-            <span className="text-sm font-medium">Map</span>
-          </button>
-        </div>
+      {/* ── Control strip ── */}
+      <div className="flex-shrink-0 px-4 py-3">
+        <div className="flex items-center gap-2">
 
-        {/* Row 2: Sort / Filter */}
-        <div className="flex gap-2">
+          {/* Segmented List / Map toggle — compact pill */}
+          <div
+            className="flex items-center p-1 rounded-2xl flex-shrink-0"
+            style={{
+              background: 'rgba(255,255,255,0.9)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(0,0,0,0.06)',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+            }}
+          >
+            <button
+              onClick={() => setViewMode('list')}
+              aria-pressed={viewMode === 'list'}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                viewMode === 'list'
+                  ? 'bg-[#0F0C2E] text-white shadow-sm'
+                  : 'text-gray-500 hover:text-[#0F0C2E]'
+              }`}
+            >
+              <LayoutList className="w-3.5 h-3.5" />
+              List
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              aria-pressed={viewMode === 'map'}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                viewMode === 'map'
+                  ? 'bg-[#0F0C2E] text-white shadow-sm'
+                  : 'text-gray-500 hover:text-[#0F0C2E]'
+              }`}
+            >
+              <MapIcon className="w-3.5 h-3.5" />
+              Map
+            </button>
+          </div>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Sort pill */}
           <button
             onClick={() => setSortSheetOpen(true)}
             aria-haspopup="dialog"
-            aria-expanded={sortSheetOpen}
-            className="relative flex-1 flex items-center justify-center gap-2 py-2 bg-[#F7F6FB] text-[#0F0C2E] rounded-lg hover:bg-[#EEEDFE] transition-colors min-h-[40px]"
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold transition-all active:scale-95 ${
+              hasActiveSort
+                ? 'bg-[#0F0C2E] text-white shadow-md shadow-[#0F0C2E]/20'
+                : 'bg-white text-[#0F0C2E] border border-[#e5e7eb] hover:border-[#3C3489]/40'
+            }`}
+            style={!hasActiveSort ? { boxShadow: '0 1px 3px rgba(0,0,0,0.07)' } : undefined}
           >
-            <ArrowUpDown className="w-4 h-4" />
-            <span className="text-sm font-medium">Sort{hasActiveSort ? ` · ${SORT_OPTIONS.find(o => o.value === sort)?.label}` : ''}</span>
-            {hasActiveSort && (
-              <span aria-label="Sort active" className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#E5917A] ring-2 ring-white" />
-            )}
+            <ArrowUpDown className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="max-w-[80px] truncate">
+              {hasActiveSort ? activeSortOption.shortLabel : 'Sort'}
+            </span>
+            <ChevronDown className="w-3 h-3 flex-shrink-0 opacity-60" />
           </button>
+
+          {/* Filter pill */}
           <button
             onClick={() => setFilterSheetOpen(true)}
             aria-haspopup="dialog"
-            aria-expanded={filterSheetOpen}
-            className="relative flex-1 flex items-center justify-center gap-2 py-2 bg-[#F7F6FB] text-[#0F0C2E] rounded-lg hover:bg-[#EEEDFE] transition-colors min-h-[40px]"
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold transition-all active:scale-95 ${
+              hasActiveFilters
+                ? 'bg-[#E5917A] text-white shadow-md shadow-[#E5917A]/25'
+                : 'bg-white text-[#0F0C2E] border border-[#e5e7eb] hover:border-[#E5917A]/40'
+            }`}
+            style={!hasActiveFilters ? { boxShadow: '0 1px 3px rgba(0,0,0,0.07)' } : undefined}
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span className="text-sm font-medium">Filters</span>
-            {hasActiveFilters && (
-              <span aria-label="Filters active" className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#E5917A] ring-2 ring-white" />
-            )}
+            <SlidersHorizontal className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>
+              {hasActiveFilters ? `Filters${filterCount > 0 ? ` (${filterCount})` : ''}` : 'Filter'}
+            </span>
+            <ChevronDown className="w-3 h-3 flex-shrink-0 opacity-60" />
           </button>
+
         </div>
       </div>
 
+      {/* ── Sheets ── */}
       <FilterSheet
         open={filterSheetOpen}
         initialFilters={filters}
         candidateProperties={propertiesInArea}
         searchMode={searchMode}
-        onApply={(next) => {
-          setFilters(next);
-          setFilterSheetOpen(false);
-        }}
+        onApply={(next) => { setFilters(next); setFilterSheetOpen(false); }}
         onClear={() => setFilters(DEFAULT_FILTERS)}
         onClose={() => setFilterSheetOpen(false)}
       />
@@ -175,24 +248,24 @@ export function AreaResultsScreen({
       <SortSheet
         open={sortSheetOpen}
         activeSort={sort}
-        onApply={(next) => {
-          setSort(next);
-          setSortSheetOpen(false);
-        }}
+        onApply={(next) => { setSort(next); setSortSheetOpen(false); }}
         onClear={() => setSort(DEFAULT_SORT)}
         onClose={() => setSortSheetOpen(false)}
       />
 
-      {/* Content */}
+      {/* ── Content ── */}
       <div className="flex-1 overflow-y-auto">
         {viewMode === 'list' && (
-          <div className="px-6 py-4 space-y-4">
+          <>
             {displayProperties.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <p className="text-[#0F0C2E] font-medium mb-1">
-                  {hasActiveFilters ? 'No properties match these filters' : `No properties to ${searchMode} here`}
+              <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+                <div className="w-16 h-16 rounded-2xl bg-white border border-[#e5e7eb] flex items-center justify-center mb-4 shadow-sm">
+                  <SlidersHorizontal className="w-7 h-7 text-gray-300" />
+                </div>
+                <p className="text-[#0F0C2E] font-bold text-base mb-1">
+                  {hasActiveFilters ? 'No homes match these filters' : `No homes to ${searchMode} here`}
                 </p>
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-sm text-gray-500 mb-4 leading-relaxed max-w-xs">
                   {hasActiveFilters
                     ? 'Try loosening the filters or pick a different area.'
                     : 'Try switching mode or pick a different area.'}
@@ -200,36 +273,38 @@ export function AreaResultsScreen({
                 {hasActiveFilters && (
                   <button
                     onClick={() => setFilters(DEFAULT_FILTERS)}
-                    className="text-[#3C3489] font-medium text-sm hover:underline"
+                    className="text-[#3C3489] font-semibold text-sm hover:underline"
                   >
                     Clear all filters
                   </button>
                 )}
               </div>
             ) : (
-              displayProperties.map((property, idx) => (
-                <PropertyCard
-                  key={property.id}
-                  property={property}
-                  searchMode={searchMode}
-                  onSelect={onPropertySelect}
-                  eager={idx === 0}
-                  isBookmarked={bookmarkIds.includes(property.id)}
-                  onBookmarkToggle={onBookmarkToggle}
-                  showSelectionToggle
-                  isSelected={comparisonIds.includes(property.id)}
-                  onSelectionToggle={onComparisonToggle}
-                />
-              ))
+              <div className="px-4 pt-2 pb-6 space-y-3">
+                {displayProperties.map((property, idx) => (
+                  <PropertyCard
+                    key={property.id}
+                    property={property}
+                    searchMode={searchMode}
+                    onSelect={onPropertySelect}
+                    eager={idx === 0}
+                    isBookmarked={bookmarkIds.includes(property.id)}
+                    onBookmarkToggle={onBookmarkToggle}
+                    showSelectionToggle
+                    isSelected={comparisonIds.includes(property.id)}
+                    onSelectionToggle={onComparisonToggle}
+                  />
+                ))}
+              </div>
             )}
-          </div>
+          </>
         )}
 
         {viewMode === 'map' && (
           <div className="relative h-full">
             <Suspense
               fallback={
-                <div className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-gray-600">
+                <div className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-gray-500">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Loading map…
                 </div>
@@ -254,7 +329,7 @@ export function AreaResultsScreen({
   );
 }
 
-// ── Sort bottom sheet ─────────────────────────────────────────────────────
+// ── Sort bottom sheet ──────────────────────────────────────────────────────────
 
 interface SortSheetProps {
   open: boolean;
@@ -278,60 +353,87 @@ function SortSheet({ open, activeSort, onApply, onClear, onClose }: SortSheetPro
       <div
         role="dialog"
         aria-labelledby="sort-sheet-title"
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom flex flex-col"
+        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[24px] shadow-2xl animate-in slide-in-from-bottom"
       >
-        <div className="px-6 pt-4 pb-2">
-          <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
+        {/* Handle + header */}
+        <div className="px-5 pt-4 pb-3">
+          <div className="mx-auto h-1 w-10 bg-[#e5e7eb] rounded-full mb-5" />
           <div className="flex items-center justify-between">
-            <h2 id="sort-sheet-title" className="text-xl font-semibold text-[#0F0C2E]">Sort by</h2>
+            <div>
+              <h2 id="sort-sheet-title" className="text-lg font-bold text-[#0F0C2E] tracking-tight">
+                Sort properties
+              </h2>
+              <p className="text-xs text-gray-400 mt-0.5">Choose how to order results</p>
+            </div>
             <button
               onClick={onClose}
               aria-label="Close"
-              className="p-2 -mr-2 text-gray-500 hover:text-[#0F0C2E] min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="w-8 h-8 rounded-full bg-[#F7F6FB] flex items-center justify-center text-gray-500 hover:text-[#0F0C2E] transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        <div className="px-6 pb-4 space-y-2">
+        {/* Options */}
+        <div className="px-5 pb-3 space-y-2">
           {SORT_OPTIONS.map((opt) => {
             const isActive = activeSort === opt.value;
+            const Icon = opt.Icon;
             return (
               <button
                 key={opt.value}
                 onClick={() => onApply(opt.value)}
                 aria-pressed={isActive}
-                className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-left transition-colors ${
+                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-left transition-all active:scale-[0.98] ${
                   isActive
-                    ? 'bg-[#0F0C2E] text-white'
-                    : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE]'
+                    ? 'bg-[#0F0C2E] text-white shadow-md shadow-[#0F0C2E]/15'
+                    : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE] border border-transparent hover:border-[#3C3489]/10'
                 }`}
               >
-                <div>
-                  <p className="text-sm font-medium">{opt.label}</p>
-                  <p className={`text-xs mt-0.5 ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
+                {/* Icon box */}
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    isActive ? 'bg-white/15' : 'bg-white border border-[#e5e7eb]'
+                  }`}
+                >
+                  <Icon
+                    style={{
+                      width: '16px',
+                      height: '16px',
+                      color: isActive ? '#FFFFFF' : '#3C3489',
+                    }}
+                  />
+                </div>
+
+                {/* Label */}
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-semibold leading-snug ${isActive ? 'text-white' : 'text-[#0F0C2E]'}`}>
+                    {opt.label}
+                  </p>
+                  <p className={`text-xs mt-0.5 ${isActive ? 'text-white/60' : 'text-gray-500'}`}>
                     {opt.description}
                   </p>
                 </div>
+
+                {/* Check */}
                 {isActive && (
-                  <span className="w-5 h-5 rounded-full bg-[#3C3489] flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
+                  <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+                  </div>
                 )}
               </button>
             );
           })}
         </div>
 
-        <div className="px-6 pt-3 pb-[max(env(safe-area-inset-bottom),1rem)] border-t border-[#f1f3f5] flex gap-3">
+        {/* Footer */}
+        <div className="px-5 pt-2 pb-[max(env(safe-area-inset-bottom),1.25rem)] border-t border-[#f1f3f5]">
           <button
             onClick={() => { onClear(); onClose(); }}
-            className="flex-1 min-h-[48px] bg-[#EEEDFE] text-[#3C3489] py-3 rounded-xl hover:bg-[#EEEDFE]/80 transition-colors font-medium"
+            className="w-full min-h-[48px] bg-[#F7F6FB] text-[#0F0C2E] rounded-2xl font-semibold text-sm hover:bg-[#EEEDFE] transition-colors border border-[#e5e7eb]"
           >
-            Reset
+            Reset to default
           </button>
         </div>
       </div>
