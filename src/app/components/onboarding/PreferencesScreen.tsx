@@ -1,7 +1,7 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Check } from 'lucide-react';
-import { StarHomesLogo } from '../common/StarHomesLogo';
 import { preferenceOptions } from '../../data/preferences';
+import { OnboardingLayout } from './OnboardingLayout';
 
 interface PreferencesScreenProps {
   initialSelected?: string[];
@@ -14,76 +14,192 @@ interface PreferencesScreenProps {
 export function PreferencesScreen({
   initialSelected = [],
   heading = 'What matters to you?',
-  subheading = 'Select your lifestyle priorities to get personalized recommendations',
+  subheading = 'Pick your lifestyle priorities and we\'ll match the perfect areas',
   onComplete,
   onSkip,
 }: PreferencesScreenProps) {
   const [selected, setSelected] = useState<string[]>(initialSelected);
 
   const togglePreference = (id: string) => {
-    setSelected(prev =>
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
     );
   };
 
-  const handleContinue = () => {
-    onComplete(selected);
-  };
+  const handleContinue = () => onComplete(selected);
+
+  const isReady = selected.length > 0;
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-white px-6 pt-safe pb-safe overflow-y-auto">
-      <div className="flex-1 flex flex-col max-w-md mx-auto w-full py-8">
-        <div className="mb-8">
-          <StarHomesLogo variant="dark" className="mb-6" />
-          <h1 className="text-3xl font-semibold text-[#0F0C2E] mb-3">{heading}</h1>
-          <p className="text-gray-600">{subheading}</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mb-8">
-          {preferenceOptions.map((option) => {
-            const Icon = option.icon;
-            const isSelected = selected.includes(option.id);
-
-            return (
-              <button
-                key={option.id}
-                onClick={() => togglePreference(option.id)}
-                className={`relative p-4 rounded-2xl border-2 transition-all ${
-                  isSelected
-                    ? 'border-[#3C3489] bg-[#EEEDFE]'
-                    : 'border-[#e5e7eb] bg-white hover:border-[#7F77DD]'
-                }`}
-              >
-                {isSelected && (
-                  <div className="absolute top-2 right-2 bg-[#3C3489] rounded-full p-1">
-                    <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                  </div>
-                )}
-                <Icon className={`w-8 h-8 mb-3 ${isSelected ? 'text-[#3C3489]' : 'text-[#0F0C2E]'}`} />
-                <div className={`text-sm font-medium ${isSelected ? 'text-[#3C3489]' : 'text-[#0F0C2E]'}`}>
-                  {option.label}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-auto space-y-3">
-          <button
-            onClick={handleContinue}
-            disabled={selected.length === 0}
-            className="w-full bg-[#3C3489] text-white py-4 rounded-xl hover:bg-[#2d2766] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium shadow-lg shadow-[#3C3489]/20"
+    <OnboardingLayout step={3} totalSteps={3} tagline="Almost there — one last step">
+      {/* Heading row with inline Skip */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          marginBottom: '20px',
+          gap: '12px',
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <h1
+            style={{
+              fontSize: '24px',
+              fontWeight: 700,
+              color: '#0F0C2E',
+              letterSpacing: '-0.3px',
+              marginBottom: '6px',
+              lineHeight: 1.2,
+            }}
           >
-            Continue {selected.length > 0 && `(${selected.length})`}
-          </button>
-          <button
-            onClick={onSkip}
-            className="w-full text-gray-600 py-4 hover:text-[#0F0C2E] transition-colors font-medium"
-          >
-            Skip for now
-          </button>
+            {heading}
+          </h1>
+          <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: 1.5 }}>
+            {subheading}
+          </p>
         </div>
+        <button
+          onClick={onSkip}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontWeight: 500,
+            color: '#9CA3AF',
+            padding: '2px 0',
+            flexShrink: 0,
+            transition: 'color 0.15s',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#6B7280')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#9CA3AF')}
+        >
+          Skip
+        </button>
       </div>
-    </div>
+
+      {/* Preference tiles */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '10px',
+          marginBottom: '24px',
+        }}
+      >
+        {preferenceOptions.map((option) => {
+          const Icon = option.icon;
+          const isSelected = selected.includes(option.id);
+
+          return (
+            <button
+              key={option.id}
+              onClick={() => togglePreference(option.id)}
+              style={{
+                position: 'relative',
+                padding: '16px',
+                borderRadius: '18px',
+                border: `2px solid ${isSelected ? '#3C3489' : '#E5E7EB'}`,
+                background: isSelected
+                  ? 'linear-gradient(135deg, #EEEDFE 0%, #F5F4FF 100%)'
+                  : '#FFFFFF',
+                cursor: 'pointer',
+                textAlign: 'left',
+                transition: 'border-color 0.15s, background 0.15s, box-shadow 0.15s',
+                boxShadow: isSelected ? '0 4px 16px rgba(60,52,137,0.12)' : '0 1px 4px rgba(0,0,0,0.04)',
+              }}
+              onMouseEnter={(e) => {
+                if (!isSelected) e.currentTarget.style.borderColor = '#C4C1F0';
+              }}
+              onMouseLeave={(e) => {
+                if (!isSelected) e.currentTarget.style.borderColor = '#E5E7EB';
+              }}
+            >
+              {/* Check badge */}
+              {isSelected && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    background: '#3C3489',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Check style={{ width: '11px', height: '11px', color: '#fff', strokeWidth: 3 }} />
+                </div>
+              )}
+
+              {/* Icon in a coloured box */}
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  marginBottom: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: isSelected ? '#3C3489' : '#F7F6FB',
+                  transition: 'background 0.15s',
+                }}
+              >
+                <Icon
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    color: isSelected ? '#FFFFFF' : '#3C3489',
+                    transition: 'color 0.15s',
+                  }}
+                />
+              </div>
+
+              {/* Label */}
+              <span
+                style={{
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: isSelected ? '#3C3489' : '#0F0C2E',
+                  lineHeight: 1.3,
+                  display: 'block',
+                  transition: 'color 0.15s',
+                }}
+              >
+                {option.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Continue CTA */}
+      <button
+        onClick={handleContinue}
+        disabled={!isReady}
+        style={{
+          width: '100%',
+          height: '54px',
+          borderRadius: '14px',
+          border: 'none',
+          cursor: isReady ? 'pointer' : 'not-allowed',
+          fontSize: '16px',
+          fontWeight: 600,
+          color: isReady ? '#FFFFFF' : '#9CA3AF',
+          background: isReady
+            ? 'linear-gradient(135deg, #4F47A8 0%, #3C3489 100%)'
+            : '#F3F4F6',
+          boxShadow: isReady ? '0 8px 24px rgba(60,52,137,0.30)' : 'none',
+          transition: 'opacity 0.15s, box-shadow 0.15s',
+        }}
+      >
+        {isReady ? `Continue · ${selected.length} selected` : 'Select at least one priority'}
+      </button>
+    </OnboardingLayout>
   );
 }

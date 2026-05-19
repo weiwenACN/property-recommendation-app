@@ -1,6 +1,6 @@
-﻿import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
-import { StarHomesLogo } from '../common/StarHomesLogo';
+import { OnboardingLayout } from './OnboardingLayout';
 
 interface CreateAccountScreenProps {
   onBack: () => void;
@@ -16,24 +16,20 @@ interface Country {
 }
 
 const COUNTRIES: Country[] = [
-  { code: '+44', label: '🇬🇧 +44', name: 'United Kingdom', placeholder: '7XXX XXXXXX', maxDigits: 11 },
-  { code: '+1',  label: '🇺🇸 +1',  name: 'United States',  placeholder: '(XXX) XXX-XXXX', maxDigits: 10 },
-  { code: '+1c', label: '🇨🇦 +1',  name: 'Canada',         placeholder: '(XXX) XXX-XXXX', maxDigits: 10 },
-  { code: '+61', label: '🇦🇺 +61', name: 'Australia',      placeholder: '4XX XXX XXX',     maxDigits: 9 },
-  { code: '+91', label: '🇮🇳 +91', name: 'India',          placeholder: 'XXXXX XXXXX',     maxDigits: 10 },
-  { code: '+49', label: '🇩🇪 +49', name: 'Germany',        placeholder: '1XX XXXXXXX',     maxDigits: 11 },
-  { code: '+33', label: '🇫🇷 +33', name: 'France',         placeholder: '6 XX XX XX XX',   maxDigits: 9 },
-  { code: '+65', label: '🇸🇬 +65', name: 'Singapore',      placeholder: 'XXXX XXXX',       maxDigits: 8 },
-  { code: '+971',label: '🇦🇪 +971',name: 'United Arab Emirates', placeholder: '5X XXX XXXX', maxDigits: 9 },
-  { code: '+64', label: '🇳🇿 +64', name: 'New Zealand',    placeholder: '2X XXX XXXX',     maxDigits: 9 },
+  { code: '+44',  label: '🇬🇧 +44',  name: 'United Kingdom',      placeholder: '7XXX XXXXXX',    maxDigits: 11 },
+  { code: '+1',   label: '🇺🇸 +1',   name: 'United States',       placeholder: '(XXX) XXX-XXXX', maxDigits: 10 },
+  { code: '+1c',  label: '🇨🇦 +1',   name: 'Canada',              placeholder: '(XXX) XXX-XXXX', maxDigits: 10 },
+  { code: '+61',  label: '🇦🇺 +61',  name: 'Australia',           placeholder: '4XX XXX XXX',    maxDigits: 9  },
+  { code: '+91',  label: '🇮🇳 +91',  name: 'India',               placeholder: 'XXXXX XXXXX',    maxDigits: 10 },
+  { code: '+49',  label: '🇩🇪 +49',  name: 'Germany',             placeholder: '1XX XXXXXXX',    maxDigits: 11 },
+  { code: '+33',  label: '🇫🇷 +33',  name: 'France',              placeholder: '6 XX XX XX XX',  maxDigits: 9  },
+  { code: '+65',  label: '🇸🇬 +65',  name: 'Singapore',           placeholder: 'XXXX XXXX',      maxDigits: 8  },
+  { code: '+971', label: '🇦🇪 +971', name: 'United Arab Emirates', placeholder: '5X XXX XXXX',   maxDigits: 9  },
+  { code: '+64',  label: '🇳🇿 +64',  name: 'New Zealand',         placeholder: '2X XXX XXXX',    maxDigits: 9  },
 ];
 
-// Built once at module load; the <option> list never changes so there's
-// no reason to re-create these React elements on every keystroke.
 const COUNTRY_OPTIONS = COUNTRIES.map((c) => (
-  <option key={c.code} value={c.code}>
-    {c.label}
-  </option>
+  <option key={c.code} value={c.code}>{c.label}</option>
 ));
 
 const COUNTRIES_BY_KEY = new Map(COUNTRIES.map((c) => [c.code, c]));
@@ -69,79 +65,181 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (isValid) {
-        onRegister(derived.dialingCode, phoneNumber);
-      }
+      if (isValid) onRegister(derived.dialingCode, phoneNumber);
     },
     [isValid, onRegister, derived.dialingCode, phoneNumber],
   );
 
   return (
-    <div className="flex flex-col h-full min-h-0 bg-white px-6 pt-safe pb-safe overflow-y-auto">
-      <div className="py-4">
+    <OnboardingLayout
+      step={1}
+      totalSteps={3}
+      tagline="Join thousands of London home seekers"
+      topSlot={
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-[#0F0C2E] hover:text-[#3C3489] transition-colors"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'rgba(255,255,255,0.65)',
+            fontSize: '14px',
+            fontWeight: 500,
+            padding: 0,
+            transition: 'color 0.15s',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#FFFFFF')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.65)')}
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back</span>
+          <ArrowLeft style={{ width: '18px', height: '18px' }} />
+          Back
         </button>
-      </div>
-
-      <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
-        <div className="mb-8">
-          <StarHomesLogo variant="dark" className="mb-6" />
-          <h1 className="text-3xl font-semibold text-[#0F0C2E] mb-3">Create your account</h1>
-          <p className="text-gray-600">Enter your mobile number to register</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-[#0F0C2E] mb-2">
-              Mobile Number
-            </label>
-            <div className="flex items-center">
-              <div className="relative">
-                <select
-                  aria-label="Country code"
-                  value={selectedKey}
-                  onChange={handleCountryChange}
-                  className="h-14 pl-4 pr-9 bg-[#F7F6FB] border border-[#e5e7eb] rounded-l-xl text-[#0F0C2E] font-medium appearance-none cursor-pointer focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent"
-                >
-                  {COUNTRY_OPTIONS}
-                </select>
-                <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-[#0F0C2E] pointer-events-none" />
-              </div>
-              <input
-                id="phone"
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel-national"
-                value={phoneNumber}
-                onChange={handlePhoneChange}
-                placeholder={derived.country.placeholder}
-                className="flex-1 h-14 px-4 bg-[#F7F6FB] border border-l-0 border-[#e5e7eb] rounded-r-xl focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent"
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              {derived.country.name} &middot; format {derived.country.placeholder}
-            </p>
-          </div>
-
-          <button
-            type="submit"
-            disabled={!isValid}
-            className="w-full bg-[#3C3489] text-white py-4 rounded-xl hover:bg-[#2d2766] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-lg shadow-[#3C3489]/20"
-          >
-            Register
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </form>
-
-        <p className="text-sm text-gray-500 text-center mt-8">
-          By registering, you agree to our Terms of Service and Privacy Policy
+      }
+    >
+      {/* Heading */}
+      <div style={{ marginBottom: '28px' }}>
+        <h1
+          style={{
+            fontSize: '26px',
+            fontWeight: 700,
+            color: '#0F0C2E',
+            letterSpacing: '-0.4px',
+            marginBottom: '6px',
+          }}
+        >
+          Create your account
+        </h1>
+        <p style={{ fontSize: '14px', color: '#6B7280' }}>
+          Enter your mobile number to get started
         </p>
       </div>
-    </div>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Phone + country */}
+        <div>
+          <label
+            htmlFor="phone"
+            style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#374151', marginBottom: '8px' }}
+          >
+            Mobile Number
+          </label>
+
+          <div style={{ display: 'flex' }}>
+            {/* Country selector */}
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <select
+                aria-label="Country code"
+                value={selectedKey}
+                onChange={handleCountryChange}
+                style={{
+                  height: '54px',
+                  paddingLeft: '12px',
+                  paddingRight: '34px',
+                  background: '#F7F6FB',
+                  border: '1.5px solid #E5E7EB',
+                  borderRight: 'none',
+                  borderRadius: '14px 0 0 14px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#0F0C2E',
+                  appearance: 'none',
+                  cursor: 'pointer',
+                  outline: 'none',
+                }}
+              >
+                {COUNTRY_OPTIONS}
+              </select>
+              <ChevronDown
+                style={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '14px',
+                  height: '14px',
+                  color: '#6B7280',
+                  pointerEvents: 'none',
+                }}
+              />
+            </div>
+
+            {/* Phone input */}
+            <input
+              id="phone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel-national"
+              value={phoneNumber}
+              onChange={handlePhoneChange}
+              placeholder={derived.country.placeholder}
+              style={{
+                flex: 1,
+                height: '54px',
+                padding: '0 16px',
+                background: '#F7F6FB',
+                border: '1.5px solid #E5E7EB',
+                borderLeft: 'none',
+                borderRadius: '0 14px 14px 0',
+                fontSize: '16px',
+                color: '#0F0C2E',
+                outline: 'none',
+                transition: 'border-color 0.15s, box-shadow 0.15s',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#7F77DD';
+                e.target.style.boxShadow = '0 0 0 3px rgba(127,119,221,0.15)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#E5E7EB';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+
+          {/* Country hint */}
+          <p style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '6px' }}>
+            {derived.country.name} · format {derived.country.placeholder}
+          </p>
+        </div>
+
+        {/* Register CTA */}
+        <button
+          type="submit"
+          disabled={!isValid}
+          style={{
+            width: '100%',
+            height: '54px',
+            borderRadius: '14px',
+            border: 'none',
+            cursor: isValid ? 'pointer' : 'not-allowed',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            fontSize: '16px',
+            fontWeight: 600,
+            color: isValid ? '#FFFFFF' : '#9CA3AF',
+            background: isValid
+              ? 'linear-gradient(135deg, #4F47A8 0%, #3C3489 100%)'
+              : '#F3F4F6',
+            boxShadow: isValid ? '0 8px 24px rgba(60,52,137,0.32)' : 'none',
+            transition: 'opacity 0.15s, box-shadow 0.15s',
+          }}
+        >
+          Create Account
+          <ArrowRight style={{ width: '18px', height: '18px' }} />
+        </button>
+      </form>
+
+      <p style={{ fontSize: '11px', color: '#9CA3AF', textAlign: 'center', marginTop: '24px', lineHeight: 1.6 }}>
+        By registering you agree to our{' '}
+        <span style={{ color: '#3C3489', fontWeight: 500 }}>Terms of Service</span>
+        {' '}and{' '}
+        <span style={{ color: '#3C3489', fontWeight: 500 }}>Privacy Policy</span>
+      </p>
+    </OnboardingLayout>
   );
 }
