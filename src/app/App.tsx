@@ -192,11 +192,11 @@ export default function App() {
     savePreferences(phoneKey(countryCode, phoneNumber), preferences);
   };
 
-  const handleSignUpContinue = (phone: string) => {
+  const handleSignUpContinue = (phone: string, country: string) => {
     setPhoneNumber(phone);
-    setCountryCode('+44');
+    setCountryCode(country);
 
-    const saved = lookupSavedPreferences('+44', phone);
+    const saved = lookupSavedPreferences(country, phone);
     if (saved && saved.length > 0) {
       setWelcomeBackPrefs(saved);
       return;
@@ -506,7 +506,7 @@ export default function App() {
         {onboardingStep === 'splash' && <SplashScreen onComplete={handleSplashComplete} />}
         {onboardingStep === 'signup' && (
           <SignUpScreen
-            onContinue={handleSignUpContinue}
+            onContinue={(phone, country) => handleSignUpContinue(phone, country)}
             onSignUp={handleOpenCreateAccount}
             onGuestAccess={handleContinueAsGuest}
           />
