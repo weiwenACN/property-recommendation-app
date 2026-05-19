@@ -1,7 +1,38 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ArrowRight, ChevronDown, Check, X } from 'lucide-react';
 import { OnboardingLayout } from './OnboardingLayout';
-import { COUNTRIES, DEFAULT_COUNTRY_KEY, countryByKey, type Country } from '../../data/countries';
+import { COUNTRIES, DEFAULT_COUNTRY_KEY, countryByKey, flagUrl, type Country } from '../../data/countries';
+
+// ── FlagImg ───────────────────────────────────────────────────────────────────
+// Renders a real flag PNG from flagcdn.com with fixed dimensions — no emoji
+// rendering quirks, pixel-perfect alignment on every OS.
+
+interface FlagImgProps {
+  code: string;
+  /** Rendered width in px. Height is computed at the 4:3 flag aspect ratio. */
+  width?: number;
+}
+
+function FlagImg({ code, width = 20 }: FlagImgProps) {
+  const h = Math.round(width * 0.75);
+  return (
+    <img
+      src={flagUrl(code, 40)}
+      width={width}
+      height={h}
+      alt=""
+      aria-hidden="true"
+      style={{
+        display: 'block',
+        width: `${width}px`,
+        height: `${h}px`,
+        objectFit: 'cover',
+        borderRadius: '2px',
+        flexShrink: 0,
+      }}
+    />
+  );
+}
 
 interface SignUpScreenProps {
   onContinue: (phoneNumber: string, countryCode: string) => void;
@@ -141,17 +172,7 @@ function CountrySheet({ selected, onSelect, onClose }: CountrySheetProps) {
                   }}
                 >
                   {/* Flag */}
-                  <span
-                    style={{
-                      fontSize: '26px',
-                      lineHeight: 1,
-                      width: '34px',
-                      textAlign: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {country.flag}
-                  </span>
+                  <FlagImg code={country.code} width={26} />
 
                   {/* Name */}
                   <span
@@ -277,23 +298,10 @@ export function SignUpScreen({ onContinue, onSignUp, onGuestAccess }: SignUpScre
                   minWidth: '96px',
                 }}
               >
-                {/* Flag — fixed-width flex container keeps emoji/text vertically centred
-                    regardless of platform (Windows renders flags as "GB" text chars) */}
-                <span style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '26px',
-                  fontSize: '20px',
-                  lineHeight: 1,
-                  flexShrink: 0,
-                }}>
-                  {country.flag}
-                </span>
+                {/* Flag image — exact pixel dimensions, no emoji rendering quirks */}
+                <FlagImg code={country.code} width={22} />
                 {/* Dial code */}
                 <span style={{
-                  display: 'flex',
-                  alignItems: 'center',
                   fontSize: '14px',
                   fontWeight: 700,
                   color: '#0F0C2E',
