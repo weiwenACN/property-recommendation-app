@@ -1,7 +1,11 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, Send } from 'lucide-react';
+import { formatPhoneDisplay, toTelHref, toWaHref, toSmsHref } from '../../utils/phone';
+
+// ── Phone overlay (dial-pad style) ────────────────────────────────────────────
 
 interface PhoneOverlayProps {
+  /** E.164 phone number e.g. "+447700900123" */
   phone: string;
   agentName: string;
   onClose: () => void;
@@ -19,15 +23,21 @@ export function PhoneOverlay({ phone, agentName, onClose }: PhoneOverlayProps) {
     <div className="fixed inset-0 z-[9900] flex flex-col bg-[#0F0C2E] animate-in slide-in-from-bottom">
       {/* Header */}
       <div className="flex items-center px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-3">
-        <button onClick={onClose} aria-label="Back" className="min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-white/70 transition-colors">
+        <button
+          onClick={onClose}
+          aria-label="Back"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-white/70 transition-colors"
+        >
           <ArrowLeft className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Number display */}
+      {/* Number display (formatted for locale) */}
       <div className="flex flex-col items-center px-6 pt-4 pb-6" style={{ maxHeight: '20vh' }}>
         <p className="text-gray-400 text-sm mb-1">{agentName}</p>
-        <p className="text-white text-3xl font-light tracking-wider">{phone}</p>
+        <p className="text-white text-3xl font-light tracking-wider">
+          {formatPhoneDisplay(phone)}
+        </p>
       </div>
 
       {/* Dial pad */}
@@ -35,7 +45,10 @@ export function PhoneOverlay({ phone, agentName, onClose }: PhoneOverlayProps) {
         {KEYS.map((row, ri) => (
           <div key={ri} className="grid grid-cols-3 gap-4 w-full max-w-xs">
             {row.map((key) => (
-              <button key={key} className="h-16 rounded-full bg-white/10 text-white text-2xl font-medium hover:bg-white/20 transition-colors flex items-center justify-center">
+              <button
+                key={key}
+                className="h-16 rounded-full bg-white/10 text-white text-2xl font-medium hover:bg-white/20 transition-colors flex items-center justify-center"
+              >
                 {key}
               </button>
             ))}
@@ -43,10 +56,10 @@ export function PhoneOverlay({ phone, agentName, onClose }: PhoneOverlayProps) {
         ))}
       </div>
 
-      {/* Call button */}
+      {/* Call button — tel: href built from E.164 */}
       <div className="flex justify-center pb-[max(env(safe-area-inset-bottom),2rem)] pt-4">
         <a
-          href={`tel:${phone}`}
+          href={toTelHref(phone)}
           className="w-16 h-16 rounded-full bg-[#22c55e] flex items-center justify-center shadow-lg hover:bg-[#16a34a] transition-colors"
           aria-label={`Call ${agentName}`}
         >
@@ -58,6 +71,8 @@ export function PhoneOverlay({ phone, agentName, onClose }: PhoneOverlayProps) {
     </div>
   );
 }
+
+// ── Email overlay ─────────────────────────────────────────────────────────────
 
 interface EmailOverlayProps {
   email: string;
@@ -73,7 +88,11 @@ export function EmailOverlay({ email, agentName, onClose }: EmailOverlayProps) {
     <div className="fixed inset-0 z-[9900] flex flex-col bg-white animate-in slide-in-from-bottom">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-[#e5e7eb]">
-        <button onClick={onClose} aria-label="Back" className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#0F0C2E] hover:text-[#3C3489] transition-colors">
+        <button
+          onClick={onClose}
+          aria-label="Back"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#0F0C2E] hover:text-[#3C3489] transition-colors"
+        >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-base font-semibold text-[#0F0C2E]">New Message</h1>
@@ -88,7 +107,9 @@ export function EmailOverlay({ email, agentName, onClose }: EmailOverlayProps) {
       {/* To */}
       <div className="flex items-center px-4 h-12 border-b border-[#f1f3f5]">
         <span className="text-sm text-gray-500 mr-2 w-12">To:</span>
-        <p className="text-sm text-[#0F0C2E] font-medium">{agentName} &lt;{email}&gt;</p>
+        <p className="text-sm text-[#0F0C2E] font-medium">
+          {agentName} &lt;{email}&gt;
+        </p>
       </div>
 
       {/* Subject */}
@@ -113,23 +134,36 @@ export function EmailOverlay({ email, agentName, onClose }: EmailOverlayProps) {
   );
 }
 
+// ── WhatsApp overlay ──────────────────────────────────────────────────────────
+
 interface WhatsAppOverlayProps {
+  /** E.164 phone number e.g. "+447700900123" */
   phone: string;
   agentName: string;
   agentInitials: string;
   onClose: () => void;
 }
 
-export function WhatsAppOverlay({ phone, agentName, agentInitials, onClose }: WhatsAppOverlayProps) {
+export function WhatsAppOverlay({
+  phone,
+  agentName,
+  agentInitials,
+  onClose,
+}: WhatsAppOverlayProps) {
   const defaultMsg = 'Hi, I am interested in a property you have listed.';
   const [msg, setMsg] = useState(defaultMsg);
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  // Build wa.me URL from E.164 — strips leading '+' as required
+  const url = toWaHref(phone, msg);
 
   return (
     <div className="fixed inset-0 z-[9900] flex flex-col bg-[#ECE5DD] animate-in slide-in-from-bottom">
       {/* Header */}
       <div className="bg-[#075E54] flex items-center gap-3 px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-3">
-        <button onClick={onClose} aria-label="Back" className="min-w-[44px] min-h-[44px] flex items-center justify-center text-white">
+        <button
+          onClick={onClose}
+          aria-label="Back"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-white"
+        >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="w-9 h-9 rounded-full bg-[#25D366] flex items-center justify-center flex-shrink-0">
@@ -171,27 +205,50 @@ export function WhatsAppOverlay({ phone, agentName, agentInitials, onClose }: Wh
   );
 }
 
-// ── WhatsApp SMS fallback sheet ────────────────────────────────────────────
+// ── WhatsApp SMS fallback sheet ───────────────────────────────────────────────
 
 interface WhatsAppFallbackSheetProps {
   open: boolean;
+  /** E.164 phone number — used to build the sms: deep link. */
   phone: string;
-  onSMS: () => void;
+  /** Caller provides a full SMS body string; this component builds the href. */
+  smsBody: string;
   onDismiss: () => void;
 }
 
-export function WhatsAppFallbackSheet({ open, phone: _phone, onSMS, onDismiss }: WhatsAppFallbackSheetProps) {
+export function WhatsAppFallbackSheet({
+  open,
+  phone,
+  smsBody,
+  onDismiss,
+}: WhatsAppFallbackSheetProps) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[9950]">
-      <button type="button" onClick={onDismiss} className="absolute inset-0 bg-black/40" tabIndex={-1} />
+      <button
+        type="button"
+        onClick={onDismiss}
+        className="absolute inset-0 bg-black/40"
+        tabIndex={-1}
+      />
       <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl px-6 pt-4 pb-[max(env(safe-area-inset-bottom),1.5rem)] animate-in slide-in-from-bottom">
         <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
         <h2 className="text-lg font-semibold text-[#0F0C2E] mb-1">WhatsApp not found</h2>
         <p className="text-sm text-gray-600 mb-5">Would you like to send an SMS instead?</p>
         <div className="flex gap-3">
-          <button onClick={onDismiss} className="flex-1 min-h-[48px] border-2 border-[#e5e7eb] rounded-xl text-sm font-medium text-[#0F0C2E]">Cancel</button>
-          <button onClick={onSMS} className="flex-1 min-h-[48px] bg-[#0F0C2E] rounded-xl text-sm font-medium text-white">Send SMS</button>
+          <button
+            onClick={onDismiss}
+            className="flex-1 min-h-[48px] border-2 border-[#e5e7eb] rounded-xl text-sm font-medium text-[#0F0C2E]"
+          >
+            Cancel
+          </button>
+          <a
+            href={toSmsHref(phone, smsBody)}
+            className="flex-1 min-h-[48px] bg-[#0F0C2E] rounded-xl text-sm font-medium text-white flex items-center justify-center"
+            onClick={onDismiss}
+          >
+            Send SMS
+          </a>
         </div>
       </div>
     </div>

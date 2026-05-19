@@ -36,6 +36,7 @@ import { ComparisonScreen } from './components/comparison/ComparisonScreen';
 import { BookmarksScreen } from './components/bookmarks/BookmarksScreen';
 import { BookmarkUndoSnackbar } from './components/bookmarks/BookmarkUndoSnackbar';
 import { ProfileScreen } from './components/profile/ProfileScreen';
+import { MessagesScreen } from './components/messages/MessagesScreen';
 import {
   NotificationsScreen,
   type Notification,
@@ -57,14 +58,16 @@ type MainScreen =
   | 'property-detail'
   | 'comparison'
   | 'bookmarks'
+  | 'favourites'
   | 'history'
   | 'similar-properties'
   | 'profile'
   | 'notifications'
   | 'chat'
-  | 'agent-profile';
+  | 'agent-profile'
+  | 'messages';
 
-type TabId = 'search' | 'spark' | 'bookmarks' | 'compare' | 'history' | 'profile';
+type TabId = 'home' | 'spark' | 'favourites' | 'messages' | 'profile';
 
 const initialNotifications: Notification[] = [
   {
@@ -87,6 +90,7 @@ export default function App() {
   const [welcomeBackPrefs, setWelcomeBackPrefs] = useState<string[] | null>(null);
   const [isGuest, setIsGuest] = useState(false);
   const [guestPromptOpen, setGuestPromptOpen] = useState(false);
+  const [guestPromptFeature, setGuestPromptFeature] = useState<string | undefined>(undefined);
   const [chatProperty, setChatProperty] = useState<Property | null>(null);
   const [chatReturnTo, setChatReturnTo] = useState<MainScreen>('property-detail');
   const [sparkEntry, setSparkEntry] = useState<SparkEntry | null>(null);
@@ -94,7 +98,7 @@ export default function App() {
   const [searchMode, setSearchMode] = useState<SearchMode>('rent');
 
   const [mainScreen, setMainScreen] = useState<MainScreen>('home');
-  const [activeTab, setActiveTab] = useState<TabId>('search');
+  const [activeTab, setActiveTab] = useState<TabId>('home');
 
   const [selectedArea, setSelectedArea] = useState<RecommendedArea | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -279,11 +283,12 @@ export default function App() {
 
   const handleOpenHistory = () => {
     setMainScreen('history');
-    setActiveTab('history');
+    // History is accessible from Profile tab — keep profile tab highlighted
+    setActiveTab('profile');
   };
 
   const handleStartBrowsingFromHistory = () => {
-    setActiveTab('search');
+    setActiveTab('home');
     setMainScreen('home');
   };
 
@@ -331,7 +336,7 @@ export default function App() {
 
   const handleOpenComparison = () => {
     setMainScreen('comparison');
-    setActiveTab('compare');
+    // Comparison is accessed via the floating CTA, not a tab — keep current tab active
   };
 
   const handleRemoveFromComparison = (property: Property) => {
@@ -350,7 +355,6 @@ export default function App() {
       return [...prev, selectedProperty.id];
     });
     setMainScreen('comparison');
-    setActiveTab('compare');
   };
 
   const handleContactAgentSent = (property: Property) => {
@@ -367,23 +371,28 @@ export default function App() {
     setPendingToast('Agent Sarah Chen from Canary Wharf Branch will contact you shortly.');
   };
 
+  const openGuestPrompt = (feature?: string) => {
+    setGuestPromptFeature(feature);
+    setGuestPromptOpen(true);
+  };
+
   const handleGuestBookmarkToggle = (property: Property) => {
-    if (isGuest) { setGuestPromptOpen(true); return; }
+    if (isGuest) { openGuestPrompt('save properties'); return; }
     handleBookmarkToggle(property);
   };
 
   const handleGuestComparisonToggle = (property: Property) => {
-    if (isGuest) { setGuestPromptOpen(true); return; }
+    if (isGuest) { openGuestPrompt('compare properties'); return; }
     handleComparisonToggle(property);
   };
 
   const handleGuestFavoriteFromDetail = () => {
-    if (isGuest) { setGuestPromptOpen(true); return; }
+    if (isGuest) { openGuestPrompt('save properties'); return; }
     handleFavoriteFromDetail();
   };
 
   const handleGuestCompare = () => {
-    if (isGuest) { setGuestPromptOpen(true); return; }
+    if (isGuest) { openGuestPrompt('compare properties'); return; }
     handleCompare();
   };
 
@@ -449,16 +458,14 @@ export default function App() {
 
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab);
-    if (tab === 'search') {
+    if (tab === 'home') {
       setMainScreen('home');
     } else if (tab === 'spark') {
       setMainScreen('spark');
-    } else if (tab === 'bookmarks') {
+    } else if (tab === 'favourites') {
       setMainScreen('bookmarks');
-    } else if (tab === 'compare') {
-      setMainScreen('comparison');
-    } else if (tab === 'history') {
-      setMainScreen('history');
+    } else if (tab === 'messages') {
+      setMainScreen('messages');
     } else if (tab === 'profile') {
       setMainScreen('profile');
     }
@@ -466,7 +473,7 @@ export default function App() {
 
   const handleBackToHome = () => {
     setMainScreen('home');
-    setActiveTab('search');
+    setActiveTab('home');
     setSelectedArea(null);
   };
 
@@ -486,7 +493,7 @@ export default function App() {
   };
 
   const handleStartBrowsingFromBookmarks = () => {
-    setActiveTab('search');
+    setActiveTab('home');
     setMainScreen('home');
   };
 
@@ -546,6 +553,7 @@ export default function App() {
     );
   }
 
+  // Full-bleed screens hide the bottom nav (immersive UIs with their own chrome).
   const isFullBleedScreen =
     mainScreen === 'property-detail' ||
     mainScreen === 'chat' ||
@@ -584,6 +592,8 @@ export default function App() {
             onPropertySelect={handlePropertySelect}
             onInterestedInProperty={handleSparkInterested}
             onViewChat={handleViewSparkChat}
+            isGuest={isGuest}
+            onGuestPrompt={() => openGuestPrompt('save and contact agents about properties')}
           />
         )}
 
@@ -615,29 +625,42 @@ export default function App() {
             onBookmarkToggle={handleGuestBookmarkToggle}
             onPropertySelect={handlePropertySelect}
             onViewAllSimilar={handleOpenSimilar}
+            isGuest={isGuest}
+            onGuestAction={() => openGuestPrompt('contact agents')}
           />
         )}
 
-        {mainScreen === 'chat' && chatProperty && (
-          <ChatScreen
-            agent={{ name: 'Sarah Chen', branch: 'Canary Wharf Branch', initials: 'SC', phone: '07700 900123', email: 'sarah@starhomes.co.uk' }}
-            agentId="agent-1"
-            propertyTitle={chatProperty.title}
-            searchMode={searchMode}
-            onBack={() => {
-              setMainScreen(chatReturnTo);
-              if (chatReturnTo === 'spark') setActiveTab('spark');
-            }}
-            onFirstMessageSent={handleFirstMessageSent}
-            sparkEntry={sparkEntry ?? undefined}
-          />
-        )}
+        {mainScreen === 'chat' && chatProperty && (() => {
+          const chatAgent = agentById(DEFAULT_AGENT_ID)!;
+          return (
+            <ChatScreen
+              agent={{
+                name: chatAgent.fullName,
+                branch: chatAgent.agencyName,
+                initials: chatAgent.initials,
+                phone: chatAgent.phone,
+                email: chatAgent.email,
+              }}
+              agentId={chatAgent.id}
+              propertyTitle={chatProperty.title}
+              searchMode={searchMode}
+              onBack={() => {
+                setMainScreen(chatReturnTo);
+                if (chatReturnTo === 'spark') setActiveTab('spark');
+              }}
+              onFirstMessageSent={handleFirstMessageSent}
+              sparkEntry={sparkEntry ?? undefined}
+            />
+          );
+        })()}
 
         {mainScreen === 'agent-profile' && (
           <AgentProfileScreen
             agent={agentById(DEFAULT_AGENT_ID)!}
             onBack={() => setMainScreen('property-detail')}
             onChatWithAgent={() => { setChatProperty(selectedProperty); setMainScreen('chat'); }}
+            isGuest={isGuest}
+            onGuestAction={() => openGuestPrompt('contact agents')}
           />
         )}
 
@@ -646,7 +669,7 @@ export default function App() {
             properties={comparisonProperties}
             searchMode={searchMode}
             onBack={() => {
-              setActiveTab('search');
+              setActiveTab('home');
               setMainScreen('home');
             }}
             onPropertySelect={handlePropertySelect}
@@ -669,6 +692,10 @@ export default function App() {
             preferences={userPreferences}
             onUpdatePreferences={handleUpdatePreferences}
           />
+        )}
+
+        {mainScreen === 'messages' && (
+          <MessagesScreen />
         )}
 
         {mainScreen === 'notifications' && (
@@ -729,13 +756,18 @@ export default function App() {
 
       <GuestPromptSheet
         open={guestPromptOpen}
+        feature={guestPromptFeature}
         onSignUp={() => {
           setGuestPromptOpen(false);
+          setGuestPromptFeature(undefined);
           setIsGuest(false);
           setOnboardingComplete(false);
           setOnboardingStep('signup');
         }}
-        onDismiss={() => setGuestPromptOpen(false)}
+        onDismiss={() => {
+          setGuestPromptOpen(false);
+          setGuestPromptFeature(undefined);
+        }}
       />
     </div>
   );

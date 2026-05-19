@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" fill="none">
+  <!-- Icon box -->
+  <rect width="48" height="48" rx="12" fill="#3C3489"/>
+  <!-- Home icon (lucide-style) -->
+  <path d="M24 14L13 24h3v9h6v-6h4v6h6v-9h3L24 14z"
+        fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Wordmark -->
+  <text x="58" y="20" font-family="system-ui, -apple-system, sans-serif"
+        font-size="13" font-weight="700" fill="#0F0C2E" letter-spacing="-0.3">Star Homes</text>
+  <text x="58" y="36" font-family="system-ui, -apple-system, sans-serif"
+        font-size="10" font-weight="400" fill="#6B7280">Find your perfect home</text>
+</svg>

@@ -763,6 +763,10 @@ export interface SparkScreenProps {
   onInterestedInProperty: (property: Property) => void;
   /** Called when the user taps "View" on the post-swipe toast. */
   onViewChat: (property: Property) => void;
+  /** Whether the current user is a guest — swipe-right opens the sign-up sheet. */
+  isGuest?: boolean;
+  /** Called when a guest swipes right — parent should open the sign-up prompt. */
+  onGuestPrompt?: () => void;
 }
 
 const SWIPE_THRESHOLD = 80;
@@ -778,6 +782,8 @@ export function SparkScreen({
   onPropertySelect,
   onInterestedInProperty,
   onViewChat,
+  isGuest = false,
+  onGuestPrompt,
 }: SparkScreenProps) {
   const session = getSparkSession(properties);
   const agent = agentById(DEFAULT_AGENT_ID);
@@ -822,6 +828,13 @@ export function SparkScreen({
 
   const triggerSwipeRight = () => {
     if (exitingRef.current) return;
+
+    // Guests see the sign-up sheet instead of the celebration flow
+    if (isGuest) {
+      onGuestPrompt?.();
+      return;
+    }
+
     exitingRef.current = true;
     setIsDragging(false);
     setDragX(700);

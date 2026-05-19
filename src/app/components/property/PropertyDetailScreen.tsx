@@ -54,6 +54,10 @@ interface PropertyDetailScreenProps {
   onBookmarkToggle: (property: Property) => void;
   onPropertySelect: (property: Property) => void;
   onViewAllSimilar: (target: Property) => void;
+  /** Whether the current user is a guest — gates all contact actions. */
+  isGuest?: boolean;
+  /** Called when a guest taps any restricted action. */
+  onGuestAction?: () => void;
 }
 
 type ContactStage = 'idle' | 'call-overlay' | 'email-overlay' | 'whatsapp-overlay' | 'call-dialog' | 'email-dialog';
@@ -96,6 +100,8 @@ export function PropertyDetailScreen({
   onBookmarkToggle,
   onPropertySelect,
   onViewAllSimilar,
+  isGuest = false,
+  onGuestAction,
 }: PropertyDetailScreenProps) {
   const agentSummary = agentRatingSummary(DEFAULT_AGENT_ID);
   const [contactStage, setContactStage] = useState<ContactStage>('idle');
@@ -163,13 +169,19 @@ export function PropertyDetailScreen({
     setTimeout(() => { isScrollingToTab.current = false; }, 700);
   }, []);
 
-  const handleCallAgent = useCallback(() => setContactStage('call-overlay'), []);
-  const handleEmailAgent = useCallback(() => setContactStage('email-overlay'), []);
-  const handleWhatsAppAgent = useCallback(() => setContactStage('whatsapp-overlay'), []);
-  const handleMessageAgent = useCallback(() => {
+  /** Gate a contact action: open overlay for registered users, prompt for guests. */
+  const gated = useCallback((action: () => void) => {
+    if (isGuest) { onGuestAction?.(); return; }
+    action();
+  }, [isGuest, onGuestAction]);
+
+  const handleCallAgent    = useCallback(() => gated(() => setContactStage('call-overlay')), [gated]);
+  const handleEmailAgent   = useCallback(() => gated(() => setContactStage('email-overlay')), [gated]);
+  const handleWhatsAppAgent = useCallback(() => gated(() => setContactStage('whatsapp-overlay')), [gated]);
+  const handleMessageAgent = useCallback(() => gated(() => {
     setContactStage('idle');
     onChatWithAgent();
-  }, [onChatWithAgent]);
+  }), [gated, onChatWithAgent]);
   const handleViewProfile = useCallback(() => {
     setContactStage('idle');
     onViewAgentProfile();
@@ -343,19 +355,21 @@ export function PropertyDetailScreen({
         <EmailOverlay email={AGENT.email} agentName={AGENT.name} onClose={() => setContactStage('idle')} />
       )}
 
-      {/* ── WhatsApp overlay ── */}
+      {/* ── WhatsApp overlay — uses E.164 phone from agent record ── */}
       {contactStage === 'whatsapp-overlay' && (
-        <WhatsAppOverlay phone={AGENT_DATA.whatsapp} agentName={AGENT.name} agentInitials={AGENT.initials} onClose={() => setContactStage('idle')} />
+        <WhatsAppOverlay
+          phone={AGENT_DATA.phone}
+          agentName={AGENT.name}
+          agentInitials={AGENT.initials}
+          onClose={() => setContactStage('idle')}
+        />
       )}
 
       {/* ── WhatsApp SMS fallback ── */}
       <WhatsAppFallbackSheet
         open={whatsappFallbackOpen}
-        phone={AGENT_DATA.whatsapp}
-        onSMS={() => {
-          window.location.href = `sms:+${AGENT_DATA.whatsapp}?body=${encodeURIComponent('Hi, I found your listing on Star Homes and would like to find out more.')}`;
-          setWhatsappFallbackOpen(false);
-        }}
+        phone={AGENT_DATA.phone}
+        smsBody="Hi, I found your listing on Star Homes and would like to find out more."
         onDismiss={() => setWhatsappFallbackOpen(false)}
       />
     </div>

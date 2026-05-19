@@ -1,11 +1,11 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, Star } from 'lucide-react';
 import type { Agent } from '../../data/agents';
 import { agentRatingSummary, fetchAgentReviews, type Review } from '../../data/reviews';
 import { AgentContactButtons } from './AgentContactButtons';
 import { PhoneOverlay, EmailOverlay, WhatsAppOverlay, WhatsAppFallbackSheet } from './ContactOverlays';
 
-// ── helpers ───────────────────────────────────────────────────────────────
+// ── helpers ───────────────────────────────────────────────────────────────────
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-GB', {
@@ -29,7 +29,7 @@ function StarRow({ stars, size = 'sm' }: { stars: number; size?: 'sm' | 'xs' }) 
   );
 }
 
-// ── Review card ───────────────────────────────────────────────────────────
+// ── Review card ───────────────────────────────────────────────────────────────
 
 function ReviewCard({ review }: { review: Review }) {
   const [expanded, setExpanded] = useState(false);
@@ -74,7 +74,7 @@ function ReviewCard({ review }: { review: Review }) {
   );
 }
 
-// ── Skeleton ──────────────────────────────────────────────────────────────
+// ── Skeleton ──────────────────────────────────────────────────────────────────
 
 function ReviewSkeleton() {
   return (
@@ -95,7 +95,7 @@ function ReviewSkeleton() {
   );
 }
 
-// ── Agent avatar ──────────────────────────────────────────────────────────
+// ── Agent avatar ──────────────────────────────────────────────────────────────
 
 function AgentAvatar({ photoUrl, initials }: { photoUrl: string | null; initials: string }) {
   const [imgError, setImgError] = useState(false);
@@ -120,18 +120,24 @@ function AgentAvatar({ photoUrl, initials }: { photoUrl: string | null; initials
   );
 }
 
-// ── Main screen ───────────────────────────────────────────────────────────
+// ── Main screen ───────────────────────────────────────────────────────────────
 
 interface AgentProfileScreenProps {
   agent: Agent;
   onBack: () => void;
   onChatWithAgent: () => void;
+  /** Whether the current user is browsing as a guest. */
+  isGuest?: boolean;
+  /** Called when a guest taps any restricted action — opens sign-up prompt. */
+  onGuestAction?: () => void;
 }
 
 export function AgentProfileScreen({
   agent,
   onBack,
   onChatWithAgent,
+  isGuest = false,
+  onGuestAction,
 }: AgentProfileScreenProps) {
   const summary = agentRatingSummary(agent.id);
   const [reviewsLoading, setReviewsLoading] = useState(true);
@@ -152,6 +158,17 @@ export function AgentProfileScreen({
   const BIO_LIMIT = 180;
   const bioLong = agent.bio.length > BIO_LIMIT;
 
+  /** Open an overlay if logged in, otherwise surface the sign-up prompt. */
+  const guardedOverlay = (type: 'call' | 'email' | 'whatsapp') => {
+    if (isGuest) { onGuestAction?.(); return; }
+    setOverlay(type);
+  };
+
+  const guardedChat = () => {
+    if (isGuest) { onGuestAction?.(); return; }
+    onChatWithAgent();
+  };
+
   return (
     <div className="flex flex-col h-full bg-white">
       {/* ── Header bar ── */}
@@ -164,7 +181,7 @@ export function AgentProfileScreen({
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="flex-1 text-center text-base font-semibold text-[#0F0C2E]">Agent Profile</h1>
-        <div className="min-w-[44px]" /> {/* balance */}
+        <div className="min-w-[44px]" />
       </div>
 
       {/* ── Scrollable body ── */}
@@ -183,13 +200,13 @@ export function AgentProfileScreen({
           )}
         </div>
 
-        {/* Contact CTAs */}
+        {/* Contact CTAs — all gated for guests */}
         <div className="px-5 mb-5">
           <AgentContactButtons
-            onCall={() => setOverlay('call')}
-            onEmail={() => setOverlay('email')}
-            onWhatsApp={() => setOverlay('whatsapp')}
-            onMessage={onChatWithAgent}
+            onCall={() => guardedOverlay('call')}
+            onEmail={() => guardedOverlay('email')}
+            onWhatsApp={() => guardedOverlay('whatsapp')}
+            onMessage={guardedChat}
           />
         </div>
 
@@ -237,23 +254,33 @@ export function AgentProfileScreen({
         </div>
       </div>
 
-      {/* ── Overlays ── */}
+      {/* ── Overlays (only reachable for logged-in users) ── */}
       {overlay === 'call' && (
-        <PhoneOverlay phone={agent.phone} agentName={agent.fullName} onClose={() => setOverlay('none')} />
+        <PhoneOverlay
+          phone={agent.phone}
+          agentName={agent.fullName}
+          onClose={() => setOverlay('none')}
+        />
       )}
       {overlay === 'email' && (
-        <EmailOverlay email={agent.email} agentName={agent.fullName} onClose={() => setOverlay('none')} />
+        <EmailOverlay
+          email={agent.email}
+          agentName={agent.fullName}
+          onClose={() => setOverlay('none')}
+        />
       )}
       {overlay === 'whatsapp' && (
-        <WhatsAppOverlay phone={agent.whatsapp} agentName={agent.fullName} agentInitials={agent.initials} onClose={() => setOverlay('none')} />
+        <WhatsAppOverlay
+          phone={agent.phone}
+          agentName={agent.fullName}
+          agentInitials={agent.initials}
+          onClose={() => setOverlay('none')}
+        />
       )}
       <WhatsAppFallbackSheet
         open={whatsappFallbackOpen}
-        phone={agent.whatsapp}
-        onSMS={() => {
-          window.location.href = `sms:+${agent.whatsapp}?body=${encodeURIComponent('Hi, I found your profile on Star Homes and would like to find out more.')}`;
-          setWhatsappFallbackOpen(false);
-        }}
+        phone={agent.phone}
+        smsBody="Hi, I found your profile on Star Homes and would like to find out more."
         onDismiss={() => setWhatsappFallbackOpen(false)}
       />
     </div>

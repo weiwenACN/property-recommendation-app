@@ -37,9 +37,10 @@
   padding-top: max(calc(env(safe-area-inset-top) + 1.5rem), 2rem);
 }
 
-/* Bottom padding for content above the fixed BottomNav (nav height + home indicator). */
+/* Bottom padding for content above the floating pill BottomNav.
+   Pill height ~60px + 12px float margin + 4px breathing room = ~76px. */
 .content-pb {
-  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
 }
 
 /* Animation utilities */
