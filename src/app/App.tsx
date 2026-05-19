@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { SplashScreen } from './components/onboarding/SplashScreen';
 import { SignUpScreen } from './components/onboarding/SignUpScreen';
-import { ChatScreen } from './components/chat/ChatScreen';
+import { ChatScreen, type SparkEntry } from './components/chat/ChatScreen';
 import { GuestPromptSheet } from './components/guest/GuestPromptSheet';
 import { AgentProfileScreen } from './components/agent/AgentProfileScreen';
+import { SparkScreen } from './components/spark/SparkScreen';
 import { CreateAccountScreen } from './components/onboarding/CreateAccountScreen';
 import { OTPScreen } from './components/onboarding/OTPScreen';
 import { PreferencesScreen } from './components/onboarding/PreferencesScreen';
@@ -51,6 +52,7 @@ import { agentById, DEFAULT_AGENT_ID } from './data/agents';
 type OnboardingStep = 'splash' | 'signup' | 'create-account' | 'otp' | 'preferences';
 type MainScreen =
   | 'home'
+  | 'spark'
   | 'area-results'
   | 'property-detail'
   | 'comparison'
@@ -62,7 +64,7 @@ type MainScreen =
   | 'chat'
   | 'agent-profile';
 
-type TabId = 'search' | 'bookmarks' | 'compare' | 'history' | 'profile';
+type TabId = 'search' | 'spark' | 'bookmarks' | 'compare' | 'history' | 'profile';
 
 const initialNotifications: Notification[] = [
   {
@@ -86,6 +88,8 @@ export default function App() {
   const [isGuest, setIsGuest] = useState(false);
   const [guestPromptOpen, setGuestPromptOpen] = useState(false);
   const [chatProperty, setChatProperty] = useState<Property | null>(null);
+  const [chatReturnTo, setChatReturnTo] = useState<MainScreen>('property-detail');
+  const [sparkEntry, setSparkEntry] = useState<SparkEntry | null>(null);
 
   const [searchMode, setSearchMode] = useState<SearchMode>('rent');
 
@@ -385,6 +389,19 @@ export default function App() {
 
   const handleChatWithAgent = () => {
     setChatProperty(selectedProperty);
+    setChatReturnTo('property-detail');
+    setSparkEntry(null);
+    setMainScreen('chat');
+  };
+
+  const handleSparkInterested = (property: Property) => {
+    setChatProperty(property);
+    setChatReturnTo('spark');
+    setSparkEntry({
+      autoMessage: `Hi, I'm interested in this property — ${property.address}.`,
+      sessionKey: `spark-${property.id}`,
+      listedPrice: searchMode === 'rent' ? property.rentPrice : property.salePrice,
+    });
     setMainScreen('chat');
   };
 
@@ -420,6 +437,8 @@ export default function App() {
     setActiveTab(tab);
     if (tab === 'search') {
       setMainScreen('home');
+    } else if (tab === 'spark') {
+      setMainScreen('spark');
     } else if (tab === 'bookmarks') {
       setMainScreen('bookmarks');
     } else if (tab === 'compare') {
@@ -439,8 +458,10 @@ export default function App() {
 
   const handleBackToAreaResults = () => {
     if (propertyDetailReturnTo) {
-      setMainScreen(propertyDetailReturnTo);
+      const returnTo = propertyDetailReturnTo;
+      setMainScreen(returnTo);
       setPropertyDetailReturnTo(null);
+      if (returnTo === 'spark') setActiveTab('spark');
       return;
     }
     if (selectedArea) {
@@ -511,7 +532,10 @@ export default function App() {
     );
   }
 
-  const isFullBleedScreen = mainScreen === 'property-detail' || mainScreen === 'chat' || mainScreen === 'agent-profile';
+  const isFullBleedScreen =
+    mainScreen === 'property-detail' ||
+    mainScreen === 'chat' ||
+    mainScreen === 'agent-profile';
 
   // Silence unused ref while we keep it for potential future commit-on-dismiss logic.
   void pendingUndoCommitRef;
@@ -536,6 +560,15 @@ export default function App() {
             onPropertySelect={handlePropertySelect}
             onViewAllHistory={handleOpenHistory}
             isGuest={isGuest}
+          />
+        )}
+
+        {mainScreen === 'spark' && (
+          <SparkScreen
+            properties={allProperties}
+            searchMode={searchMode}
+            onPropertySelect={handlePropertySelect}
+            onInterestedInProperty={handleSparkInterested}
           />
         )}
 
@@ -576,8 +609,12 @@ export default function App() {
             agentId="agent-1"
             propertyTitle={chatProperty.title}
             searchMode={searchMode}
-            onBack={() => setMainScreen('property-detail')}
+            onBack={() => {
+              setMainScreen(chatReturnTo);
+              if (chatReturnTo === 'spark') setActiveTab('spark');
+            }}
             onFirstMessageSent={handleFirstMessageSent}
+            sparkEntry={sparkEntry ?? undefined}
           />
         )}
 
