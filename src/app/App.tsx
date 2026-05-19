@@ -3,6 +3,7 @@ import { SplashScreen } from './components/onboarding/SplashScreen';
 import { SignUpScreen } from './components/onboarding/SignUpScreen';
 import { ChatScreen } from './components/chat/ChatScreen';
 import { GuestPromptSheet } from './components/guest/GuestPromptSheet';
+import { AgentProfileScreen } from './components/agent/AgentProfileScreen';
 import { CreateAccountScreen } from './components/onboarding/CreateAccountScreen';
 import { OTPScreen } from './components/onboarding/OTPScreen';
 import { PreferencesScreen } from './components/onboarding/PreferencesScreen';
@@ -57,7 +58,8 @@ type MainScreen =
   | 'similar-properties'
   | 'profile'
   | 'notifications'
-  | 'chat';
+  | 'chat'
+  | 'agent-profile';
 
 type TabId = 'search' | 'bookmarks' | 'compare' | 'history' | 'profile';
 
@@ -385,6 +387,10 @@ export default function App() {
     setMainScreen('chat');
   };
 
+  const handleViewAgentProfile = () => {
+    setMainScreen('agent-profile');
+  };
+
   const handleFirstMessageSent = () => {
     if (chatProperty) handleContactAgentSent(chatProperty);
   };
@@ -504,7 +510,7 @@ export default function App() {
     );
   }
 
-  const isFullBleedScreen = mainScreen === 'property-detail' || mainScreen === 'chat';
+  const isFullBleedScreen = mainScreen === 'property-detail' || mainScreen === 'chat' || mainScreen === 'agent-profile';
 
   // Silence unused ref while we keep it for potential future commit-on-dismiss logic.
   void pendingUndoCommitRef;
@@ -553,6 +559,7 @@ export default function App() {
             onFavorite={handleGuestFavoriteFromDetail}
             onCompare={handleGuestCompare}
             onChatWithAgent={handleChatWithAgent}
+            onViewAgentProfile={handleViewAgentProfile}
             isFavorited={isBookmarked(selectedProperty.id)}
             bookmarkIds={bookmarkIds}
             viewedEntries={viewedEntries}
@@ -566,10 +573,20 @@ export default function App() {
           <ChatScreen
             agent={{ name: 'Sarah Chen', branch: 'Canary Wharf Branch', initials: 'SC', phone: '07700 900123', email: 'sarah@starhomes.co.uk' }}
             propertyTitle={chatProperty.title}
-            onBack={() => {
-              setMainScreen('property-detail');
-            }}
+            onBack={() => setMainScreen('property-detail')}
             onFirstMessageSent={handleFirstMessageSent}
+          />
+        )}
+
+        {mainScreen === 'agent-profile' && (
+          <AgentProfileScreen
+            agent={{ name: 'Sarah Chen', branch: 'Canary Wharf Branch', initials: 'SC', phone: '07700 900123', email: 'sarah@starhomes.co.uk' }}
+            searchMode={searchMode}
+            bookmarkIds={bookmarkIds}
+            onBack={() => setMainScreen('property-detail')}
+            onGoHome={() => { setMainScreen('home'); setActiveTab('search'); }}
+            onChatWithAgent={() => { setChatProperty(selectedProperty); setMainScreen('chat'); }}
+            onPropertySelect={handlePropertySelect}
           />
         )}
 

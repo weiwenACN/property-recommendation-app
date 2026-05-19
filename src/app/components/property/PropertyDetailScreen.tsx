@@ -42,6 +42,7 @@ interface PropertyDetailScreenProps {
   onFavorite: () => void;
   onCompare: () => void;
   onChatWithAgent: () => void;
+  onViewAgentProfile: () => void;
   isFavorited: boolean;
   /** Cross-cutting props feeding the Similar Properties section. */
   bookmarkIds: string[];
@@ -83,6 +84,7 @@ export function PropertyDetailScreen({
   onFavorite,
   onCompare,
   onChatWithAgent,
+  onViewAgentProfile,
   isFavorited,
   bookmarkIds,
   viewedEntries,
@@ -160,6 +162,10 @@ export function PropertyDetailScreen({
     setContactStage('idle');
     onChatWithAgent();
   }, [onChatWithAgent]);
+  const handleViewProfile = useCallback(() => {
+    setContactStage('idle');
+    onViewAgentProfile();
+  }, [onViewAgentProfile]);
 
   return (
     <div className="relative flex h-full flex-col bg-white">
@@ -263,6 +269,7 @@ export function PropertyDetailScreen({
             onCall={handleCallAgent}
             onEmail={handleEmailAgent}
             onMessage={handleMessageAgent}
+            onViewProfile={handleViewProfile}
           />
         </section>
 
@@ -360,24 +367,33 @@ export function PropertyDetailScreen({
 
 // ── helpers ────────────────────────────────────────────────────────────
 
-function AgentCard({ agent, onCall, onEmail, onMessage }: {
+function AgentCard({ agent, onCall, onEmail, onMessage, onViewProfile }: {
   agent: AgentInfo;
   onCall: () => void;
   onEmail: () => void;
   onMessage: () => void;
+  onViewProfile: () => void;
 }) {
   return (
     <section>
       <h2 className="text-lg font-bold text-[#1a2332] mb-3">Your agent</h2>
       <div className="rounded-2xl border border-[#e5e7eb] p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-[#1a2332] flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-sm">{agent.initials}</span>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-[#1a2332] flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-sm">{agent.initials}</span>
+            </div>
+            <div>
+              <p className="font-semibold text-[#1a2332]">{agent.name}</p>
+              <p className="text-xs text-gray-500">{agent.branch}</p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-[#1a2332]">{agent.name}</p>
-            <p className="text-xs text-gray-500">{agent.branch}</p>
-          </div>
+          <button
+            onClick={onViewProfile}
+            className="text-xs font-medium text-[#ff6b35] hover:underline whitespace-nowrap min-h-[44px] flex items-center"
+          >
+            View Profile
+          </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
           <button onClick={onCall}
@@ -415,6 +431,7 @@ function OverviewContent({
   onCall,
   onEmail,
   onMessage,
+  onViewProfile,
 }: {
   property: Property;
   searchMode: SearchMode;
@@ -429,6 +446,7 @@ function OverviewContent({
   onCall: () => void;
   onEmail: () => void;
   onMessage: () => void;
+  onViewProfile: () => void;
 }) {
   return (
     <div className="px-5 py-5 space-y-5">
@@ -493,7 +511,7 @@ function OverviewContent({
         onViewAll={onViewAllSimilar}
       />
 
-      <AgentCard agent={agent} onCall={onCall} onEmail={onEmail} onMessage={onMessage} />
+      <AgentCard agent={agent} onCall={onCall} onEmail={onEmail} onMessage={onMessage} onViewProfile={onViewProfile} />
     </div>
   );
 }
