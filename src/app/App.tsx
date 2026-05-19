@@ -582,6 +582,11 @@ export default function App() {
             onPropertySelect={handlePropertySelect}
             onViewAllHistory={handleOpenHistory}
             isGuest={isGuest}
+            onGuestSignUp={() => {
+              setIsGuest(false);
+              setOnboardingComplete(false);
+              setOnboardingStep('signup');
+            }}
           />
         )}
 
@@ -691,11 +696,17 @@ export default function App() {
           <ProfileScreen
             preferences={userPreferences}
             onUpdatePreferences={handleUpdatePreferences}
+            onOpenHistory={handleOpenHistory}
           />
         )}
 
         {mainScreen === 'messages' && (
-          <MessagesScreen />
+          <MessagesScreen
+            onStartConversation={() => {
+              setActiveTab('spark');
+              setMainScreen('spark');
+            }}
+          />
         )}
 
         {mainScreen === 'notifications' && (
