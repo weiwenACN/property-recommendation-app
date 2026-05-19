@@ -573,7 +573,9 @@ export default function App() {
         {mainScreen === 'chat' && chatProperty && (
           <ChatScreen
             agent={{ name: 'Sarah Chen', branch: 'Canary Wharf Branch', initials: 'SC', phone: '07700 900123', email: 'sarah@starhomes.co.uk' }}
+            agentId="agent-1"
             propertyTitle={chatProperty.title}
+            searchMode={searchMode}
             onBack={() => setMainScreen('property-detail')}
             onFirstMessageSent={handleFirstMessageSent}
           />

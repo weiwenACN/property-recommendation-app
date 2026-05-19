@@ -3,8 +3,6 @@ import {
   ArrowLeft,
   Heart,
   ArrowLeftRight,
-  Phone,
-  Mail,
   MessageCircle,
   Bed,
   Bath,
@@ -36,6 +34,8 @@ import { SimilarPropertiesSection } from '../similar/SimilarPropertiesSection';
 import type { AgentInfo } from '../chat/ChatScreen';
 import { agentById, DEFAULT_AGENT_ID } from '../../data/agents';
 import { agentRatingSummary } from '../../data/reviews';
+import { AgentContactButtons } from '../agent/AgentContactButtons';
+import { PhoneOverlay, EmailOverlay, WhatsAppOverlay, WhatsAppFallbackSheet } from '../agent/ContactOverlays';
 
 const PropertyMap = lazy(() => import('../areas/PropertyMap'));
 
@@ -56,7 +56,7 @@ interface PropertyDetailScreenProps {
   onViewAllSimilar: (target: Property) => void;
 }
 
-type ContactStage = 'idle' | 'call-dialog' | 'email-dialog';
+type ContactStage = 'idle' | 'call-overlay' | 'email-overlay' | 'whatsapp-overlay' | 'call-dialog' | 'email-dialog';
 type TabId = 'overview' | 'details' | 'floor-plan' | 'location';
 
 const TABS: { id: TabId; label: string }[] = [
@@ -99,6 +99,7 @@ export function PropertyDetailScreen({
 }: PropertyDetailScreenProps) {
   const agentSummary = agentRatingSummary(DEFAULT_AGENT_ID);
   const [contactStage, setContactStage] = useState<ContactStage>('idle');
+  const [whatsappFallbackOpen, setWhatsappFallbackOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [floorPlanOpen, setFloorPlanOpen] = useState(false);
@@ -162,8 +163,9 @@ export function PropertyDetailScreen({
     setTimeout(() => { isScrollingToTab.current = false; }, 700);
   }, []);
 
-  const handleCallAgent = useCallback(() => setContactStage('call-dialog'), []);
-  const handleEmailAgent = useCallback(() => setContactStage('email-dialog'), []);
+  const handleCallAgent = useCallback(() => setContactStage('call-overlay'), []);
+  const handleEmailAgent = useCallback(() => setContactStage('email-overlay'), []);
+  const handleWhatsAppAgent = useCallback(() => setContactStage('whatsapp-overlay'), []);
   const handleMessageAgent = useCallback(() => {
     setContactStage('idle');
     onChatWithAgent();
@@ -272,9 +274,11 @@ export function PropertyDetailScreen({
             onPropertySelect={onPropertySelect}
             onViewAllSimilar={() => onViewAllSimilar(property)}
             agent={AGENT}
+            agentData={AGENT_DATA}
             agentSummary={agentSummary}
             onCall={handleCallAgent}
             onEmail={handleEmailAgent}
+            onWhatsApp={handleWhatsAppAgent}
             onMessage={handleMessageAgent}
             onViewProfile={handleViewProfile}
           />
@@ -329,45 +333,31 @@ export function PropertyDetailScreen({
         />
       )}
 
-      {/* ── Call dialog ── */}
-      {contactStage === 'call-dialog' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl animate-in fade-in zoom-in-95">
-            <h2 className="text-lg font-bold text-[#1a2332] mb-1">Call {AGENT.name}?</h2>
-            <p className="text-sm text-gray-600 mb-6">{AGENT.phone}</p>
-            <div className="flex gap-3">
-              <button onClick={() => setContactStage('idle')}
-                className="flex-1 min-h-[44px] border-2 border-[#e5e7eb] rounded-xl text-sm font-medium text-[#1a2332] hover:bg-[#f9fafb] transition-colors">
-                Cancel
-              </button>
-              <a href={`tel:${AGENT.phone}`} onClick={() => setContactStage('idle')}
-                className="flex-1 min-h-[44px] bg-[#1a2332] rounded-xl text-sm font-medium text-white flex items-center justify-center hover:bg-[#0f1620] transition-colors">
-                Call
-              </a>
-            </div>
-          </div>
-        </div>
+      {/* ── Phone overlay ── */}
+      {contactStage === 'call-overlay' && (
+        <PhoneOverlay phone={AGENT.phone} agentName={AGENT.name} onClose={() => setContactStage('idle')} />
       )}
 
-      {/* ── Email dialog ── */}
-      {contactStage === 'email-dialog' && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-xs shadow-2xl animate-in fade-in zoom-in-95">
-            <h2 className="text-lg font-bold text-[#1a2332] mb-1">Email {AGENT.name}?</h2>
-            <p className="text-sm text-gray-600 mb-6">{AGENT.email}</p>
-            <div className="flex gap-3">
-              <button onClick={() => setContactStage('idle')}
-                className="flex-1 min-h-[44px] border-2 border-[#e5e7eb] rounded-xl text-sm font-medium text-[#1a2332] hover:bg-[#f9fafb] transition-colors">
-                Cancel
-              </button>
-              <a href={`mailto:${AGENT.email}`} onClick={() => setContactStage('idle')}
-                className="flex-1 min-h-[44px] bg-[#1a2332] rounded-xl text-sm font-medium text-white flex items-center justify-center hover:bg-[#0f1620] transition-colors">
-                Open Mail
-              </a>
-            </div>
-          </div>
-        </div>
+      {/* ── Email overlay ── */}
+      {contactStage === 'email-overlay' && (
+        <EmailOverlay email={AGENT.email} agentName={AGENT.name} onClose={() => setContactStage('idle')} />
       )}
+
+      {/* ── WhatsApp overlay ── */}
+      {contactStage === 'whatsapp-overlay' && (
+        <WhatsAppOverlay phone={AGENT_DATA.whatsapp} agentName={AGENT.name} agentInitials={AGENT.initials} onClose={() => setContactStage('idle')} />
+      )}
+
+      {/* ── WhatsApp SMS fallback ── */}
+      <WhatsAppFallbackSheet
+        open={whatsappFallbackOpen}
+        phone={AGENT_DATA.whatsapp}
+        onSMS={() => {
+          window.location.href = `sms:+${AGENT_DATA.whatsapp}?body=${encodeURIComponent('Hi, I found your listing on Star Homes and would like to find out more.')}`;
+          setWhatsappFallbackOpen(false);
+        }}
+        onDismiss={() => setWhatsappFallbackOpen(false)}
+      />
     </div>
   );
 }
@@ -379,6 +369,7 @@ function AgentCard({
   agentSummary,
   onCall,
   onEmail,
+  onWhatsApp,
   onMessage,
   onViewProfile,
 }: {
@@ -386,6 +377,7 @@ function AgentCard({
   agentSummary: { average: number; count: number };
   onCall: () => void;
   onEmail: () => void;
+  onWhatsApp: () => void;
   onMessage: () => void;
   onViewProfile: () => void;
 }) {
@@ -420,29 +412,14 @@ function AgentCard({
         {/* Divider */}
         <div className="h-px bg-[#f1f3f5]" />
 
-        {/* Action buttons */}
-        <div className="grid grid-cols-3 gap-px bg-[#f1f3f5]">
-          <button
-            onClick={onCall}
-            className="flex flex-col items-center gap-1.5 py-3 bg-white text-[#1a2332] hover:bg-[#f9fafb] transition-colors min-h-[60px]"
-          >
-            <Phone className="w-4 h-4" />
-            <span className="text-xs font-medium">Call</span>
-          </button>
-          <button
-            onClick={onEmail}
-            className="flex flex-col items-center gap-1.5 py-3 bg-white text-[#1a2332] hover:bg-[#f9fafb] transition-colors min-h-[60px]"
-          >
-            <Mail className="w-4 h-4" />
-            <span className="text-xs font-medium">Email</span>
-          </button>
-          <button
-            onClick={onMessage}
-            className="flex flex-col items-center gap-1.5 py-3 bg-[#1a2332] text-white hover:bg-[#0f1620] transition-colors min-h-[60px]"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span className="text-xs font-medium">Message</span>
-          </button>
+        {/* 4-button row */}
+        <div className="p-3">
+          <AgentContactButtons
+            onCall={onCall}
+            onEmail={onEmail}
+            onWhatsApp={onWhatsApp}
+            onMessage={onMessage}
+          />
         </div>
       </div>
     </section>
@@ -463,6 +440,7 @@ function OverviewContent({
   agentSummary,
   onCall,
   onEmail,
+  onWhatsApp,
   onMessage,
   onViewProfile,
 }: {
@@ -476,9 +454,11 @@ function OverviewContent({
   onPropertySelect: (property: Property) => void;
   onViewAllSimilar: () => void;
   agent: AgentInfo;
+  agentData?: import('../../data/agents').Agent;
   agentSummary: { average: number; count: number };
   onCall: () => void;
   onEmail: () => void;
+  onWhatsApp: () => void;
   onMessage: () => void;
   onViewProfile: () => void;
 }) {
@@ -545,7 +525,7 @@ function OverviewContent({
         onViewAll={onViewAllSimilar}
       />
 
-      <AgentCard agent={agent} agentSummary={agentSummary} onCall={onCall} onEmail={onEmail} onMessage={onMessage} onViewProfile={onViewProfile} />
+      <AgentCard agent={agent} agentSummary={agentSummary} onCall={onCall} onEmail={onEmail} onWhatsApp={onWhatsApp} onMessage={onMessage} onViewProfile={onViewProfile} />
     </div>
   );
 }
