@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+﻿import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Search, MapPin, TrendingUp, Bell, Check, X, Map as MapIcon } from 'lucide-react';
 import {
   recommendedAreas,
@@ -101,8 +101,8 @@ export function HomeScreen({
     <div className="relative flex flex-col h-full bg-white">
       {/* Toast banner */}
       {pendingToast && (
-        <div className="absolute top-4 left-4 right-4 z-50 bg-[#1a2332] text-white rounded-xl shadow-2xl px-4 py-3 flex items-start gap-3 animate-in slide-in-from-top">
-          <div className="bg-[#ff6b35] rounded-full p-1 mt-0.5">
+        <div className="absolute top-4 left-4 right-4 z-50 bg-[#0F0C2E] text-white rounded-xl shadow-2xl px-4 py-3 flex items-start gap-3 animate-in slide-in-from-top">
+          <div className="bg-[#3C3489] rounded-full p-1 mt-0.5">
             <Check className="w-4 h-4 text-white" strokeWidth={3} />
           </div>
           <p className="flex-1 text-sm">{pendingToast}</p>
@@ -113,17 +113,17 @@ export function HomeScreen({
       )}
 
       {/* Header */}
-      <div className="bg-[#1a2332] px-6 header-pt pb-6">
+      <div className="bg-[#0F0C2E] px-6 header-pt pb-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-white">Find your home</h1>
+          <h1 className="text-2xl font-semibold text-white">Find your home</h1>
           <button
             onClick={onOpenNotifications}
             aria-label={`Open notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
-            className="relative p-2 -mr-2 text-white hover:text-[#ff6b35] transition-colors"
+            className="relative p-2 -mr-2 text-white hover:text-white/70 transition-colors"
           >
             <Bell className="w-6 h-6" />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#ff3b30] text-[10px] font-bold text-white flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#E5917A] text-[10px] font-semibold text-white flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -141,13 +141,13 @@ export function HomeScreen({
               onFocus={handleSearchFocus}
               onBlur={handleSearchBlur}
               placeholder="Enter an area, postcode or borough"
-              className="w-full pl-12 pr-14 py-4 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff6b35] text-[#1a2332]"
+              className="w-full pl-12 pr-14 py-4 bg-white rounded-xl focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] text-[#0F0C2E]"
             />
             <button
               type="button"
               onClick={() => setShowMapModal(true)}
               aria-label="Search by map"
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-[#f9fafb] hover:bg-[#fff5f2] text-[#1a2332] hover:text-[#ff6b35] transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-[#F7F6FB] hover:bg-[#EEEDFE] text-[#0F0C2E] hover:text-[#3C3489] transition-colors"
             >
               <MapIcon className="w-5 h-5" />
             </button>
@@ -162,10 +162,10 @@ export function HomeScreen({
                   <button
                     key={index}
                     onClick={() => handleAutocompleteSelect(result)}
-                    className="w-full px-4 py-3 text-left hover:bg-[#f9fafb] transition-colors flex items-center gap-3 border-b border-[#e5e7eb] last:border-0"
+                    className="w-full px-4 py-3 text-left hover:bg-[#F7F6FB] transition-colors flex items-center gap-3 border-b border-[#e5e7eb] last:border-0"
                   >
                     <MapPin className="w-4 h-4 text-gray-400" />
-                    <span className="text-[#1a2332]">{result}</span>
+                    <span className="text-[#0F0C2E]">{result}</span>
                   </button>
                 ))}
             </div>
@@ -178,7 +178,7 @@ export function HomeScreen({
             onClick={() => onSearchModeChange('rent')}
             className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
               searchMode === 'rent'
-                ? 'bg-white text-[#1a2332]'
+                ? 'bg-white text-[#0F0C2E]'
                 : 'text-white hover:bg-white/5'
             }`}
           >
@@ -188,7 +188,7 @@ export function HomeScreen({
             onClick={() => onSearchModeChange('buy')}
             className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
               searchMode === 'buy'
-                ? 'bg-white text-[#1a2332]'
+                ? 'bg-white text-[#0F0C2E]'
                 : 'text-white hover:bg-white/5'
             }`}
           >
@@ -211,9 +211,9 @@ export function HomeScreen({
       {/* Body: Recently viewed (when present) + Recommended Areas */}
       <div className="flex-1 overflow-y-auto">
         {isGuest && (
-          <div className="mx-4 mt-3 px-4 py-3 bg-[#fff5f2] border border-[#ff6b35]/30 rounded-xl flex items-start gap-3">
-            <span className="text-[#ff6b35] text-base mt-0.5">👤</span>
-            <p className="text-xs text-[#1a2332] leading-relaxed">
+          <div className="mx-4 mt-3 px-4 py-3 bg-[#EEEDFE] border border-[#3C3489]/20 rounded-xl flex items-start gap-3">
+            <span className="text-[#3C3489] text-base mt-0.5">👤</span>
+            <p className="text-xs text-[#0F0C2E] leading-relaxed">
               <span className="font-semibold">Browsing as guest</span> — sign up to save properties and contact agents.
             </p>
           </div>
@@ -232,15 +232,15 @@ export function HomeScreen({
         <div className="px-6 pb-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-[#ff6b35]" />
-              <h2 className="text-xl font-bold text-[#1a2332]">
+              <TrendingUp className="w-5 h-5 text-[#3C3489]" />
+              <h2 className="text-xl font-semibold text-[#0F0C2E]">
                 {searchQuery.trim() ? 'Matching areas' : 'Recommended for you'}
               </h2>
             </div>
             {searchQuery.trim() && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="text-sm text-[#ff6b35] font-medium hover:underline"
+                className="text-sm text-[#3C3489] font-medium hover:underline"
               >
                 Clear
               </button>
@@ -248,14 +248,14 @@ export function HomeScreen({
           </div>
 
           {filteredAreas.length === 0 ? (
-            <div className="rounded-2xl border border-[#e5e7eb] bg-[#f9fafb] px-6 py-10 text-center">
-              <p className="text-[#1a2332] font-medium mb-1">No areas match "{searchQuery}"</p>
+            <div className="rounded-2xl border border-[#e5e7eb] bg-[#F7F6FB] px-6 py-10 text-center">
+              <p className="text-[#0F0C2E] font-medium mb-1">No areas match "{searchQuery}"</p>
               <p className="text-sm text-gray-600">
                 Try a different name or borough, or{' '}
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="text-[#ff6b35] font-medium hover:underline"
+                  className="text-[#3C3489] font-medium hover:underline"
                 >
                   clear the search
                 </button>
@@ -276,18 +276,18 @@ export function HomeScreen({
                       alt={area.name}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-3 left-3 bg-[#ff6b35] text-white px-3 py-1 rounded-full text-xs font-medium">
+                    <div className="absolute top-3 left-3 bg-[#3C3489] text-white px-3 py-1 rounded-full text-xs font-medium">
                       {area.tag}
                     </div>
                   </div>
                   <div className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="text-left">
-                        <h3 className="font-bold text-[#1a2332] text-lg">{area.name}</h3>
+                        <h3 className="font-semibold text-[#0F0C2E] text-lg">{area.name}</h3>
                         <p className="text-sm text-gray-600">{area.borough}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-[#1a2332]">{formatFromPrice(searchMode, area)}</p>
+                        <p className="font-semibold text-[#0F0C2E]">{formatFromPrice(searchMode, area)}</p>
                         <p className="text-xs text-gray-600">
                           {searchMode === 'rent' ? 'Avg rent' : 'Avg sale price'}
                         </p>

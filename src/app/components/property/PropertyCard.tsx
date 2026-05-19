@@ -81,14 +81,14 @@ export function PropertyCard({
       tabIndex={0}
       aria-label={`${property.title}, ${property.address}, ${priceFor(searchMode, property)}`}
       className={`group relative bg-white rounded-2xl overflow-hidden border border-[#e5e7eb] hover:shadow-lg transition-all cursor-pointer text-left ${
-        isSelected ? 'ring-2 ring-[#ff6b35]' : ''
+        isSelected ? 'ring-2 ring-[#3C3489]' : ''
       }`}
     >
       <div className="relative">
         <PropertyCardCarousel images={images} alt={property.title} eager={eager} />
 
         {/* Category pill (top-left, low on the image to leave room for select) */}
-        <div className="absolute bottom-2 left-2 bg-white/95 px-2.5 py-1 rounded-full text-[11px] font-medium text-[#1a2332] flex items-center gap-1 shadow-sm">
+        <div className="absolute bottom-2 left-2 bg-white/95 px-2.5 py-1 rounded-full text-[11px] font-medium text-[#0F0C2E] flex items-center gap-1 shadow-sm">
           <CategoryIcon className="w-3 h-3" />
           {property.propertyType}
         </div>
@@ -103,11 +103,11 @@ export function PropertyCard({
             aria-label={isSelected ? 'Deselect for comparison' : 'Select for comparison'}
             className={`absolute top-2 left-2 w-9 h-9 rounded-full shadow-md flex items-center justify-center transition-all ${
               isSelected
-                ? 'bg-[#ff6b35] text-white'
-                : 'bg-white/95 text-[#1a2332] hover:bg-white'
+                ? 'bg-[#3C3489] text-white'
+                : 'bg-white/95 text-[#0F0C2E] hover:bg-white'
             }`}
           >
-            {isSelected ? <Check className="w-5 h-5" strokeWidth={3} /> : <span className="w-4 h-4 rounded-full border-2 border-[#1a2332]" />}
+            {isSelected ? <Check className="w-5 h-5" strokeWidth={3} /> : <span className="w-4 h-4 rounded-full border-2 border-[#0F0C2E]" />}
           </button>
         )}
 
@@ -122,11 +122,11 @@ export function PropertyCard({
               onKeyDown={stopCardClick}
               aria-pressed={isBookmarked}
               aria-label={isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
-              className="absolute top-2 right-2 w-9 h-9 rounded-full bg-white/95 shadow-md flex items-center justify-center text-[#1a2332] hover:bg-white transition-colors min-w-[44px] min-h-[44px] sm:min-w-[36px] sm:min-h-[36px]"
+              className="absolute top-2 right-2 w-9 h-9 rounded-full bg-white/95 shadow-md flex items-center justify-center text-[#0F0C2E] hover:bg-white transition-colors min-w-[44px] min-h-[44px] sm:min-w-[36px] sm:min-h-[36px]"
             >
               <Heart
                 className={`w-5 h-5 transition-transform ${
-                  isBookmarked ? 'text-[#ff6b35] fill-[#ff6b35] scale-110' : 'text-[#1a2332]'
+                  isBookmarked ? 'text-[#E5917A] fill-[#E5917A] scale-110' : 'text-[#0F0C2E]'
                 }`}
               />
             </button>
@@ -137,17 +137,17 @@ export function PropertyCard({
       {/* Body */}
       {variant === 'compact' ? (
         <div className="p-3">
-          <p className="font-bold text-[#1a2332] text-sm mb-1 truncate">{property.title}</p>
+          <p className="font-semibold text-[#0F0C2E] text-sm mb-1 truncate">{property.title}</p>
           <p className="text-xs text-gray-600 truncate mb-2">{property.address}</p>
           <div className="flex items-center justify-between">
-            <p className="font-bold text-[#ff6b35] text-sm">{priceFor(searchMode, property)}</p>
+            <p className="font-semibold text-[#3C3489] text-sm">{priceFor(searchMode, property)}</p>
             <div className="flex items-center gap-1 text-xs text-gray-600">
               <Bed className="w-3 h-3" />
               <span>{property.bedrooms}</span>
             </div>
           </div>
           {commute && (
-            <p className="mt-1.5 text-[11px] text-[#1a2332] flex items-center gap-1">
+            <p className="mt-1.5 text-[11px] text-[#0F0C2E] flex items-center gap-1">
               {commute.mode === 'walk' ? <Footprints className="w-3 h-3" /> : <Train className="w-3 h-3" />}
               ≈{commute.minutes} min to {workplace?.name}
             </p>
@@ -160,7 +160,7 @@ export function PropertyCard({
           )}
           <div className="flex items-start justify-between mb-1">
             <div className="text-left flex-1 min-w-0">
-              <h3 className="font-bold text-[#1a2332] text-lg leading-tight truncate">
+              <h3 className="font-semibold text-[#0F0C2E] text-lg leading-tight truncate">
                 {property.title}
               </h3>
               <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
@@ -169,7 +169,7 @@ export function PropertyCard({
               </div>
             </div>
             <div className="text-right ml-3 shrink-0">
-              <p className="font-bold text-[#1a2332] text-xl whitespace-nowrap">
+              <p className="font-semibold text-[#0F0C2E] text-xl whitespace-nowrap">
                 {priceFor(searchMode, property)}
               </p>
             </div>
@@ -192,7 +192,7 @@ export function PropertyCard({
           </div>
 
           {commute && (
-            <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1a2332] text-white text-[11px] font-medium">
+            <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0F0C2E] text-white text-[11px] font-medium">
               {commute.mode === 'walk' ? <Footprints className="w-3 h-3" /> : <Train className="w-3 h-3" />}
               ≈{commute.minutes} min to {workplace?.name}
             </div>
@@ -208,7 +208,7 @@ export function PropertyCard({
                   <span
                     key={id}
                     title={opt.label}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#fff5f2] text-[#ff6b35] text-[11px] font-medium"
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EEEDFE] text-[#3C3489] text-[11px] font-medium"
                   >
                     <Icon className="w-3 h-3" />
                     {opt.label}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { ArrowLeft, Star } from 'lucide-react';
 import type { Agent } from '../../data/agents';
 import { agentRatingSummary, fetchAgentReviews, type Review } from '../../data/reviews';
@@ -22,7 +22,7 @@ function StarRow({ stars, size = 'sm' }: { stars: number; size?: 'sm' | 'xs' }) 
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`${cls} ${i <= stars ? 'text-[#ff6b35] fill-[#ff6b35]' : 'text-gray-300 fill-gray-300'}`}
+          className={`${cls} ${i <= stars ? 'text-[#E5917A] fill-[#E5917A]' : 'text-gray-300 fill-gray-300'}`}
         />
       ))}
     </div>
@@ -44,10 +44,10 @@ function ReviewCard({ review }: { review: Review }) {
       : 'bg-green-50 text-green-700 border-green-200';
 
   return (
-    <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-2xl px-4 py-3.5">
+    <div className="bg-[#F7F6FB] border border-[#e5e7eb] rounded-2xl px-4 py-3.5">
       <div className="flex items-start justify-between mb-2">
         <div>
-          <p className="text-sm font-semibold text-[#1a2332]">
+          <p className="text-sm font-semibold text-[#0F0C2E]">
             {review.reviewerFirstName} {review.reviewerLastInitial}.
           </p>
           <div className="flex items-center gap-2 mt-0.5">
@@ -65,7 +65,7 @@ function ReviewCard({ review }: { review: Review }) {
       {long && (
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="mt-1 text-xs font-medium text-[#ff6b35] hover:underline"
+          className="mt-1 text-xs font-medium text-[#3C3489] hover:underline"
         >
           {expanded ? 'Read less' : 'Read more'}
         </button>
@@ -78,7 +78,7 @@ function ReviewCard({ review }: { review: Review }) {
 
 function ReviewSkeleton() {
   return (
-    <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-2xl px-4 py-3.5 animate-pulse">
+    <div className="bg-[#F7F6FB] border border-[#e5e7eb] rounded-2xl px-4 py-3.5 animate-pulse">
       <div className="flex items-start justify-between mb-2">
         <div className="space-y-1.5">
           <div className="h-3.5 w-24 bg-gray-200 rounded-full" />
@@ -114,8 +114,8 @@ function AgentAvatar({ photoUrl, initials }: { photoUrl: string | null; initials
   }
 
   return (
-    <div className="w-20 h-20 rounded-full bg-[#ff6b35] flex items-center justify-center border-4 border-white shadow-lg">
-      <span className="text-white font-bold text-2xl">{initials}</span>
+    <div className="w-20 h-20 rounded-full bg-[#3C3489] flex items-center justify-center border-4 border-white shadow-lg">
+      <span className="text-white font-semibold text-2xl">{initials}</span>
     </div>
   );
 }
@@ -159,11 +159,11 @@ export function AgentProfileScreen({
         <button
           onClick={onBack}
           aria-label="Back"
-          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#1a2332] hover:text-[#ff6b35] transition-colors"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#0F0C2E] hover:text-[#3C3489] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="flex-1 text-center text-base font-bold text-[#1a2332]">Agent Profile</h1>
+        <h1 className="flex-1 text-center text-base font-semibold text-[#0F0C2E]">Agent Profile</h1>
         <div className="min-w-[44px]" /> {/* balance */}
       </div>
 
@@ -172,12 +172,12 @@ export function AgentProfileScreen({
         {/* Profile hero */}
         <div className="flex flex-col items-center px-6 pt-6 pb-4">
           <AgentAvatar photoUrl={agent.photoUrl} initials={agent.initials} />
-          <h2 className="mt-4 text-xl font-bold text-[#1a2332]">{agent.fullName}</h2>
+          <h2 className="mt-4 text-xl font-semibold text-[#0F0C2E]">{agent.fullName}</h2>
           <p className="mt-0.5 text-sm text-gray-500 text-center">{agent.agencyName}</p>
           {summary.count > 0 && (
             <div className="mt-2 flex items-center gap-1.5">
-              <Star className="w-4 h-4 text-[#ff6b35] fill-[#ff6b35]" />
-              <span className="text-sm font-semibold text-[#1a2332]">{summary.average}</span>
+              <Star className="w-4 h-4 text-[#E5917A] fill-[#E5917A]" />
+              <span className="text-sm font-semibold text-[#0F0C2E]">{summary.average}</span>
               <span className="text-sm text-gray-500">· {summary.count} reviews</span>
             </div>
           )}
@@ -195,14 +195,14 @@ export function AgentProfileScreen({
 
         {/* About */}
         <div className="px-5 mb-5">
-          <h3 className="text-base font-bold text-[#1a2332] mb-2">About</h3>
+          <h3 className="text-base font-semibold text-[#0F0C2E] mb-2">About</h3>
           <p className="text-sm text-gray-700 leading-relaxed">
             {bioExpanded || !bioLong ? agent.bio : `${agent.bio.slice(0, BIO_LIMIT)}…`}
           </p>
           {bioLong && (
             <button
               onClick={() => setBioExpanded((v) => !v)}
-              className="mt-1.5 text-xs font-medium text-[#ff6b35] hover:underline"
+              className="mt-1.5 text-xs font-medium text-[#3C3489] hover:underline"
             >
               {bioExpanded ? 'Read less' : 'Read more'}
             </button>
@@ -212,11 +212,11 @@ export function AgentProfileScreen({
         {/* Ratings & Reviews */}
         <div className="px-5 pb-8">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-bold text-[#1a2332]">Ratings &amp; Reviews</h3>
+            <h3 className="text-base font-semibold text-[#0F0C2E]">Ratings &amp; Reviews</h3>
             {!reviewsLoading && summary.count > 0 && (
               <div className="flex items-center gap-1">
-                <Star className="w-3.5 h-3.5 text-[#ff6b35] fill-[#ff6b35]" />
-                <span className="text-sm font-semibold text-[#1a2332]">{summary.average}</span>
+                <Star className="w-3.5 h-3.5 text-[#E5917A] fill-[#E5917A]" />
+                <span className="text-sm font-semibold text-[#0F0C2E]">{summary.average}</span>
                 <span className="text-xs text-gray-400">/ 5</span>
               </div>
             )}

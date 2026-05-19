@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { X } from 'lucide-react';
 import {
   DEFAULT_FILTERS,
@@ -101,13 +101,13 @@ export function FilterSheet({
         <div className="px-6 pt-4 pb-2 flex-shrink-0">
           <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
           <div className="flex items-start justify-between">
-            <h2 id="filter-sheet-title" className="text-xl font-bold text-[#1a2332]">
+            <h2 id="filter-sheet-title" className="text-xl font-semibold text-[#0F0C2E]">
               Filters
             </h2>
             <button
               onClick={onClose}
               aria-label="Close"
-              className="p-2 -mr-2 text-gray-500 hover:text-[#1a2332] min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 -mr-2 text-gray-500 hover:text-[#0F0C2E] min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <X className="w-5 h-5" />
             </button>
@@ -116,7 +116,7 @@ export function FilterSheet({
 
         <div className="px-6 pb-4 overflow-y-auto flex-1 space-y-6">
           <section>
-            <h3 className="text-sm font-bold text-[#1a2332] mb-2">Bedrooms</h3>
+            <h3 className="text-sm font-semibold text-[#0F0C2E] mb-2">Bedrooms</h3>
             <div className="flex flex-wrap gap-2">
               {BEDROOM_OPTIONS.map((opt) => {
                 const isActive = draft.bedrooms === opt.value;
@@ -127,8 +127,8 @@ export function FilterSheet({
                     aria-pressed={isActive}
                     className={`min-w-[48px] min-h-[44px] px-4 rounded-full text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-[#1a2332] text-white'
-                        : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f1f3f5]'
+                        ? 'bg-[#0F0C2E] text-white'
+                        : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE]'
                     }`}
                   >
                     {opt.label}
@@ -139,7 +139,7 @@ export function FilterSheet({
           </section>
 
           <section>
-            <h3 className="text-sm font-bold text-[#1a2332] mb-2">Price range</h3>
+            <h3 className="text-sm font-semibold text-[#0F0C2E] mb-2">Price range</h3>
             <p className="text-xs text-gray-500 mb-2">{priceUnit}</p>
             <div className="flex items-center gap-3">
               <label className="flex-1">
@@ -154,7 +154,7 @@ export function FilterSheet({
                     value={draft.minPrice ?? ''}
                     onChange={(e) => handlePriceChange('minPrice', e.target.value)}
                     placeholder="Min"
-                    className="w-full h-12 pl-7 pr-3 bg-[#f9fafb] border border-[#e5e7eb] rounded-xl text-sm text-[#1a2332] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
+                    className="w-full h-12 pl-7 pr-3 bg-[#F7F6FB] border border-[#e5e7eb] rounded-xl text-sm text-[#0F0C2E] focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent"
                   />
                 </div>
               </label>
@@ -171,7 +171,7 @@ export function FilterSheet({
                     value={draft.maxPrice ?? ''}
                     onChange={(e) => handlePriceChange('maxPrice', e.target.value)}
                     placeholder="Max"
-                    className="w-full h-12 pl-7 pr-3 bg-[#f9fafb] border border-[#e5e7eb] rounded-xl text-sm text-[#1a2332] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
+                    className="w-full h-12 pl-7 pr-3 bg-[#F7F6FB] border border-[#e5e7eb] rounded-xl text-sm text-[#0F0C2E] focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent"
                   />
                 </div>
               </label>
@@ -179,7 +179,7 @@ export function FilterSheet({
           </section>
 
           <section>
-            <h3 className="text-sm font-bold text-[#1a2332] mb-2">Property type</h3>
+            <h3 className="text-sm font-semibold text-[#0F0C2E] mb-2">Property type</h3>
             <div className="flex flex-wrap gap-2">
               {PROPERTY_TYPE_OPTIONS.map((opt) => {
                 const isActive = draft.propertyType === opt.value;
@@ -190,8 +190,8 @@ export function FilterSheet({
                     aria-pressed={isActive}
                     className={`min-w-[80px] min-h-[44px] px-4 rounded-full text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-[#1a2332] text-white'
-                        : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f1f3f5]'
+                        ? 'bg-[#0F0C2E] text-white'
+                        : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE]'
                     }`}
                   >
                     {opt.label}
@@ -205,13 +205,13 @@ export function FilterSheet({
         <div className="px-6 pt-3 pb-[max(env(safe-area-inset-bottom),1rem)] flex-shrink-0 border-t border-[#f1f3f5] flex gap-3">
           <button
             onClick={handleClearAll}
-            className="flex-1 min-h-[48px] bg-white border-2 border-[#e5e7eb] text-[#1a2332] py-3 rounded-xl hover:bg-[#f9fafb] transition-colors font-medium"
+            className="flex-1 min-h-[48px] bg-[#EEEDFE] text-[#3C3489] py-3 rounded-xl hover:bg-[#EEEDFE]/80 transition-colors font-medium"
           >
             Clear all
           </button>
           <button
             onClick={() => onApply(draft)}
-            className="flex-[1.4] min-h-[48px] bg-[#1a2332] text-white py-3 rounded-xl hover:bg-[#0f1620] transition-colors font-medium"
+            className="flex-[1.4] min-h-[48px] bg-[#0F0C2E] text-white py-3 rounded-xl hover:bg-[#1a1650] transition-colors font-medium"
           >
             Show {matchCount} {matchCount === 1 ? 'result' : 'results'}
           </button>

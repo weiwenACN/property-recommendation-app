@@ -1,4 +1,4 @@
-import { ArrowLeft, BellRing, Home } from 'lucide-react';
+﻿import { ArrowLeft, BellRing, Home } from 'lucide-react';
 import { relativeTime } from '../../data/relativeTime';
 
 export interface Notification {
@@ -25,24 +25,24 @@ export function NotificationsScreen({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="bg-[#1a2332] px-6 pb-4 header-pt">
+      <div className="bg-[#0F0C2E] px-6 pb-4 header-pt">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-white hover:text-[#ff6b35] transition-colors mb-4"
+          className="flex items-center gap-2 text-white hover:text-white/70 transition-colors mb-4"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </button>
-        <h1 className="text-2xl font-bold text-white">Notifications</h1>
+        <h1 className="text-2xl font-semibold text-white">Notifications</h1>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-6">
-            <div className="bg-[#f9fafb] rounded-full p-6 mb-4">
+            <div className="bg-[#F7F6FB] rounded-full p-6 mb-4">
               <BellRing className="w-12 h-12 text-gray-400" />
             </div>
-            <h2 className="text-xl font-bold text-[#1a2332] mb-2">No notifications</h2>
+            <h2 className="text-xl font-semibold text-[#0F0C2E] mb-2">No notifications</h2>
             <p className="text-gray-600">You're all caught up.</p>
           </div>
         ) : (
@@ -53,17 +53,17 @@ export function NotificationsScreen({
                 <li key={n.id}>
                   <button
                     onClick={() => onNotificationTap(n)}
-                    className={`w-full px-6 py-4 flex items-start gap-3 text-left transition-colors hover:bg-[#f9fafb] ${
-                      n.read ? '' : 'bg-[#fff5f2]/40'
+                    className={`w-full px-6 py-4 flex items-start gap-3 text-left transition-colors hover:bg-[#F7F6FB] ${
+                      n.read ? '' : 'bg-[#EEEDFE]/40'
                     }`}
                   >
-                    <div className="bg-[#ff6b35] rounded-full p-2 flex-shrink-0">
+                    <div className="bg-[#3C3489] rounded-full p-2 flex-shrink-0">
                       <Icon className="w-4 h-4 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-bold text-[#1a2332] text-sm truncate">{n.title}</p>
-                        {!n.read && <span className="w-2 h-2 rounded-full bg-[#ff6b35] flex-shrink-0" />}
+                        <p className="font-semibold text-[#0F0C2E] text-sm truncate">{n.title}</p>
+                        {!n.read && <span className="w-2 h-2 rounded-full bg-[#E5917A] flex-shrink-0" />}
                       </div>
                       <p className="text-sm text-gray-600 mb-1">{n.body}</p>
                       <p className="text-xs text-gray-500">{relativeTime(n.timestamp)}</p>

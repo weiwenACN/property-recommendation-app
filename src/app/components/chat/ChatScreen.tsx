@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ChevronRight, Send, X } from 'lucide-react';
 import type { SearchMode } from '../../data/pricing';
 
@@ -183,13 +183,13 @@ function OfferSheet({ open, listedPrice, searchMode, onSend, onClose }: OfferShe
         <div className="px-5 pt-4 pb-3 border-b border-[#f1f3f5]">
           <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
           <div className="flex items-center justify-between">
-            <h2 id="offer-sheet-title" className="text-lg font-bold text-[#1a2332]">
+            <h2 id="offer-sheet-title" className="text-lg font-semibold text-[#0F0C2E]">
               Propose your offer
             </h2>
             <button
               onClick={onClose}
               aria-label="Close"
-              className="p-2 -mr-1 text-gray-400 hover:text-[#1a2332] min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 -mr-1 text-gray-400 hover:text-[#0F0C2E] min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <X className="w-5 h-5" />
             </button>
@@ -201,7 +201,7 @@ function OfferSheet({ open, listedPrice, searchMode, onSend, onClose }: OfferShe
         {/* Form */}
         <div className="px-5 py-4 space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-[#1a2332] mb-1.5 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-[#0F0C2E] mb-1.5 uppercase tracking-wide">
               {searchMode === 'rent' ? 'Proposed monthly rent (£)' : 'Proposed price (£)'}
             </label>
             <div className="relative">
@@ -214,13 +214,13 @@ function OfferSheet({ open, listedPrice, searchMode, onSend, onClose }: OfferShe
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder={amountPlaceholder}
-                className="w-full h-12 pl-7 pr-4 bg-[#f9fafb] border border-[#e5e7eb] rounded-xl text-sm text-[#1a2332] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
+                className="w-full h-12 pl-7 pr-4 bg-[#F7F6FB] border border-[#e5e7eb] rounded-xl text-sm text-[#0F0C2E] focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#1a2332] mb-1.5 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-[#0F0C2E] mb-1.5 uppercase tracking-wide">
               Note to agent (optional)
             </label>
             <textarea
@@ -228,7 +228,7 @@ function OfferSheet({ open, listedPrice, searchMode, onSend, onClose }: OfferShe
               onChange={(e) => setNote(e.target.value)}
               placeholder="Add a note for the agent…"
               rows={3}
-              className="w-full px-4 py-3 bg-[#f9fafb] border border-[#e5e7eb] rounded-xl text-sm text-[#1a2332] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent resize-none"
+              className="w-full px-4 py-3 bg-[#F7F6FB] border border-[#e5e7eb] rounded-xl text-sm text-[#0F0C2E] focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent resize-none"
             />
           </div>
         </div>
@@ -238,13 +238,13 @@ function OfferSheet({ open, listedPrice, searchMode, onSend, onClose }: OfferShe
           <button
             onClick={handleSend}
             disabled={!amount.trim()}
-            className="w-full min-h-[48px] bg-[#1a2332] text-white rounded-xl font-semibold text-sm hover:bg-[#2a3342] disabled:bg-gray-300 transition-colors"
+            className="w-full min-h-[48px] bg-[#0F0C2E] text-white rounded-xl font-semibold text-sm hover:bg-[#2a3342] disabled:bg-gray-300 transition-colors"
           >
             Send offer
           </button>
           <button
             onClick={onClose}
-            className="w-full text-center text-sm text-gray-500 hover:text-[#1a2332] py-2 transition-colors"
+            className="w-full text-center text-sm text-gray-500 hover:text-[#0F0C2E] py-2 transition-colors"
           >
             Cancel
           </button>
@@ -467,19 +467,19 @@ export function ChatScreen({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* ── Header ── */}
-      <div className="bg-[#1a2332] flex items-center gap-3 px-4 pt-[max(env(safe-area-inset-top),0.75rem)] pb-3 flex-shrink-0">
+      <div className="bg-[#0F0C2E] flex items-center gap-3 px-4 pt-[max(env(safe-area-inset-top),0.75rem)] pb-3 flex-shrink-0">
         <button
           onClick={onBack}
           aria-label="Back"
-          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-[#ff6b35] transition-colors"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-white/70 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="w-10 h-10 rounded-full bg-white/15 border border-white/30 flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-bold text-sm">{agent.initials}</span>
+          <span className="text-white font-semibold text-sm">{agent.initials}</span>
         </div>
         <div>
-          <p className="text-white font-bold text-sm">{agent.name}</p>
+          <p className="text-white font-semibold text-sm">{agent.name}</p>
           <p className="text-[10px] font-medium" style={{ color: '#4ade80' }}>● Active now</p>
         </div>
       </div>
@@ -506,8 +506,8 @@ export function ChatScreen({
                   <div
                     className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                       msg.from === 'user'
-                        ? 'bg-[#1a2332] text-white rounded-br-sm'
-                        : 'bg-[#F1EFE8] text-[#1a2332] rounded-bl-sm'
+                        ? 'bg-[#0F0C2E] text-white rounded-br-sm'
+                        : 'bg-[#F7F6FB] text-[#0F0C2E] rounded-bl-sm'
                     }`}
                   >
                     {msg.text}
@@ -524,7 +524,7 @@ export function ChatScreen({
         {/* Typing indicator */}
         {pendingResponse && (
           <div className="flex justify-start mb-2">
-            <div className="bg-[#F1EFE8] rounded-2xl rounded-bl-sm px-4 py-2.5 flex gap-1 items-center">
+            <div className="bg-[#F7F6FB] rounded-2xl rounded-bl-sm px-4 py-2.5 flex gap-1 items-center">
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
@@ -609,13 +609,13 @@ export function ChatScreen({
             }
           }}
           placeholder="Type a message…"
-          className="flex-1 h-11 px-4 bg-[#f9fafb] border border-[#e5e7eb] rounded-full text-sm text-[#1a2332] focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
+          className="flex-1 h-11 px-4 bg-[#F7F6FB] border border-[#e5e7eb] rounded-full text-sm text-[#0F0C2E] focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent"
         />
         <button
           onClick={() => sendMessage(input)}
           disabled={!input.trim()}
           aria-label="Send"
-          className="w-11 h-11 flex-shrink-0 rounded-full bg-[#1a2332] flex items-center justify-center disabled:bg-gray-300 transition-colors"
+          className="w-11 h-11 flex-shrink-0 rounded-full bg-[#0F0C2E] flex items-center justify-center disabled:bg-gray-300 transition-colors"
         >
           <Send className="w-4 h-4 text-white" />
         </button>

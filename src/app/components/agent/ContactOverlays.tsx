@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { ArrowLeft, Send } from 'lucide-react';
 
 interface PhoneOverlayProps {
@@ -16,10 +16,10 @@ export function PhoneOverlay({ phone, agentName, onClose }: PhoneOverlayProps) {
   ];
 
   return (
-    <div className="fixed inset-0 z-[9900] flex flex-col bg-[#1a2332] animate-in slide-in-from-bottom">
+    <div className="fixed inset-0 z-[9900] flex flex-col bg-[#0F0C2E] animate-in slide-in-from-bottom">
       {/* Header */}
       <div className="flex items-center px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-3">
-        <button onClick={onClose} aria-label="Back" className="min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-[#ff6b35] transition-colors">
+        <button onClick={onClose} aria-label="Back" className="min-w-[44px] min-h-[44px] flex items-center justify-center text-white hover:text-white/70 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
       </div>
@@ -73,13 +73,13 @@ export function EmailOverlay({ email, agentName, onClose }: EmailOverlayProps) {
     <div className="fixed inset-0 z-[9900] flex flex-col bg-white animate-in slide-in-from-bottom">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),1rem)] pb-3 border-b border-[#e5e7eb]">
-        <button onClick={onClose} aria-label="Back" className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#1a2332] hover:text-[#ff6b35] transition-colors">
+        <button onClick={onClose} aria-label="Back" className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#0F0C2E] hover:text-[#3C3489] transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-base font-bold text-[#1a2332]">New Message</h1>
+        <h1 className="text-base font-semibold text-[#0F0C2E]">New Message</h1>
         <a
           href={`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}
-          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#ff6b35] font-semibold text-sm"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-[#3C3489] font-semibold text-sm"
         >
           Send
         </a>
@@ -88,7 +88,7 @@ export function EmailOverlay({ email, agentName, onClose }: EmailOverlayProps) {
       {/* To */}
       <div className="flex items-center px-4 h-12 border-b border-[#f1f3f5]">
         <span className="text-sm text-gray-500 mr-2 w-12">To:</span>
-        <p className="text-sm text-[#1a2332] font-medium">{agentName} &lt;{email}&gt;</p>
+        <p className="text-sm text-[#0F0C2E] font-medium">{agentName} &lt;{email}&gt;</p>
       </div>
 
       {/* Subject */}
@@ -98,7 +98,7 @@ export function EmailOverlay({ email, agentName, onClose }: EmailOverlayProps) {
           type="text"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          className="flex-1 text-sm text-[#1a2332] focus:outline-none"
+          className="flex-1 text-sm text-[#0F0C2E] focus:outline-none"
         />
       </div>
 
@@ -107,7 +107,7 @@ export function EmailOverlay({ email, agentName, onClose }: EmailOverlayProps) {
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Write your message here…"
-        className="flex-1 px-4 py-3 text-sm text-[#1a2332] resize-none focus:outline-none"
+        className="flex-1 px-4 py-3 text-sm text-[#0F0C2E] resize-none focus:outline-none"
       />
     </div>
   );
@@ -133,7 +133,7 @@ export function WhatsAppOverlay({ phone, agentName, agentInitials, onClose }: Wh
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="w-9 h-9 rounded-full bg-[#25D366] flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-bold text-xs">{agentInitials}</span>
+          <span className="text-white font-semibold text-xs">{agentInitials}</span>
         </div>
         <div>
           <p className="text-white font-semibold text-sm">{agentName}</p>
@@ -144,7 +144,7 @@ export function WhatsAppOverlay({ phone, agentName, agentInitials, onClose }: Wh
       {/* Chat area */}
       <div className="flex-1 flex items-end px-3 pb-3">
         <div className="bg-white rounded-2xl rounded-bl-sm px-3 py-2 max-w-[80%] shadow-sm">
-          <p className="text-sm text-[#1a2332]">Hi! How can I help you with the property?</p>
+          <p className="text-sm text-[#0F0C2E]">Hi! How can I help you with the property?</p>
           <p className="text-[10px] text-gray-400 text-right mt-0.5">Agent</p>
         </div>
       </div>
@@ -155,7 +155,7 @@ export function WhatsAppOverlay({ phone, agentName, agentInitials, onClose }: Wh
           type="text"
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
-          className="flex-1 h-10 px-4 rounded-full bg-white text-sm text-[#1a2332] focus:outline-none"
+          className="flex-1 h-10 px-4 rounded-full bg-white text-sm text-[#0F0C2E] focus:outline-none"
         />
         <a
           href={url}
@@ -187,11 +187,11 @@ export function WhatsAppFallbackSheet({ open, phone: _phone, onSMS, onDismiss }:
       <button type="button" onClick={onDismiss} className="absolute inset-0 bg-black/40" tabIndex={-1} />
       <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl px-6 pt-4 pb-[max(env(safe-area-inset-bottom),1.5rem)] animate-in slide-in-from-bottom">
         <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
-        <h2 className="text-lg font-bold text-[#1a2332] mb-1">WhatsApp not found</h2>
+        <h2 className="text-lg font-semibold text-[#0F0C2E] mb-1">WhatsApp not found</h2>
         <p className="text-sm text-gray-600 mb-5">Would you like to send an SMS instead?</p>
         <div className="flex gap-3">
-          <button onClick={onDismiss} className="flex-1 min-h-[48px] border-2 border-[#e5e7eb] rounded-xl text-sm font-medium text-[#1a2332]">Cancel</button>
-          <button onClick={onSMS} className="flex-1 min-h-[48px] bg-[#1a2332] rounded-xl text-sm font-medium text-white">Send SMS</button>
+          <button onClick={onDismiss} className="flex-1 min-h-[48px] border-2 border-[#e5e7eb] rounded-xl text-sm font-medium text-[#0F0C2E]">Cancel</button>
+          <button onClick={onSMS} className="flex-1 min-h-[48px] bg-[#0F0C2E] rounded-xl text-sm font-medium text-white">Send SMS</button>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+﻿import { useMemo, useRef, useState } from 'react';
 import {
   SlidersHorizontal,
   Heart,
@@ -64,7 +64,7 @@ function SparkCard({ property, searchMode }: SparkCardProps) {
         {/* Price badge */}
         <div className="absolute bottom-3 left-4">
           <div className="bg-white/95 backdrop-blur-sm rounded-xl px-3 py-1.5 shadow-sm">
-            <p className="text-[#1a2332] font-bold text-lg leading-none">
+            <p className="text-[#0F0C2E] font-semibold text-lg leading-none">
               {priceFor(searchMode, property)}
             </p>
           </div>
@@ -74,7 +74,7 @@ function SparkCard({ property, searchMode }: SparkCardProps) {
       {/* Card body */}
       <div className="flex-1 px-4 pt-3 pb-4 flex flex-col gap-2 min-h-0">
         <div>
-          <h3 className="font-bold text-[#1a2332] text-base leading-snug">{property.title}</h3>
+          <h3 className="font-semibold text-[#0F0C2E] text-base leading-snug">{property.title}</h3>
           <p className="text-gray-500 text-sm">{property.address}</p>
         </div>
 
@@ -82,15 +82,15 @@ function SparkCard({ property, searchMode }: SparkCardProps) {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1">
             <BedDouble className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span className="text-sm text-[#1a2332]">{property.bedrooms}</span>
+            <span className="text-sm text-[#0F0C2E]">{property.bedrooms}</span>
           </div>
           <div className="flex items-center gap-1">
             <Bath className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span className="text-sm text-[#1a2332]">{property.bathrooms}</span>
+            <span className="text-sm text-[#0F0C2E]">{property.bathrooms}</span>
           </div>
           <div className="flex items-center gap-1">
             <Maximize2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span className="text-sm text-[#1a2332]">
+            <span className="text-sm text-[#0F0C2E]">
               {property.floorAreaSqft.toLocaleString()} sqft
             </span>
           </div>
@@ -110,7 +110,7 @@ function SparkCard({ property, searchMode }: SparkCardProps) {
         </p>
 
         {/* "View details" hint */}
-        <div className="flex items-center gap-0.5 text-[#ff6b35] mt-auto">
+        <div className="flex items-center gap-0.5 text-[#3C3489] mt-auto">
           <span className="text-sm font-medium">View details</span>
           <ChevronRight className="w-4 h-4" />
         </div>
@@ -124,16 +124,16 @@ function SparkCard({ property, searchMode }: SparkCardProps) {
 function EmptyState({ onUpdateFilters }: { onUpdateFilters: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-      <div className="w-16 h-16 rounded-full bg-[#f5f5f7] flex items-center justify-center mb-4">
+      <div className="w-16 h-16 rounded-full bg-[#F7F6FB] flex items-center justify-center mb-4">
         <Heart className="w-8 h-8 text-gray-300" />
       </div>
-      <h2 className="text-xl font-bold text-[#1a2332] mb-2">You're all caught up!</h2>
+      <h2 className="text-xl font-semibold text-[#0F0C2E] mb-2">You're all caught up!</h2>
       <p className="text-sm text-gray-500 mb-6 leading-relaxed">
         Adjust your filters to discover more properties.
       </p>
       <button
         onClick={onUpdateFilters}
-        className="bg-[#1a2332] text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#2a3342] transition-colors"
+        className="bg-[#0F0C2E] text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[#2a3342] transition-colors"
       >
         Update filters
       </button>
@@ -242,21 +242,21 @@ export function SparkScreen({
   const exhausted = currentIdx >= filteredStack.length;
 
   return (
-    <div className="flex flex-col h-full bg-[#f5f5f7]">
+    <div className="flex flex-col h-full bg-[#F7F6FB]">
       {/* ── Header ── */}
       <div className="bg-white border-b border-[#e5e7eb] px-5 pt-[max(env(safe-area-inset-top),1rem)] pb-3 flex items-center justify-between flex-shrink-0">
         <div>
-          <h1 className="text-xl font-bold text-[#1a2332]">Spark</h1>
+          <h1 className="text-xl font-semibold text-[#0F0C2E]">Spark</h1>
           <p className="text-xs text-gray-500 mt-0.5">Swipe to find your next home</p>
         </div>
         <button
           onClick={() => setFilterOpen(true)}
           aria-label="Open filters"
-          className="relative w-10 h-10 flex items-center justify-center rounded-full bg-[#f5f5f7] text-[#1a2332] hover:bg-[#ebebeb] transition-colors"
+          className="relative w-10 h-10 flex items-center justify-center rounded-full bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE] transition-colors"
         >
           <SlidersHorizontal className="w-5 h-5" />
           {hasActiveFilters && (
-            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white" />
+            <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#E5917A] ring-2 ring-white" />
           )}
         </button>
       </div>
@@ -315,7 +315,7 @@ export function SparkScreen({
                       className="border-4 border-green-500 rounded-xl px-3 py-1"
                       style={{ transform: 'rotate(-12deg)' }}
                     >
-                      <p className="text-green-500 font-black text-xl tracking-widest uppercase">
+                      <p className="text-green-500 font-semibold text-xl tracking-widest uppercase">
                         Interested
                       </p>
                     </div>
@@ -332,7 +332,7 @@ export function SparkScreen({
                       className="border-4 border-gray-400 rounded-xl px-3 py-1"
                       style={{ transform: 'rotate(12deg)' }}
                     >
-                      <p className="text-gray-400 font-black text-xl tracking-widest uppercase">
+                      <p className="text-gray-400 font-semibold text-xl tracking-widest uppercase">
                         Pass
                       </p>
                     </div>
@@ -357,7 +357,7 @@ export function SparkScreen({
             <button
               onClick={triggerSwipeRight}
               aria-label="Interested – send to agent"
-              className="w-16 h-16 rounded-full bg-[#1a2332] flex items-center justify-center hover:bg-[#2a3342] transition-colors"
+              className="w-16 h-16 rounded-full bg-[#0F0C2E] flex items-center justify-center hover:bg-[#1a1650] transition-colors"
               style={{ boxShadow: '0 4px 20px rgba(26,35,50,0.35)' }}
             >
               <Heart className="w-7 h-7 fill-white text-white" />

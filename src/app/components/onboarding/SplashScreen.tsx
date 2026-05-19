@@ -1,4 +1,4 @@
-import { Home } from 'lucide-react';
+﻿import { Home } from 'lucide-react';
 import { useEffect } from 'react';
 
 interface SplashScreenProps {
@@ -14,12 +14,12 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   }, [onComplete]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full min-h-0 bg-[#1a2332] px-6">
+    <div className="flex flex-col items-center justify-center h-full min-h-0 bg-[#0F0C2E] px-6">
       <div className="flex flex-col items-center">
-        <div className="bg-[#ff6b35] rounded-3xl p-6 mb-6 shadow-2xl">
+        <div className="bg-[#3C3489] rounded-3xl p-6 mb-6 shadow-2xl">
           <Home className="w-16 h-16 text-white" strokeWidth={2} />
         </div>
-        <h1 className="text-4xl font-bold text-white mb-3">Star Homes</h1>
+        <h1 className="text-4xl font-semibold text-white mb-3">Star Homes</h1>
         <p className="text-lg text-gray-300 text-center max-w-xs">
           Find your perfect home in London
         </p>

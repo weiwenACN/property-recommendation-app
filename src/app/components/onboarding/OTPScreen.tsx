@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 interface OTPScreenProps {
@@ -47,7 +47,7 @@ export function OTPScreen({ phoneNumber, countryCode = '+44', onVerify, onBack }
       <div className="py-3 sm:py-4">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-[#1a2332] hover:text-[#ff6b35] transition-colors"
+          className="flex items-center gap-2 text-[#0F0C2E] hover:text-[#3C3489] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
@@ -56,10 +56,10 @@ export function OTPScreen({ phoneNumber, countryCode = '+44', onVerify, onBack }
 
       <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full pb-6 sm:pb-8">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#1a2332] mb-2 sm:mb-3">Enter verification code</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-[#0F0C2E] mb-2 sm:mb-3">Enter verification code</h1>
           <p className="text-sm sm:text-base text-gray-600">
             We've sent a 6-digit code to{' '}
-            <span className="font-medium text-[#1a2332] whitespace-nowrap">
+            <span className="font-medium text-[#0F0C2E] whitespace-nowrap">
               {countryCode} {phoneNumber}
             </span>
           </p>
@@ -77,12 +77,12 @@ export function OTPScreen({ phoneNumber, countryCode = '+44', onVerify, onBack }
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
               aria-label={`Digit ${index + 1} of 6`}
-              className="aspect-square w-full min-w-0 text-center text-lg sm:text-2xl font-bold bg-[#f9fafb] border-2 border-[#e5e7eb] rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
+              className="aspect-square w-full min-w-0 text-center text-lg sm:text-2xl font-semibold bg-[#F7F6FB] border-2 border-[#e5e7eb] rounded-lg sm:rounded-xl focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent"
             />
           ))}
         </div>
 
-        <button className="text-[#ff6b35] font-medium text-center hover:underline">
+        <button className="text-[#3C3489] font-medium text-center hover:underline">
           Resend code
         </button>
       </div>

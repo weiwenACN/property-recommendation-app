@@ -191,7 +191,7 @@ function CarouselWithControls({
             onClick={scrollPrev}
             disabled={!canPrev}
             aria-label="Previous photo"
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#1a2332] shadow-md flex items-center justify-center opacity-0 hover:opacity-100 focus-visible:opacity-100 transition-opacity disabled:opacity-0 group-hover:opacity-100"
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#0F0C2E] shadow-md flex items-center justify-center opacity-0 hover:opacity-100 focus-visible:opacity-100 transition-opacity disabled:opacity-0 group-hover:opacity-100"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -200,7 +200,7 @@ function CarouselWithControls({
             onClick={scrollNext}
             disabled={!canNext}
             aria-label="Next photo"
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#1a2332] shadow-md flex items-center justify-center opacity-0 hover:opacity-100 focus-visible:opacity-100 transition-opacity disabled:opacity-0 group-hover:opacity-100"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#0F0C2E] shadow-md flex items-center justify-center opacity-0 hover:opacity-100 focus-visible:opacity-100 transition-opacity disabled:opacity-0 group-hover:opacity-100"
           >
             <ChevronRight className="w-5 h-5" />
           </button>

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+﻿import { useCallback, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 
 interface CreateAccountScreenProps {
@@ -80,7 +80,7 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
       <div className="py-4">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-[#1a2332] hover:text-[#ff6b35] transition-colors"
+          className="flex items-center gap-2 text-[#0F0C2E] hover:text-[#3C3489] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
@@ -89,13 +89,13 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
 
       <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#1a2332] mb-3">Create your account</h1>
+          <h1 className="text-3xl font-semibold text-[#0F0C2E] mb-3">Create your account</h1>
           <p className="text-gray-600">Enter your mobile number to register</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-[#1a2332] mb-2">
+            <label htmlFor="phone" className="block text-sm font-medium text-[#0F0C2E] mb-2">
               Mobile Number
             </label>
             <div className="flex items-center">
@@ -104,11 +104,11 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
                   aria-label="Country code"
                   value={selectedKey}
                   onChange={handleCountryChange}
-                  className="h-14 pl-4 pr-9 bg-[#f9fafb] border border-[#e5e7eb] rounded-l-xl text-[#1a2332] font-medium appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
+                  className="h-14 pl-4 pr-9 bg-[#F7F6FB] border border-[#e5e7eb] rounded-l-xl text-[#0F0C2E] font-medium appearance-none cursor-pointer focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent"
                 >
                   {COUNTRY_OPTIONS}
                 </select>
-                <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-[#1a2332] pointer-events-none" />
+                <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-[#0F0C2E] pointer-events-none" />
               </div>
               <input
                 id="phone"
@@ -118,7 +118,7 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
                 value={phoneNumber}
                 onChange={handlePhoneChange}
                 placeholder={derived.country.placeholder}
-                className="flex-1 h-14 px-4 bg-[#f9fafb] border border-l-0 border-[#e5e7eb] rounded-r-xl focus:outline-none focus:ring-2 focus:ring-[#ff6b35] focus:border-transparent"
+                className="flex-1 h-14 px-4 bg-[#F7F6FB] border border-l-0 border-[#e5e7eb] rounded-r-xl focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] focus:border-transparent"
               />
             </div>
             <p className="text-xs text-gray-500 mt-2">
@@ -129,7 +129,7 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
           <button
             type="submit"
             disabled={!isValid}
-            className="w-full bg-[#ff6b35] text-white py-4 rounded-xl hover:bg-[#ff5722] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-lg shadow-[#ff6b35]/20"
+            className="w-full bg-[#3C3489] text-white py-4 rounded-xl hover:bg-[#2d2766] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 font-medium shadow-lg shadow-[#3C3489]/20"
           >
             Register
             <ArrowRight className="w-5 h-5" />

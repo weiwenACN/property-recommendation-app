@@ -73,12 +73,12 @@ export function MapAreaSearchModal({
   return (
     <div className="fixed inset-0 z-[9999] bg-white flex flex-col">
       {/* Top bar */}
-      <div className="bg-[#1a2332] px-4 pb-4 header-pt">
+      <div className="bg-[#0F0C2E] px-4 pb-4 header-pt">
         <div className="flex items-center gap-3">
           <button
             onClick={onClose}
             aria-label="Close map search"
-            className="p-2 -ml-2 text-white hover:text-[#ff6b35] transition-colors"
+            className="p-2 -ml-2 text-white hover:text-[#7F77DD] transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -90,7 +90,7 @@ export function MapAreaSearchModal({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Type to highlight an area on the map"
-              className="w-full pl-9 pr-3 py-3 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ff6b35] text-[#1a2332] text-sm"
+              className="w-full pl-9 pr-3 py-3 bg-white rounded-xl focus:outline-none focus:ring-[1.5px] focus:ring-[#7F77DD] text-[#0F0C2E] text-sm"
             />
           </div>
         </div>

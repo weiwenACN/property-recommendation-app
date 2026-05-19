@@ -2,42 +2,77 @@
 
 :root {
   --font-size: 16px;
-  --background: #ffffff;
-  --foreground: #1a2332;
-  --card: #ffffff;
-  --card-foreground: #1a2332;
-  --popover: #ffffff;
-  --popover-foreground: #1a2332;
-  --primary: #1a2332;
-  --primary-foreground: #ffffff;
-  --secondary: #f5f5f7;
-  --secondary-foreground: #1a2332;
-  --muted: #f5f5f7;
-  --muted-foreground: #6b7280;
-  --accent: #ff6b35;
-  --accent-foreground: #ffffff;
+
+  /* ── Design tokens ──────────────────────────────────── */
+  /* Backgrounds */
+  --color-dark:          #0F0C2E;
+  --color-dark-subtle:   rgba(255,255,255,0.07);
+  --color-light:         #F7F6FB;
+  --color-card:          #FFFFFF;
+
+  /* Primary — purple */
+  --color-primary:       #3C3489;
+  --color-primary-mid:   #7F77DD;
+  --color-primary-light: #EEEDFE;
+
+  /* Salmon — warm accent only */
+  --color-salmon:        #E5917A;
+  --color-salmon-dark:   #D85A30;
+  --color-salmon-light:  #FEF0EB;
+  --color-salmon-100:    #F5C4B3;
+
+  /* Teal — positive/success tags */
+  --color-teal:          #1D9E75;
+  --color-teal-light:    #E1F5EE;
+
+  /* Text */
+  --color-text-primary:   #0F0C2E;
+  --color-text-secondary: #5F5E5A;
+  --color-text-hint:      #B4B2A9;
+  --color-text-on-dark:   #FFFFFF;
+  --color-text-muted-dark: rgba(255,255,255,0.5);
+
+  /* Borders */
+  --color-border-light:   rgba(0,0,0,0.06);
+  --color-border-dark:    rgba(255,255,255,0.1);
+
+  /* ── Legacy variables (kept for compatibility) ─────── */
+  --background: #F7F6FB;
+  --foreground: #0F0C2E;
+  --card: #FFFFFF;
+  --card-foreground: #0F0C2E;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F0C2E;
+  --primary: #3C3489;
+  --primary-foreground: #FFFFFF;
+  --secondary: #EEEDFE;
+  --secondary-foreground: #3C3489;
+  --muted: #F7F6FB;
+  --muted-foreground: #5F5E5A;
+  --accent: #E5917A;
+  --accent-foreground: #FFFFFF;
   --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(0,0,0,0.06);
   --input: transparent;
-  --input-background: #f9fafb;
+  --input-background: #F7F6FB;
   --switch-background: #d1d5db;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #ff6b35;
-  --navy: #1a2332;
-  --navy-light: #2d3748;
-  --warm-orange: #ff6b35;
-  --warm-orange-hover: #ff5722;
+  --ring: #7F77DD;
+  --navy: #0F0C2E;
+  --navy-light: #3C3489;
+  --warm-orange: #E5917A;
+  --warm-orange-hover: #D85A30;
   --radius: 0.75rem;
-  --sidebar: #f5f5f7;
-  --sidebar-foreground: #1a2332;
-  --sidebar-primary: #1a2332;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f5f5f7;
-  --sidebar-accent-foreground: #1a2332;
-  --sidebar-border: #e5e7eb;
-  --sidebar-ring: #ff6b35;
+  --sidebar: #F7F6FB;
+  --sidebar-foreground: #0F0C2E;
+  --sidebar-primary: #3C3489;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EEEDFE;
+  --sidebar-accent-foreground: #3C3489;
+  --sidebar-border: rgba(0,0,0,0.06);
+  --sidebar-ring: #7F77DD;
 }
 
 .dark {
@@ -131,48 +166,46 @@
     @apply bg-background text-foreground;
   }
 
-  /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
-
   html {
     font-size: var(--font-size);
   }
 
   h1 {
     font-size: var(--text-2xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.3px;
   }
 
   h2 {
     font-size: var(--text-xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.3px;
   }
 
   h3 {
     font-size: var(--text-lg);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.3px;
   }
 
   h4 {
     font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
+    font-weight: 500;
     line-height: 1.5;
   }
 
   label {
     font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
+    font-weight: 500;
     line-height: 1.5;
   }
 
   button {
     font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
+    font-weight: 500;
     line-height: 1.5;
   }
 

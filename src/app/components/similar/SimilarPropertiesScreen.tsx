@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import { properties as allProperties, type Property } from '../../data/properties';
 import { type SearchMode } from '../../data/pricing';
@@ -68,17 +68,17 @@ export function SimilarPropertiesScreen({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="bg-[#1a2332] px-6 pb-4 header-pt">
+      <div className="bg-[#0F0C2E] px-6 pb-4 header-pt">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-white hover:text-[#ff6b35] transition-colors mb-4"
+          className="flex items-center gap-2 text-white hover:text-white/70 transition-colors mb-4"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </button>
         <div className="flex items-center gap-2 mb-1">
-          <Sparkles className="w-4 h-4 text-[#ff6b35]" />
-          <h1 className="text-2xl font-bold text-white">Similar properties</h1>
+          <Sparkles className="w-4 h-4 text-[#3C3489]" />
+          <h1 className="text-2xl font-semibold text-white">Similar properties</h1>
         </div>
         <p className="text-gray-300 text-sm truncate">
           Like {target.title} &middot; {target.address}
@@ -97,8 +97,8 @@ export function SimilarPropertiesScreen({
                 aria-pressed={isActive}
                 className={`px-3 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[36px] ${
                   isActive
-                    ? 'bg-[#1a2332] text-white'
-                    : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f1f3f5]'
+                    ? 'bg-[#0F0C2E] text-white'
+                    : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE]'
                 }`}
               >
                 {option.label}
@@ -117,7 +117,7 @@ export function SimilarPropertiesScreen({
           </div>
         ) : sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12">
-            <p className="text-[#1a2332] font-medium mb-1">No similar listings yet</p>
+            <p className="text-[#0F0C2E] font-medium mb-1">No similar listings yet</p>
             <p className="text-sm text-gray-600">
               We'll surface new matches as fresh properties go live.
             </p>

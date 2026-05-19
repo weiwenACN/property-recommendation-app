@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 
 interface ClearHistoryConfirmProps {
   open: boolean;
@@ -33,7 +33,7 @@ export function ClearHistoryConfirm({ open, onConfirm, onCancel }: ClearHistoryC
         aria-describedby="clear-history-body"
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-sm bg-white rounded-2xl shadow-2xl px-6 py-5 animate-in zoom-in"
       >
-        <h2 id="clear-history-title" className="text-lg font-bold text-[#1a2332] mb-2">
+        <h2 id="clear-history-title" className="text-lg font-semibold text-[#0F0C2E] mb-2">
           Clear viewing history?
         </h2>
         <p id="clear-history-body" className="text-sm text-gray-600 mb-5">
@@ -42,7 +42,7 @@ export function ClearHistoryConfirm({ open, onConfirm, onCancel }: ClearHistoryC
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 min-h-[48px] bg-white border-2 border-[#e5e7eb] text-[#1a2332] py-3 rounded-xl hover:bg-[#f9fafb] transition-colors font-medium"
+            className="flex-1 min-h-[48px] bg-[#EEEDFE] text-[#3C3489] py-3 rounded-xl hover:bg-[#EEEDFE]/80 transition-colors font-medium"
           >
             Cancel
           </button>

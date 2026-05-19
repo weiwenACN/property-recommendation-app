@@ -1,4 +1,4 @@
-import { Clock, ChevronRight } from 'lucide-react';
+﻿import { Clock, ChevronRight } from 'lucide-react';
 import { properties as allProperties, type Property } from '../../data/properties';
 import { type SearchMode } from '../../data/pricing';
 import { viewedAtLabel } from '../../data/relativeTime';
@@ -35,12 +35,12 @@ export function RecentlyViewedSection({
     <section className="pt-2">
       <div className="px-6 flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Clock className="w-5 h-5 text-[#ff6b35]" />
-          <h2 className="text-xl font-bold text-[#1a2332]">Recently viewed</h2>
+          <Clock className="w-5 h-5 text-[#3C3489]" />
+          <h2 className="text-xl font-semibold text-[#0F0C2E]">Recently viewed</h2>
         </div>
         <button
           onClick={onViewAll}
-          className="flex items-center gap-1 text-sm font-medium text-[#ff6b35] hover:underline min-h-[44px]"
+          className="flex items-center gap-1 text-sm font-medium text-[#3C3489] hover:underline min-h-[44px]"
         >
           View all
           <ChevronRight className="w-4 h-4" />

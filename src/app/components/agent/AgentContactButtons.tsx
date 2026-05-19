@@ -19,11 +19,11 @@ export function AgentContactButtons({ onCall, onEmail, onWhatsApp, onMessage }: 
   const btnBase = 'flex flex-col items-center justify-center gap-1.5 py-3 min-h-[64px] min-w-0 flex-1 rounded-xl transition-colors text-xs font-medium';
   return (
     <div className="grid grid-cols-4 gap-2">
-      <button onClick={onCall} className={`${btnBase} border-2 border-[#1a2332] text-[#1a2332] hover:bg-[#f9fafb]`}>
+      <button onClick={onCall} className={`${btnBase} bg-[#EEEDFE] text-[#3C3489] hover:bg-[#EEEDFE]/80`}>
         <Phone className="w-6 h-6" />
         <span>Call</span>
       </button>
-      <button onClick={onEmail} className={`${btnBase} border-2 border-[#1a2332] text-[#1a2332] hover:bg-[#f9fafb]`}>
+      <button onClick={onEmail} className={`${btnBase} bg-[#EEEDFE] text-[#3C3489] hover:bg-[#EEEDFE]/80`}>
         <Mail className="w-6 h-6" />
         <span>Email</span>
       </button>
@@ -31,7 +31,7 @@ export function AgentContactButtons({ onCall, onEmail, onWhatsApp, onMessage }: 
         <WhatsAppIcon />
         <span>WhatsApp</span>
       </button>
-      <button onClick={onMessage} className={`${btnBase} bg-[#1a2332] text-white hover:bg-[#0f1620]`}>
+      <button onClick={onMessage} className={`${btnBase} bg-[#0F0C2E] text-white hover:bg-[#0f1620]`}>
         <MessageCircle className="w-6 h-6" />
         <span>Message</span>
       </button>

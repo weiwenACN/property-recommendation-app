@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+﻿import { Check } from 'lucide-react';
 import { preferenceOptionById } from '../../data/preferences';
 
 interface WelcomeBackModalProps {
@@ -31,14 +31,14 @@ export function WelcomeBackModal({
         <div className="px-6 pt-4 pb-[max(env(safe-area-inset-bottom),1.5rem)] overflow-y-auto">
           <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
 
-          <h2 id="welcome-back-title" className="text-2xl font-bold text-[#1a2332] mb-1">
+          <h2 id="welcome-back-title" className="text-2xl font-semibold text-[#0F0C2E] mb-1">
             Welcome back!
           </h2>
           <p className="text-sm text-gray-600 mb-5">Your last preferences were:</p>
 
           {items.length === 0 ? (
-            <div className="rounded-2xl bg-[#f9fafb] px-4 py-6 text-center text-sm text-gray-600 mb-6">
-              No specific priorities saved &mdash; tap <span className="font-medium text-[#1a2332]">Start Fresh</span> to set some.
+            <div className="rounded-2xl bg-[#F7F6FB] px-4 py-6 text-center text-sm text-gray-600 mb-6">
+              No specific priorities saved &mdash; tap <span className="font-medium text-[#0F0C2E]">Start Fresh</span> to set some.
             </div>
           ) : (
             <ul className="space-y-2 mb-6">
@@ -47,13 +47,13 @@ export function WelcomeBackModal({
                 return (
                   <li
                     key={opt.id}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-[#fff5f2] border border-[#ff6b35]/30"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-[#EEEDFE] border border-[#3C3489]/20"
                   >
-                    <div className="bg-[#ff6b35] rounded-full p-1.5">
+                    <div className="bg-[#3C3489] rounded-full p-1.5">
                       <Check className="w-3 h-3 text-white" strokeWidth={3} />
                     </div>
-                    <Icon className="w-4 h-4 text-[#ff6b35]" />
-                    <span className="text-sm font-medium text-[#1a2332]">{opt.label}</span>
+                    <Icon className="w-4 h-4 text-[#3C3489]" />
+                    <span className="text-sm font-medium text-[#0F0C2E]">{opt.label}</span>
                   </li>
                 );
               })}
@@ -63,13 +63,13 @@ export function WelcomeBackModal({
           <div className="space-y-3">
             <button
               onClick={onKeepThese}
-              className="w-full bg-[#ff6b35] text-white py-4 rounded-xl hover:bg-[#ff5722] transition-colors font-medium shadow-lg shadow-[#ff6b35]/20"
+              className="w-full bg-[#3C3489] text-white py-4 rounded-xl hover:bg-[#2d2766] transition-colors font-medium shadow-lg shadow-[#3C3489]/20"
             >
               Keep These
             </button>
             <button
               onClick={onStartFresh}
-              className="w-full bg-white border-2 border-[#e5e7eb] text-[#1a2332] py-4 rounded-xl hover:bg-[#f9fafb] transition-colors font-medium"
+              className="w-full bg-[#EEEDFE] text-[#3C3489] py-4 rounded-xl hover:bg-[#EEEDFE]/80 transition-colors font-medium"
             >
               Start Fresh
             </button>

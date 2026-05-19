@@ -37,7 +37,7 @@ export function BottomNav({ activeTab, onTabChange, badges }: BottomNavProps) {
             >
               <div className="relative">
                 <Icon
-                  className={`w-5 h-5 ${isActive ? 'text-[#ff6b35]' : 'text-gray-500'}`}
+                  className={`w-5 h-5 ${isActive ? 'text-[#3C3489]' : 'text-gray-500'}`}
                   strokeWidth={isActive ? 2.5 : 2}
                   fill={
                     isActive && tab.id === 'bookmarks'
@@ -48,14 +48,14 @@ export function BottomNav({ activeTab, onTabChange, badges }: BottomNavProps) {
                   }
                 />
                 {badge != null && badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-[#ff3b30] text-[9px] font-bold text-white flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-[#E5917A] text-[9px] font-semibold text-white flex items-center justify-center">
                     {badge > 9 ? '9+' : badge}
                   </span>
                 )}
               </div>
               <span
                 className={`text-[9px] leading-none ${
-                  isActive ? 'text-[#ff6b35] font-semibold' : 'text-gray-500'
+                  isActive ? 'text-[#3C3489] font-semibold' : 'text-gray-500'
                 }`}
               >
                 {tab.label}

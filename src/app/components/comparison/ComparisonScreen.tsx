@@ -1,4 +1,4 @@
-import { ArrowLeft, Bed, Bath, Maximize, Train, TrendingUp, Calendar, Home as HomeIcon, X, Plus, ZapOff } from 'lucide-react';
+﻿import { ArrowLeft, Bed, Bath, Maximize, Train, TrendingUp, Calendar, Home as HomeIcon, X, Plus, ZapOff } from 'lucide-react';
 import type { Property } from '../../data/properties';
 import { priceFor, type SearchMode } from '../../data/pricing';
 import { featuresFor } from '../../data/propertyFeatures';
@@ -128,15 +128,15 @@ export function ComparisonScreen({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="bg-[#1a2332] px-6 pb-4 header-pt">
+      <div className="bg-[#0F0C2E] px-6 pb-4 header-pt">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-white hover:text-[#ff6b35] transition-colors mb-4"
+          className="flex items-center gap-2 text-white hover:text-white/70 transition-colors mb-4"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </button>
-        <h1 className="text-2xl font-bold text-white">Compare</h1>
+        <h1 className="text-2xl font-semibold text-white">Compare</h1>
         <p className="text-gray-300 text-sm">
           {count} {count === 1 ? 'property' : 'properties'} selected
         </p>
@@ -165,10 +165,10 @@ export function ComparisonScreen({
       {/* Comparison rows */}
       {count < 2 ? (
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-          <div className="bg-[#f9fafb] rounded-full p-4 mb-3">
+          <div className="bg-[#F7F6FB] rounded-full p-4 mb-3">
             <ZapOff className="w-8 h-8 text-gray-400" />
           </div>
-          <p className="text-[#1a2332] font-medium mb-1">Add another property to compare</p>
+          <p className="text-[#0F0C2E] font-medium mb-1">Add another property to compare</p>
           <p className="text-sm text-gray-600">
             Tick a second property on the search results to start side-by-side comparison.
           </p>
@@ -205,7 +205,7 @@ function PropertyThumb({
         type="button"
         onClick={onRemove}
         aria-label={`Remove ${property.title} from comparison`}
-        className="absolute -top-1 -right-1 z-10 w-7 h-7 rounded-full bg-white text-[#1a2332] shadow-md flex items-center justify-center hover:bg-gray-50"
+        className="absolute -top-1 -right-1 z-10 w-7 h-7 rounded-full bg-white text-[#0F0C2E] shadow-md flex items-center justify-center hover:bg-gray-50"
       >
         <X className="w-3.5 h-3.5" />
       </button>
@@ -218,9 +218,9 @@ function PropertyThumb({
             loading="lazy"
           />
         </div>
-        <p className="text-xs font-bold text-[#1a2332] truncate leading-tight">{property.title}</p>
+        <p className="text-xs font-semibold text-[#0F0C2E] truncate leading-tight">{property.title}</p>
         <p className="text-[11px] text-gray-500 truncate">{property.address.split(',')[1]?.trim() || property.address}</p>
-        <p className="text-xs font-bold text-[#ff6b35] mt-0.5">{priceFor(searchMode, property)}</p>
+        <p className="text-xs font-semibold text-[#3C3489] mt-0.5">{priceFor(searchMode, property)}</p>
       </button>
     </div>
   );
@@ -242,13 +242,13 @@ function ComparisonRowItem({ row, count }: { row: ComparisonRow; count: number }
               key={i}
               className={`p-3 rounded-xl transition-colors ${
                 isBest
-                  ? 'bg-[#fff5f2] border-2 border-[#ff6b35]'
-                  : 'bg-[#f9fafb] border-2 border-transparent'
+                  ? 'bg-[#EEEDFE] border-2 border-[#3C3489]'
+                  : 'bg-[#F7F6FB] border-2 border-transparent'
               }`}
             >
               <p
                 className={`text-sm leading-tight ${
-                  isBest ? 'font-bold text-[#ff6b35]' : 'font-medium text-[#1a2332]'
+                  isBest ? 'font-semibold text-[#3C3489]' : 'font-medium text-[#0F0C2E]'
                 }`}
               >
                 {value}
@@ -264,27 +264,27 @@ function ComparisonRowItem({ row, count }: { row: ComparisonRow; count: number }
 function EmptyState({ onBack }: { onBack: () => void }) {
   return (
     <div className="flex flex-col h-full bg-white">
-      <div className="bg-[#1a2332] px-6 pb-4 header-pt">
+      <div className="bg-[#0F0C2E] px-6 pb-4 header-pt">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-white hover:text-[#ff6b35] transition-colors mb-4"
+          className="flex items-center gap-2 text-white hover:text-white/70 transition-colors mb-4"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </button>
-        <h1 className="text-2xl font-bold text-white">Compare</h1>
+        <h1 className="text-2xl font-semibold text-white">Compare</h1>
       </div>
       <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-        <div className="bg-[#f9fafb] rounded-full p-6 mb-4">
+        <div className="bg-[#F7F6FB] rounded-full p-6 mb-4">
           <Plus className="w-10 h-10 text-gray-400" />
         </div>
-        <h2 className="text-xl font-bold text-[#1a2332] mb-2">Nothing to compare yet</h2>
+        <h2 className="text-xl font-semibold text-[#0F0C2E] mb-2">Nothing to compare yet</h2>
         <p className="text-gray-600 mb-6 max-w-xs">
           Open the search results and tick up to three properties to see them side-by-side.
         </p>
         <button
           onClick={onBack}
-          className="bg-[#ff6b35] text-white px-5 py-3 rounded-xl hover:bg-[#ff5722] transition-colors font-medium shadow-lg shadow-[#ff6b35]/20 min-h-[48px]"
+          className="bg-[#3C3489] text-white px-5 py-3 rounded-xl hover:bg-[#2d2766] transition-colors font-medium shadow-lg shadow-[#3C3489]/20 min-h-[48px]"
         >
           Back to search
         </button>

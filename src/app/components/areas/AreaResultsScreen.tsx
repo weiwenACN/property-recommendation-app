@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+﻿import { lazy, Suspense, useMemo, useState } from 'react';
 import { ArrowLeft, List, Map as MapIcon, SlidersHorizontal, ArrowUpDown, X, Loader2 } from 'lucide-react';
 import {
   propertiesByArea,
@@ -87,15 +87,15 @@ export function AreaResultsScreen({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="bg-[#1a2332] px-6 pb-4 header-pt">
+      <div className="bg-[#0F0C2E] px-6 pb-4 header-pt">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-white hover:text-[#ff6b35] transition-colors mb-4"
+          className="flex items-center gap-2 text-white hover:text-white/70 transition-colors mb-4"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back</span>
         </button>
-        <h1 className="text-2xl font-bold text-white">{area.name}</h1>
+        <h1 className="text-2xl font-semibold text-white">{area.name}</h1>
         <p className="text-gray-300">
           {area.borough} &middot; {filteredProperties.length}{' '}
           {filteredProperties.length === 1 ? 'property' : 'properties'} to {searchMode}
@@ -110,8 +110,8 @@ export function AreaResultsScreen({
             onClick={() => setViewMode('list')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-colors ${
               viewMode === 'list'
-                ? 'bg-[#1a2332] text-white'
-                : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f5f5f7]'
+                ? 'bg-[#0F0C2E] text-white'
+                : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE]'
             }`}
           >
             <List className="w-4 h-4" />
@@ -121,8 +121,8 @@ export function AreaResultsScreen({
             onClick={() => setViewMode('map')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg transition-colors ${
               viewMode === 'map'
-                ? 'bg-[#1a2332] text-white'
-                : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f5f5f7]'
+                ? 'bg-[#0F0C2E] text-white'
+                : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE]'
             }`}
           >
             <MapIcon className="w-4 h-4" />
@@ -136,24 +136,24 @@ export function AreaResultsScreen({
             onClick={() => setSortSheetOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={sortSheetOpen}
-            className="relative flex-1 flex items-center justify-center gap-2 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
+            className="relative flex-1 flex items-center justify-center gap-2 py-2 bg-[#F7F6FB] text-[#0F0C2E] rounded-lg hover:bg-[#EEEDFE] transition-colors min-h-[40px]"
           >
             <ArrowUpDown className="w-4 h-4" />
             <span className="text-sm font-medium">Sort{hasActiveSort ? ` · ${SORT_OPTIONS.find(o => o.value === sort)?.label}` : ''}</span>
             {hasActiveSort && (
-              <span aria-label="Sort active" className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white" />
+              <span aria-label="Sort active" className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#E5917A] ring-2 ring-white" />
             )}
           </button>
           <button
             onClick={() => setFilterSheetOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={filterSheetOpen}
-            className="relative flex-1 flex items-center justify-center gap-2 py-2 bg-[#f9fafb] text-[#1a2332] rounded-lg hover:bg-[#f5f5f7] transition-colors min-h-[40px]"
+            className="relative flex-1 flex items-center justify-center gap-2 py-2 bg-[#F7F6FB] text-[#0F0C2E] rounded-lg hover:bg-[#EEEDFE] transition-colors min-h-[40px]"
           >
             <SlidersHorizontal className="w-4 h-4" />
             <span className="text-sm font-medium">Filters</span>
             {hasActiveFilters && (
-              <span aria-label="Filters active" className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white" />
+              <span aria-label="Filters active" className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#E5917A] ring-2 ring-white" />
             )}
           </button>
         </div>
@@ -189,7 +189,7 @@ export function AreaResultsScreen({
           <div className="px-6 py-4 space-y-4">
             {displayProperties.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <p className="text-[#1a2332] font-medium mb-1">
+                <p className="text-[#0F0C2E] font-medium mb-1">
                   {hasActiveFilters ? 'No properties match these filters' : `No properties to ${searchMode} here`}
                 </p>
                 <p className="text-sm text-gray-600 mb-3">
@@ -200,7 +200,7 @@ export function AreaResultsScreen({
                 {hasActiveFilters && (
                   <button
                     onClick={() => setFilters(DEFAULT_FILTERS)}
-                    className="text-[#ff6b35] font-medium text-sm hover:underline"
+                    className="text-[#3C3489] font-medium text-sm hover:underline"
                   >
                     Clear all filters
                   </button>
@@ -283,11 +283,11 @@ function SortSheet({ open, activeSort, onApply, onClear, onClose }: SortSheetPro
         <div className="px-6 pt-4 pb-2">
           <div className="mx-auto h-1.5 w-12 bg-[#e5e7eb] rounded-full mb-4" />
           <div className="flex items-center justify-between">
-            <h2 id="sort-sheet-title" className="text-xl font-bold text-[#1a2332]">Sort by</h2>
+            <h2 id="sort-sheet-title" className="text-xl font-semibold text-[#0F0C2E]">Sort by</h2>
             <button
               onClick={onClose}
               aria-label="Close"
-              className="p-2 -mr-2 text-gray-500 hover:text-[#1a2332] min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-2 -mr-2 text-gray-500 hover:text-[#0F0C2E] min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
               <X className="w-5 h-5" />
             </button>
@@ -304,8 +304,8 @@ function SortSheet({ open, activeSort, onApply, onClear, onClose }: SortSheetPro
                 aria-pressed={isActive}
                 className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-left transition-colors ${
                   isActive
-                    ? 'bg-[#1a2332] text-white'
-                    : 'bg-[#f9fafb] text-[#1a2332] hover:bg-[#f1f3f5]'
+                    ? 'bg-[#0F0C2E] text-white'
+                    : 'bg-[#F7F6FB] text-[#0F0C2E] hover:bg-[#EEEDFE]'
                 }`}
               >
                 <div>
@@ -315,7 +315,7 @@ function SortSheet({ open, activeSort, onApply, onClear, onClose }: SortSheetPro
                   </p>
                 </div>
                 {isActive && (
-                  <span className="w-5 h-5 rounded-full bg-[#ff6b35] flex items-center justify-center flex-shrink-0">
+                  <span className="w-5 h-5 rounded-full bg-[#3C3489] flex items-center justify-center flex-shrink-0">
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
@@ -329,7 +329,7 @@ function SortSheet({ open, activeSort, onApply, onClear, onClose }: SortSheetPro
         <div className="px-6 pt-3 pb-[max(env(safe-area-inset-bottom),1rem)] border-t border-[#f1f3f5] flex gap-3">
           <button
             onClick={() => { onClear(); onClose(); }}
-            className="flex-1 min-h-[48px] bg-white border-2 border-[#e5e7eb] text-[#1a2332] py-3 rounded-xl hover:bg-[#f9fafb] transition-colors font-medium"
+            className="flex-1 min-h-[48px] bg-[#EEEDFE] text-[#3C3489] py-3 rounded-xl hover:bg-[#EEEDFE]/80 transition-colors font-medium"
           >
             Reset
           </button>

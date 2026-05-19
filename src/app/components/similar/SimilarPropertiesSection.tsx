@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { ChevronRight, Sparkles, Loader2 } from 'lucide-react';
 import { properties as allProperties, type Property } from '../../data/properties';
 import { type SearchMode } from '../../data/pricing';
@@ -47,13 +47,13 @@ export function SimilarPropertiesSection({
     <section>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#ff6b35]" />
-          <h2 className="text-lg font-bold text-[#1a2332]">You might also like</h2>
+          <Sparkles className="w-4 h-4 text-[#3C3489]" />
+          <h2 className="text-lg font-semibold text-[#0F0C2E]">You might also like</h2>
         </div>
         {items && items.length > 0 && (
           <button
             onClick={onViewAll}
-            className="flex items-center gap-1 text-sm font-medium text-[#ff6b35] hover:underline min-h-[44px]"
+            className="flex items-center gap-1 text-sm font-medium text-[#3C3489] hover:underline min-h-[44px]"
           >
             View all
             <ChevronRight className="w-4 h-4" />
@@ -67,7 +67,7 @@ export function SimilarPropertiesSection({
           Looking for similar properties…
         </div>
       ) : items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#e5e7eb] bg-[#f9fafb] px-4 py-6 text-center text-sm text-gray-600">
+        <div className="rounded-2xl border border-dashed border-[#e5e7eb] bg-[#F7F6FB] px-4 py-6 text-center text-sm text-gray-600">
           We couldn't find anything similar right now.
         </div>
       ) : (

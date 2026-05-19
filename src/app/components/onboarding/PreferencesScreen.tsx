@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { preferenceOptions } from '../../data/preferences';
 
@@ -33,7 +33,7 @@ export function PreferencesScreen({
     <div className="flex flex-col h-full min-h-0 bg-white px-6 pt-safe pb-safe overflow-y-auto">
       <div className="flex-1 flex flex-col max-w-md mx-auto w-full py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#1a2332] mb-3">{heading}</h1>
+          <h1 className="text-3xl font-semibold text-[#0F0C2E] mb-3">{heading}</h1>
           <p className="text-gray-600">{subheading}</p>
         </div>
 
@@ -48,17 +48,17 @@ export function PreferencesScreen({
                 onClick={() => togglePreference(option.id)}
                 className={`relative p-4 rounded-2xl border-2 transition-all ${
                   isSelected
-                    ? 'border-[#ff6b35] bg-[#fff5f2]'
-                    : 'border-[#e5e7eb] bg-white hover:border-[#ffa07a]'
+                    ? 'border-[#3C3489] bg-[#EEEDFE]'
+                    : 'border-[#e5e7eb] bg-white hover:border-[#7F77DD]'
                 }`}
               >
                 {isSelected && (
-                  <div className="absolute top-2 right-2 bg-[#ff6b35] rounded-full p-1">
+                  <div className="absolute top-2 right-2 bg-[#3C3489] rounded-full p-1">
                     <Check className="w-3 h-3 text-white" strokeWidth={3} />
                   </div>
                 )}
-                <Icon className={`w-8 h-8 mb-3 ${isSelected ? 'text-[#ff6b35]' : 'text-[#1a2332]'}`} />
-                <div className={`text-sm font-medium ${isSelected ? 'text-[#ff6b35]' : 'text-[#1a2332]'}`}>
+                <Icon className={`w-8 h-8 mb-3 ${isSelected ? 'text-[#3C3489]' : 'text-[#0F0C2E]'}`} />
+                <div className={`text-sm font-medium ${isSelected ? 'text-[#3C3489]' : 'text-[#0F0C2E]'}`}>
                   {option.label}
                 </div>
               </button>
@@ -70,13 +70,13 @@ export function PreferencesScreen({
           <button
             onClick={handleContinue}
             disabled={selected.length === 0}
-            className="w-full bg-[#ff6b35] text-white py-4 rounded-xl hover:bg-[#ff5722] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium shadow-lg shadow-[#ff6b35]/20"
+            className="w-full bg-[#3C3489] text-white py-4 rounded-xl hover:bg-[#2d2766] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium shadow-lg shadow-[#3C3489]/20"
           >
             Continue {selected.length > 0 && `(${selected.length})`}
           </button>
           <button
             onClick={onSkip}
-            className="w-full text-gray-600 py-4 hover:text-[#1a2332] transition-colors font-medium"
+            className="w-full text-gray-600 py-4 hover:text-[#0F0C2E] transition-colors font-medium"
           >
             Skip for now
           </button>
