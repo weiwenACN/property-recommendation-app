@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { Check } from 'lucide-react';
+import { StarHomesLogo } from '../common/StarHomesLogo';
 import { preferenceOptions } from '../../data/preferences';
 
 interface PreferencesScreenProps {
@@ -33,6 +34,7 @@ export function PreferencesScreen({
     <div className="flex flex-col h-full min-h-0 bg-white px-6 pt-safe pb-safe overflow-y-auto">
       <div className="flex-1 flex flex-col max-w-md mx-auto w-full py-8">
         <div className="mb-8">
+          <StarHomesLogo variant="dark" className="mb-6" />
           <h1 className="text-3xl font-semibold text-[#0F0C2E] mb-3">{heading}</h1>
           <p className="text-gray-600">{subheading}</p>
         </div>

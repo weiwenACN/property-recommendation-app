@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react';
 import { Check, Edit3 } from 'lucide-react';
+import { StarHomesLogo } from '../common/StarHomesLogo';
 import { preferenceOptions } from '../../data/preferences';
 
 interface ProfileScreenProps {
@@ -40,6 +41,7 @@ export function ProfileScreen({ preferences, onUpdatePreferences }: ProfileScree
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
       <div className="bg-[#0F0C2E] px-6 pb-8 header-pt-lg">
+        <StarHomesLogo variant="light" size="sm" className="mb-4" />
         <h1 className="text-2xl font-semibold text-white">Profile</h1>
         <p className="text-gray-300 mt-1">Your saved preferences and account</p>
       </div>

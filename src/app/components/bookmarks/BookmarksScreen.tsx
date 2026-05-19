@@ -1,4 +1,5 @@
 ﻿import { Bookmark, Search } from 'lucide-react';
+import { StarHomesLogo } from '../common/StarHomesLogo';
 import type { Property } from '../../data/properties';
 import { type SearchMode } from '../../data/pricing';
 import { PropertyCard } from '../property/PropertyCard';
@@ -22,6 +23,7 @@ export function BookmarksScreen({
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
       <div className="bg-[#0F0C2E] px-6 pb-8 header-pt-lg">
+        <StarHomesLogo variant="light" size="sm" className="mb-4" />
         <h1 className="text-2xl font-semibold text-white">Bookmarks</h1>
         <p className="text-gray-300 mt-1">
           {bookmarks.length === 0

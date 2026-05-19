@@ -1,5 +1,6 @@
 ﻿import { useCallback, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
+import { StarHomesLogo } from '../common/StarHomesLogo';
 
 interface CreateAccountScreenProps {
   onBack: () => void;
@@ -89,6 +90,7 @@ export function CreateAccountScreen({ onBack, onRegister }: CreateAccountScreenP
 
       <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
         <div className="mb-8">
+          <StarHomesLogo variant="dark" className="mb-6" />
           <h1 className="text-3xl font-semibold text-[#0F0C2E] mb-3">Create your account</h1>
           <p className="text-gray-600">Enter your mobile number to register</p>
         </div>

@@ -1,5 +1,6 @@
 ﻿import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Search, MapPin, TrendingUp, Bell, Check, X, Map as MapIcon } from 'lucide-react';
+import { StarHomesLogo } from '../common/StarHomesLogo';
 import {
   recommendedAreas,
   type Property,
@@ -115,7 +116,7 @@ export function HomeScreen({
       {/* Header */}
       <div className="bg-[#0F0C2E] px-6 header-pt pb-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold text-white">Find your home</h1>
+          <StarHomesLogo variant="light" />
           <button
             onClick={onOpenNotifications}
             aria-label={`Open notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}

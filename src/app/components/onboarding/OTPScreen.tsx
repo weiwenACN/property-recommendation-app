@@ -1,5 +1,6 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { StarHomesLogo } from '../common/StarHomesLogo';
 
 interface OTPScreenProps {
   phoneNumber: string;
@@ -56,6 +57,7 @@ export function OTPScreen({ phoneNumber, countryCode = '+44', onVerify, onBack }
 
       <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full pb-6 sm:pb-8">
         <div className="mb-6 sm:mb-8">
+          <StarHomesLogo variant="dark" className="mb-5" />
           <h1 className="text-2xl sm:text-3xl font-semibold text-[#0F0C2E] mb-2 sm:mb-3">Enter verification code</h1>
           <p className="text-sm sm:text-base text-gray-600">
             We've sent a 6-digit code to{' '}

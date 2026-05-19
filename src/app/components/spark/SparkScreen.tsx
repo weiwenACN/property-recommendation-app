@@ -7,6 +7,7 @@ import {
   Bath,
   Maximize2,
   Check,
+  Home,
 } from 'lucide-react';
 import {
   applyFilters,
@@ -956,6 +957,33 @@ export function SparkScreen({
         }}
       >
         <div>
+          {/* Star Homes brand lockup */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '4px' }}>
+            <div
+              style={{
+                background: '#3C3489',
+                borderRadius: '6px',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <Home style={{ width: '13px', height: '13px', color: '#fff', strokeWidth: 2 }} />
+            </div>
+            <span
+              style={{
+                fontSize: 'clamp(12px, 2.5vw, 14px)',
+                fontWeight: 600,
+                color: '#0F0C2E',
+                letterSpacing: '-0.2px',
+                lineHeight: 1,
+              }}
+            >
+              Star Homes
+            </span>
+          </div>
           <h1
             style={{
               fontSize: 'clamp(17px, 3.5vw, 22px)',
