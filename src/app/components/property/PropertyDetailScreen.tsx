@@ -19,6 +19,8 @@ import {
   Trees,
   Maximize2,
   LayoutGrid,
+  ChevronRight,
+  Star,
 } from 'lucide-react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import type { Property } from '../../data/properties';
@@ -32,6 +34,8 @@ import type { ViewedEntry } from '../../data/viewedStore';
 import { PropertyPhotoCarousel } from './PropertyPhotoCarousel';
 import { SimilarPropertiesSection } from '../similar/SimilarPropertiesSection';
 import type { AgentInfo } from '../chat/ChatScreen';
+import { agentById, DEFAULT_AGENT_ID } from '../../data/agents';
+import { agentRatingSummary } from '../../data/reviews';
 
 const PropertyMap = lazy(() => import('../areas/PropertyMap'));
 
@@ -62,12 +66,13 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'location', label: 'Location' },
 ];
 
+const AGENT_DATA = agentById(DEFAULT_AGENT_ID)!;
 const AGENT: AgentInfo = {
-  name: 'Sarah Chen',
-  branch: 'Canary Wharf Branch',
-  initials: 'SC',
-  phone: '07700 900123',
-  email: 'sarah@starhomes.co.uk',
+  name: AGENT_DATA.fullName,
+  branch: AGENT_DATA.agencyName,
+  initials: AGENT_DATA.initials,
+  phone: AGENT_DATA.phone,
+  email: AGENT_DATA.email,
 };
 
 const NEARBY = [
@@ -92,6 +97,7 @@ export function PropertyDetailScreen({
   onPropertySelect,
   onViewAllSimilar,
 }: PropertyDetailScreenProps) {
+  const agentSummary = agentRatingSummary(DEFAULT_AGENT_ID);
   const [contactStage, setContactStage] = useState<ContactStage>('idle');
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
@@ -266,6 +272,7 @@ export function PropertyDetailScreen({
             onPropertySelect={onPropertySelect}
             onViewAllSimilar={() => onViewAllSimilar(property)}
             agent={AGENT}
+            agentSummary={agentSummary}
             onCall={handleCallAgent}
             onEmail={handleEmailAgent}
             onMessage={handleMessageAgent}
@@ -367,8 +374,16 @@ export function PropertyDetailScreen({
 
 // ── helpers ────────────────────────────────────────────────────────────
 
-function AgentCard({ agent, onCall, onEmail, onMessage, onViewProfile }: {
+function AgentCard({
+  agent,
+  agentSummary,
+  onCall,
+  onEmail,
+  onMessage,
+  onViewProfile,
+}: {
   agent: AgentInfo;
+  agentSummary: { average: number; count: number };
   onCall: () => void;
   onEmail: () => void;
   onMessage: () => void;
@@ -377,38 +392,55 @@ function AgentCard({ agent, onCall, onEmail, onMessage, onViewProfile }: {
   return (
     <section>
       <h2 className="text-lg font-bold text-[#1a2332] mb-3">Your agent</h2>
-      <div className="rounded-2xl border border-[#e5e7eb] p-4">
-        <div className="flex items-center justify-between gap-3 mb-4">
+      <div className="rounded-2xl border border-[#e5e7eb] overflow-hidden">
+        {/* Tappable header row */}
+        <button
+          onClick={onViewProfile}
+          className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-[#f9fafb] transition-colors text-left"
+        >
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-[#1a2332] flex items-center justify-center flex-shrink-0">
               <span className="text-white font-bold text-sm">{agent.initials}</span>
             </div>
             <div>
-              <p className="font-semibold text-[#1a2332]">{agent.name}</p>
+              <p className="font-semibold text-[#1a2332] text-sm">{agent.name}</p>
               <p className="text-xs text-gray-500">{agent.branch}</p>
+              {agentSummary.count > 0 && (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <Star className="w-3 h-3 text-[#ff6b35] fill-[#ff6b35]" />
+                  <span className="text-xs font-semibold text-[#1a2332]">{agentSummary.average}</span>
+                  <span className="text-xs text-gray-400">· {agentSummary.count} reviews</span>
+                </div>
+              )}
             </div>
           </div>
+          <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        </button>
+
+        {/* Divider */}
+        <div className="h-px bg-[#f1f3f5]" />
+
+        {/* Action buttons */}
+        <div className="grid grid-cols-3 gap-px bg-[#f1f3f5]">
           <button
-            onClick={onViewProfile}
-            className="text-xs font-medium text-[#ff6b35] hover:underline whitespace-nowrap min-h-[44px] flex items-center"
+            onClick={onCall}
+            className="flex flex-col items-center gap-1.5 py-3 bg-white text-[#1a2332] hover:bg-[#f9fafb] transition-colors min-h-[60px]"
           >
-            View Profile
-          </button>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <button onClick={onCall}
-            className="flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-[#1a2332] text-[#1a2332] hover:bg-[#f9fafb] transition-colors min-h-[64px]">
-            <Phone className="w-5 h-5" />
+            <Phone className="w-4 h-4" />
             <span className="text-xs font-medium">Call</span>
           </button>
-          <button onClick={onEmail}
-            className="flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 border-[#1a2332] text-[#1a2332] hover:bg-[#f9fafb] transition-colors min-h-[64px]">
-            <Mail className="w-5 h-5" />
+          <button
+            onClick={onEmail}
+            className="flex flex-col items-center gap-1.5 py-3 bg-white text-[#1a2332] hover:bg-[#f9fafb] transition-colors min-h-[60px]"
+          >
+            <Mail className="w-4 h-4" />
             <span className="text-xs font-medium">Email</span>
           </button>
-          <button onClick={onMessage}
-            className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-[#1a2332] text-white hover:bg-[#0f1620] transition-colors min-h-[64px]">
-            <MessageCircle className="w-5 h-5" />
+          <button
+            onClick={onMessage}
+            className="flex flex-col items-center gap-1.5 py-3 bg-[#1a2332] text-white hover:bg-[#0f1620] transition-colors min-h-[60px]"
+          >
+            <MessageCircle className="w-4 h-4" />
             <span className="text-xs font-medium">Message</span>
           </button>
         </div>
@@ -428,6 +460,7 @@ function OverviewContent({
   onPropertySelect,
   onViewAllSimilar,
   agent,
+  agentSummary,
   onCall,
   onEmail,
   onMessage,
@@ -443,6 +476,7 @@ function OverviewContent({
   onPropertySelect: (property: Property) => void;
   onViewAllSimilar: () => void;
   agent: AgentInfo;
+  agentSummary: { average: number; count: number };
   onCall: () => void;
   onEmail: () => void;
   onMessage: () => void;
@@ -511,7 +545,7 @@ function OverviewContent({
         onViewAll={onViewAllSimilar}
       />
 
-      <AgentCard agent={agent} onCall={onCall} onEmail={onEmail} onMessage={onMessage} onViewProfile={onViewProfile} />
+      <AgentCard agent={agent} agentSummary={agentSummary} onCall={onCall} onEmail={onEmail} onMessage={onMessage} onViewProfile={onViewProfile} />
     </div>
   );
 }

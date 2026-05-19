@@ -46,6 +46,7 @@ import {
   type RecommendedArea,
 } from './data/properties';
 import type { SearchMode } from './data/pricing';
+import { agentById, DEFAULT_AGENT_ID } from './data/agents';
 
 type OnboardingStep = 'splash' | 'signup' | 'create-account' | 'otp' | 'preferences';
 type MainScreen =
@@ -580,13 +581,9 @@ export default function App() {
 
         {mainScreen === 'agent-profile' && (
           <AgentProfileScreen
-            agent={{ name: 'Sarah Chen', branch: 'Canary Wharf Branch', initials: 'SC', phone: '07700 900123', email: 'sarah@starhomes.co.uk' }}
-            searchMode={searchMode}
-            bookmarkIds={bookmarkIds}
+            agent={agentById(DEFAULT_AGENT_ID)!}
             onBack={() => setMainScreen('property-detail')}
-            onGoHome={() => { setMainScreen('home'); setActiveTab('search'); }}
             onChatWithAgent={() => { setChatProperty(selectedProperty); setMainScreen('chat'); }}
-            onPropertySelect={handlePropertySelect}
           />
         )}
 
