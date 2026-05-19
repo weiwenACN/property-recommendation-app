@@ -4,16 +4,17 @@ import {
   Edit3,
   Phone,
   Bell,
-  Lock,
   LogOut,
   ChevronRight,
   Clock,
   Shield,
   Info,
   User,
+  Calculator,
 } from 'lucide-react';
 import { StarHomesLogo } from '../common/StarHomesLogo';
 import { preferenceOptions } from '../../data/preferences';
+import { calculationCount } from '../../data/calculatorStore';
 
 interface ProfileScreenProps {
   preferences: string[];
@@ -25,6 +26,7 @@ interface ProfileScreenProps {
 export function ProfileScreen({ preferences, onUpdatePreferences, onOpenHistory }: ProfileScreenProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<string[]>(preferences);
+  const savedCalcCount = calculationCount();
 
   useEffect(() => {
     if (!isEditing) setDraft(preferences);
@@ -53,11 +55,12 @@ export function ProfileScreen({ preferences, onUpdatePreferences, onOpenHistory 
 
   // Account rows config
   const accountRows = [
-    { icon: Phone,  label: 'Phone number',     value: 'Connected',   action: undefined },
-    { icon: Bell,   label: 'Notifications',     value: 'On',          action: undefined },
-    { icon: Clock,  label: 'Recently viewed',   value: undefined,     action: onOpenHistory },
-    { icon: Shield, label: 'Privacy settings',  value: undefined,     action: undefined },
-    { icon: Info,   label: 'App version',        value: '1.0.0',       action: undefined },
+    { icon: Phone,      label: 'Phone number',       value: 'Connected',                                     action: undefined },
+    { icon: Bell,       label: 'Notifications',       value: 'On',                                            action: undefined },
+    { icon: Clock,      label: 'Recently viewed',     value: undefined,                                       action: onOpenHistory },
+    { icon: Calculator, label: 'My calculations',     value: savedCalcCount > 0 ? String(savedCalcCount) : undefined, action: undefined },
+    { icon: Shield,     label: 'Privacy settings',    value: undefined,                                       action: undefined },
+    { icon: Info,       label: 'App version',          value: '1.0.0',                                         action: undefined },
   ];
 
   return (

@@ -42,6 +42,7 @@ import {
   type Notification,
 } from './components/notifications/NotificationsScreen';
 import { BottomNav } from './components/navigation/BottomNav';
+import { LoanCalculator } from './components/calculator/LoanCalculator';
 import {
   properties as allProperties,
   type Property,
@@ -779,6 +780,14 @@ export default function App() {
           setGuestPromptOpen(false);
           setGuestPromptFeature(undefined);
         }}
+      />
+
+      {/* Loan calculator FAB + sheet — visible on every screen except chat */}
+      <LoanCalculator
+        propertyContext={
+          mainScreen === 'property-detail' ? selectedProperty : null
+        }
+        visible={mainScreen !== 'chat'}
       />
     </div>
   );
