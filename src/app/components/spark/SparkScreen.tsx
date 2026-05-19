@@ -420,206 +420,223 @@ interface SparkCardProps {
   searchMode: SearchMode;
   photos: string[];
   photoIndex: number;
+  agentInitials: string;
 }
 
-function SparkCard({ property, searchMode, photos, photoIndex }: SparkCardProps) {
+function SparkCard({ property, searchMode, photos, photoIndex, agentInitials }: SparkCardProps) {
   return (
     <div
       className="pointer-events-none"
       style={{
-        display: 'flex',
-        flexDirection: 'column',
+        position: 'relative',
         height: '100%',
-        borderRadius: 'clamp(12px, 2vw, 20px)',
+        borderRadius: 'clamp(16px, 3vw, 24px)',
         overflow: 'hidden',
-        background: '#FFFFFF',
+        background: '#111',
       }}
     >
-      {/* ── Photo area ── */}
+      {/* ── Full-height crossfading photos ── */}
+      {photos.map((url, i) => (
+        <img
+          key={url}
+          src={url}
+          alt={`${property.title} — photo ${i + 1}`}
+          draggable={false}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: i === photoIndex ? 1 : 0,
+            transition: 'opacity 250ms ease',
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
+
+      {/* ── Deep bottom gradient ── */}
       <div
         style={{
-          position: 'relative',
-          flexShrink: 0,
-          height: 'clamp(200px, 45vh, 380px)',
-          overflow: 'hidden',
+          position: 'absolute',
+          inset: 0,
+          background:
+            'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,0.1) 62%, transparent 100%)',
+          pointerEvents: 'none',
         }}
-      >
-        {/* Crossfading images */}
-        {photos.map((url, i) => (
-          <img
-            key={url}
-            src={url}
-            alt={`${property.title} — photo ${i + 1}`}
-            draggable={false}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              opacity: i === photoIndex ? 1 : 0,
-              transition: 'opacity 200ms ease',
-              pointerEvents: 'none',
-            }}
-          />
-        ))}
+      />
 
-        {/* Price badge — sits above the dots */}
+      {/* ── Photo indicator dots (top centre) ── */}
+      {photos.length > 1 && (
         <div
           style={{
             position: 'absolute',
-            bottom: photos.length > 1 ? 'clamp(24px, 4vh, 34px)' : 'clamp(10px, 2vh, 16px)',
-            left: 'clamp(10px, 3vw, 16px)',
+            top: 'clamp(10px, 2vh, 16px)',
+            left: 0,
+            right: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '5px',
+            pointerEvents: 'none',
           }}
         >
-          <div
-            style={{
-              background: 'rgba(255,255,255,0.96)',
-              backdropFilter: 'blur(4px)',
-              borderRadius: '10px',
-              padding: '4px 10px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            }}
-          >
-            <p
+          {photos.map((_, i) => (
+            <div
+              key={i}
               style={{
-                color: '#0F0C2E',
-                fontWeight: 500,
-                fontSize: 'clamp(14px, 2.5vw, 18px)',
-                lineHeight: 1,
-                letterSpacing: '-0.2px',
-                margin: 0,
+                width: i === photoIndex ? 'clamp(14px, 3vw, 20px)' : '5px',
+                height: '4px',
+                borderRadius: '100px',
+                background: 'rgba(255,255,255,0.9)',
+                opacity: i === photoIndex ? 1 : 0.45,
+                transition: 'width 220ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease',
+                flexShrink: 0,
               }}
-            >
-              {priceFor(searchMode, property)}
-            </p>
-          </div>
+            />
+          ))}
         </div>
+      )}
 
-        {/* Photo indicator dots */}
-        {photos.length > 1 && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '7px',
-              left: 0,
-              right: 0,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            {photos.map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  width: i === photoIndex ? 'clamp(10px, 2.5vw, 16px)' : 'clamp(4px, 1vw, 6px)',
-                  height: 'clamp(4px, 1vw, 6px)',
-                  borderRadius: '100px',
-                  background: '#FFFFFF',
-                  opacity: i === photoIndex ? 1 : 0.5,
-                  transition: 'width 200ms ease, opacity 200ms ease',
-                  flexShrink: 0,
-                }}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ── Card content ── */}
+      {/* ── Content overlay (bottom) ── */}
       <div
         style={{
-          flex: 1,
-          padding: 'clamp(10px, 3vw, 16px) clamp(12px, 3vw, 18px)',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: 'clamp(16px, 4vw, 24px)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '6px',
-          minHeight: 0,
+          gap: 'clamp(6px, 1.5vh, 10px)',
+          boxSizing: 'border-box',
         }}
       >
-        <div>
-          <h3
-            style={{
-              fontWeight: 600,
-              color: '#0F0C2E',
-              fontSize: 'clamp(13px, 2.2vw, 16px)',
-              lineHeight: 1.3,
-              margin: 0,
-              letterSpacing: '-0.2px',
-            }}
-          >
-            {property.title}
-          </h3>
+        {/* Price + agent avatar row */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px' }}>
           <p
             style={{
-              color: '#5F5E5A',
-              fontSize: 'clamp(11px, 1.8vw, 14px)',
-              margin: '2px 0 0',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
+              color: '#FFFFFF',
+              fontWeight: 800,
+              fontSize: 'clamp(24px, 6vw, 34px)',
+              margin: 0,
+              letterSpacing: '-0.5px',
+              lineHeight: 1,
+              textShadow: '0 2px 12px rgba(0,0,0,0.4)',
             }}
           >
-            {property.address}
+            {priceFor(searchMode, property)}
           </p>
+
+          {/* Agent avatar */}
+          <div
+            style={{
+              width: 'clamp(36px, 8vw, 44px)',
+              height: 'clamp(36px, 8vw, 44px)',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #7F77DD 0%, #3C3489 100%)',
+              border: '2.5px solid rgba(255,255,255,0.85)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: '0 2px 12px rgba(0,0,0,0.35)',
+            }}
+          >
+            <span
+              style={{
+                color: '#FFFFFF',
+                fontWeight: 700,
+                fontSize: 'clamp(11px, 2.2vw, 14px)',
+                letterSpacing: '-0.2px',
+              }}
+            >
+              {agentInitials}
+            </span>
+          </div>
         </div>
 
-        {/* Stats row */}
-        <div style={{ display: 'flex', gap: 'clamp(8px, 2vw, 16px)', alignItems: 'center' }}>
+        {/* Title */}
+        <h3
+          style={{
+            fontWeight: 700,
+            color: '#FFFFFF',
+            fontSize: 'clamp(15px, 3.2vw, 20px)',
+            lineHeight: 1.25,
+            margin: 0,
+            letterSpacing: '-0.3px',
+            textShadow: '0 1px 6px rgba(0,0,0,0.3)',
+          }}
+        >
+          {property.title}
+        </h3>
+
+        {/* Address */}
+        <p
+          style={{
+            color: 'rgba(255,255,255,0.72)',
+            fontSize: 'clamp(12px, 2.2vw, 14px)',
+            margin: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {property.address}
+        </p>
+
+        {/* Stats pills */}
+        <div style={{ display: 'flex', gap: '7px', flexWrap: 'wrap' }}>
           {[
-            { Icon: BedDouble, value: String(property.bedrooms) },
-            { Icon: Bath,      value: String(property.bathrooms) },
-            { Icon: Maximize2, value: `${property.floorAreaSqft.toLocaleString()} sqft` },
-          ].map(({ Icon, value }) => (
-            <div key={value} style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            { Icon: BedDouble, label: `${property.bedrooms} bed` },
+            { Icon: Bath,      label: `${property.bathrooms} bath` },
+            { Icon: Maximize2, label: `${property.floorAreaSqft.toLocaleString()} sqft` },
+          ].map(({ Icon, label }) => (
+            <div
+              key={label}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: 'rgba(255,255,255,0.15)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderRadius: '100px',
+                padding: '5px 11px',
+                border: '1px solid rgba(255,255,255,0.2)',
+              }}
+            >
               <Icon
                 style={{
-                  width: 'clamp(12px, 2vw, 15px)',
-                  height: 'clamp(12px, 2vw, 15px)',
-                  color: '#B4B2A9',
+                  width: 'clamp(11px, 2vw, 13px)',
+                  height: 'clamp(11px, 2vw, 13px)',
+                  color: 'rgba(255,255,255,0.85)',
                   flexShrink: 0,
                 }}
               />
               <span
                 style={{
                   fontSize: 'clamp(11px, 1.8vw, 13px)',
-                  color: '#0F0C2E',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
                 }}
               >
-                {value}
+                {label}
               </span>
             </div>
           ))}
         </div>
 
-        {/* Description */}
+        {/* Tap hint */}
         <p
           style={{
-            fontSize: 'clamp(11px, 1.8vw, 13px)',
-            color: '#5F5E5A',
-            lineHeight: 1.5,
-            overflow: 'hidden',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
+            fontSize: 'clamp(10px, 1.6vw, 12px)',
+            color: 'rgba(255,255,255,0.38)',
             margin: 0,
-          } as React.CSSProperties}
-        >
-          {property.description}
-        </p>
-
-        {/* View details hint */}
-        <p
-          style={{
-            fontSize: 'clamp(11px, 1.8vw, 13px)',
-            color: '#3C3489',
-            fontWeight: 500,
-            margin: 'auto 0 0',
+            letterSpacing: '0.2px',
           }}
         >
-          Tap to view details →
+          Tap bottom to view details
         </p>
       </div>
     </div>
@@ -633,50 +650,65 @@ function BackCard({ property, searchMode }: { property: Property; searchMode: Se
   return (
     <div
       style={{
+        position: 'relative',
         width: '100%',
         height: '100%',
-        borderRadius: 'clamp(12px, 2vw, 20px)',
+        borderRadius: 'clamp(16px, 3vw, 24px)',
         overflow: 'hidden',
-        background: '#FFFFFF',
-        display: 'flex',
-        flexDirection: 'column',
+        background: '#111',
       }}
     >
       <img
         src={photos[0]}
         alt={property.title}
         style={{
+          position: 'absolute',
+          inset: 0,
           width: '100%',
-          flexShrink: 0,
-          height: 'clamp(200px, 45vh, 380px)',
+          height: '100%',
           objectFit: 'cover',
         }}
       />
+      {/* Bottom gradient */}
       <div
         style={{
-          padding: 'clamp(10px, 3vw, 14px) clamp(12px, 3vw, 16px)',
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 55%)',
+        }}
+      />
+      {/* Price + title */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: 'clamp(16px, 4vw, 22px)',
         }}
       >
         <p
           style={{
+            fontWeight: 800,
+            color: '#FFFFFF',
+            fontSize: 'clamp(20px, 4.5vw, 28px)',
+            margin: '0 0 4px',
+            letterSpacing: '-0.4px',
+            lineHeight: 1,
+          }}
+        >
+          {priceFor(searchMode, property)}
+        </p>
+        <p
+          style={{
+            color: 'rgba(255,255,255,0.75)',
+            fontSize: 'clamp(12px, 2.2vw, 15px)',
             fontWeight: 600,
-            color: '#0F0C2E',
-            fontSize: 'clamp(13px, 2.2vw, 15px)',
             margin: 0,
             letterSpacing: '-0.2px',
           }}
         >
           {property.title}
-        </p>
-        <p
-          style={{
-            color: '#3C3489',
-            fontSize: 'clamp(12px, 2vw, 14px)',
-            fontWeight: 500,
-            margin: '2px 0 0',
-          }}
-        >
-          {priceFor(searchMode, property)}
         </p>
       </div>
     </div>
@@ -773,8 +805,9 @@ const SWIPE_THRESHOLD = 80;
 /** Tap = pointerup within this many px of pointerdown AND under TAP_TIME_MS */
 const TAP_DISTANCE = 10;
 const TAP_TIME_MS = 200;
-/** Approximate proportion of card height occupied by the photo area */
-const IMAGE_AREA_RATIO = 0.58;
+/** Proportion of full-height card where tap = photo cycle vs tap = open detail.
+ *  With the new full-bleed card, the bottom ~28% shows text — tap there = open detail. */
+const IMAGE_AREA_RATIO = 0.72;
 
 export function SparkScreen({
   properties,
@@ -1205,6 +1238,7 @@ export function SparkScreen({
                     searchMode={searchMode}
                     photos={topPhotos}
                     photoIndex={photoIndex}
+                    agentInitials={agent?.initials ?? 'SC'}
                   />
                 </div>
               )}
